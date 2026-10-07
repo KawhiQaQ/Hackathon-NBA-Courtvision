@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><base href="../"><!-- Snapshot laboratory, secondary to video workspace. -->
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f5ef"><meta name="description" content="Hidden Impact — 用出手瞬间的真实数据，看见得分之外的空间贡献。">
+  <title>Hidden Impact · 看见得分之外</title>
+  <link rel="stylesheet" href="snapshots/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Hidden Impact 首页"><span class="brand-mark">h<span>i</span><i></i></span><span>HIDDEN IMPACT<small>COURTVISION LAB</small></span></a>
+    <nav aria-label="主导航"><button class="nav-item active" id="discover">机会发现</button><button class="nav-item" id="method-open">方法与数据 <span>↗</span></button></nav>
+    <div class="header-meta"><span class="live-dot"></span>真实数据 · 快照分析<span class="version">V0.1</span></div>
+  </header>
+  <main>
+    <section class="intro">
+      <div><div class="eyebrow">THE GAME BEYOND THE BOX SCORE</div><h1>看见，<span>得分之外。</span></h1><p>一次出手，五个人的空间。发现那些没有出现在得分栏里的价值。</p></div>
+      <div class="intro-tools"><button id="import-btn" class="button secondary"><span>＋</span> 导入快照</button><input id="import-file" type="file" accept=".json,application/json" hidden><button id="export-btn" class="button dark">导出当前分析 <span>↗</span></button><div class="source-chip">SKILLCORNER OPEN DATA <span> / ACB</span></div></div>
+    </section>
+    <section class="dataset-bar" aria-label="数据集选择">
+      <div class="dataset-choice"><span class="field-label">当前比赛</span><label class="sr-only" for="game-select">选择比赛</label><select id="game-select"><option>加载真实比赛…</option></select></div>
+      <div class="dataset-stat"><strong id="shot-count">—</strong><span>出手机会</span></div><div class="dataset-stat"><strong id="eligible-count">—</strong><span>可评估快照</span></div><div class="dataset-note"><span class="mini-icon">◎</span><div>只分析出手瞬间<small>无连续轨迹 · 无因果归因</small></div></div>
+    </section>
+    <div id="status-banner" class="status-banner" role="status" hidden></div>
+    <div class="workspace" id="workspace" aria-busy="true">
+      <aside class="opportunities" aria-label="出手机会列表">
+        <div class="section-title"><h2>机会发现</h2><span id="list-count">—</span></div>
+        <div class="segmented" role="group" aria-label="列表范围"><button class="selected" data-scope="top">精选 Top 10</button><button data-scope="all">全部机会</button></div>
+        <label class="search-box"><svg width="15" height="15" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/><path d="m12 12 5 5"/></svg><input id="search" type="search" placeholder="搜索球员 / 球队" aria-label="搜索球员或球队"></label>
+        <div class="filter-row"><label><span class="sr-only">进球结果</span><select id="outcome"><option value="all">所有结果</option><option value="made">命中</option><option value="missed">未命中</option></select></label><label><span class="sr-only">排序方式</span><select id="sort"><option value="impact">贡献指数 ↓</option><option value="quality">投篮质量 ↓</option><option value="time">比赛时间 ↑</option></select></label></div>
+        <div id="shot-list" class="shot-list"><div class="loading">正在读取真实比赛数据…</div></div>
+        <p class="list-footnote">每项对应一次出手。精选仅包含点位质量达标的快照；可切换全部查看其余数据。</p>
+      </aside>
+      <section class="play-detail" aria-label="选中机会分析">
+        <div class="detail-head"><div><div class="eyebrow" id="play-label">SHOT SNAPSHOT</div><h2 id="play-title">正在准备球场…</h2></div><div class="play-clock" id="play-clock">—</div></div>
+        <div class="court-card">
+          <div class="court-toolbar"><div><span class="court-dot"></span><span id="court-mode">出手瞬间 · 空间关系</span></div><div class="court-tabs" role="group" aria-label="球场显示模式"><button class="selected" data-view="analysis">分析</button><button data-view="raw">原始点位</button></div></div>
+          <div class="court-stage" id="court-stage"><svg id="court" viewBox="0 0 600 530" role="group" aria-label="出手快照球场图，可点击进攻球员查看贡献"></svg><div class="court-empty" id="court-empty" hidden>缺少球员点位<br><small>保留投篮信息，不绘制虚构站位。</small></div></div>
+          <div class="court-legend"><span><i class="legend-dot scorer"></i>出手者</span><span><i class="legend-dot contributor"></i>关注球员</span><span><i class="legend-dot teammate"></i>队友</span><span><i class="legend-dot defender"></i>防守方</span><button id="explain-play" title="依次呈现出手者、无球队员和空间证据">▷ 分步解读</button></div>
+          <div class="story-progress" aria-label="证据叙事阶段"><button data-step="0">01 <span>谁在出手</span></button><span class="step-line"></span><button data-step="1">02 <span>谁值得关注</span></button><span class="step-line"></span><button class="selected" data-step="2">03 <span>空间证据</span></button></div>
+        </div>
+        <div class="shot-metrics"><div><span>投篮质量 <i title="SkillCorner 提供的 0–100 指标，并非命中率">ⓘ</i></span><strong id="metric-quality">—</strong><small>数据方评分 / 100</small></div><div><span>最近防守距离</span><strong id="metric-distance">—</strong><small>数据方出手时指标</small></div><div><span>本次出手</span><strong id="metric-outcome">—</strong><small id="metric-type">—</small></div></div>
+        <div class="explanation-card"><div class="explanation-icon">✦</div><div><div class="explanation-heading"><h3>这个机会，值得多看一眼</h3><span>基于数据的规则解读</span></div><p id="narrative">正在整理证据…</p><p class="outcome-note" id="outcome-note"></p><div class="explanation-footer"><span>✓ 数字可追溯</span><span>未调用大模型</span></div></div></div>
+      </section>
+      <aside class="evidence-panel" aria-label="贡献分数及证据">
+        <div class="section-title"><h2>无球空间贡献</h2><button class="icon-button" id="score-help" aria-label="查看评分方法">?</button></div>
+        <div class="score-card"><div class="score-kicker">HIDDEN IMPACT INDEX</div><div class="score-number"><strong id="impact-score">—</strong><span>/ 100</span><svg width="65" height="48" viewBox="0 0 65 48" aria-hidden="true"><path d="M2 40 15 28 26 33 39 16 50 21 63 3"/><path d="M51 3h12v12"/></svg></div><div class="score-player"><span id="player-jersey" class="jersey-badge">—</span><div><strong id="player-name">—</strong><small id="player-role">无球队员 · 空间关联估计</small></div></div><span id="quality-badge" class="quality-badge">等待数据</span><p class="score-disclaimer">解释性指数，不代表真实得分贡献或官方 Gravity。</p></div>
+        <div class="components" id="components"></div>
+        <div class="evidence-block"><div class="subhead"><h3>可追溯证据</h3><span>出手瞬间</span></div><div id="evidence-list"></div></div>
+        <div class="ranking-block"><div class="subhead"><h3>本次无球候选</h3><span>点击切换</span></div><div id="candidates"></div></div>
+        <div class="quality-note" id="quality-note"></div>
+      </aside>
+    </div>
+    <footer><span><span class="footer-logo">hi.</span> 把空间，讲给每一个看球的人。</span><div><a href="https://github.com/SkillCorner/opendata-basketball" target="_blank" rel="noreferrer">数据来源：SkillCorner ↗</a><span>ACB 真实样例 · 无配套录像</span></div></footer>
+  </main>
+  <dialog id="method-dialog" aria-labelledby="method-title"><div class="modal-top"><span class="eyebrow">TRANSPARENT BY DESIGN</span><button class="icon-button" id="method-close" aria-label="关闭方法说明">×</button></div><h2 id="method-title">分数背后，有什么？</h2><p class="modal-lead">这是一个可解释的空间关系指数。它描述出手瞬间的站位，不证明某个球员制造了得分。</p><div class="method-grid"><article><span>01 / INPUT</span><h3>一张快照就够</h3><p>使用 5 名进攻球员和 5 名防守球员的出手点位。没有连续轨迹、速度或跑动推断。原型样例从 SkillCorner 精确提取出手帧，生产分析器只读取快照。</p></article><article><span>02 / INDEX</span><h3>三项透明的估计</h3><p>近身防守关注 45 分、远端防守分布 35 分、进攻站位间距 20 分。权重是原型设计选择，尚未用专家标签校准；不同比赛使用相同公式。</p></article><article><span>03 / EVIDENCE</span><h3>事实与推断分开</h3><p>投篮质量与出手防守距离来自 SkillCorner。空间关系线和评分由程序计算，不表示真实盯防任务；光圈仅表示选中球员，不是测量出的引力区域。投篮质量不是命中率。</p></article><article><span>04 / LIMIT</span><h3>不确定，也展示出来</h3><p>外推点位显示虚线。点位质量未知或较低的机会不进入精选；缺少完整点位时不评分。命中与否不参与指数。不同数据源或算法版本的分数不可直接混排。</p></article></div><details><summary>查看计算公式与精选规则</summary><div class="formula"><p>单位：英尺。对每名防守人 j，将 exp(−距离(i,j)/6) 在 5 名进攻球员间归一化，得到几何关联 aᵢⱼ。</p><p>mᵢⱼ = aᵢⱼ × exp(−距离(i,j)/8)。A = 1−exp(−Σmᵢⱼ)；B = 1−exp(−Σmᵢⱼ × clip((防守人与出手者距离−6)/18))；C = clip(无球队员与出手者距离/24) × A。</p><p>指数 = 45A + 35B + 20C，clip 将数值限制到 0–1。三项存在相关性，权重不代表独立因果贡献。列表指数取该出手中最高的无球候选分数。</p><p>至少 6 人直接检测且位置误差中位数不超过 4 英尺才进入精选；9 人以上直接检测且误差中位数不超过 1.5 英尺标记“较可靠”。最高分候选、出手者和主要关联防守人还必须均为直接检测，且各自误差不超过 2 英尺。这些是质量筛选规则，不是统计置信概率。</p></div></details><div class="modal-bottom"><span>算法版本 snapshot-v1.0 · 规则解读，非 AI 生成</span><button id="schema-download" class="button dark">下载导入示例 ↓</button></div></dialog>
+  <div class="toast" id="toast" role="status" hidden></div>
+  <script type="module" src="snapshots/app.js"></script>
+</body>
+</html>

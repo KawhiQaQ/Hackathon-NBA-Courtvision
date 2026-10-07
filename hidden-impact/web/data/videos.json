@@ -1,0 +1,16 @@
+[
+  {
+    "id": "nba-sample-1",
+    "title": "NBA 官方参考片段 01",
+    "duration": 21.55,
+    "source": "用户提供的 train_video.zip",
+    "poster": "posters/nba-sample-1.jpg"
+  },
+  {
+    "id": "nba-sample-2",
+    "title": "NBA 官方参考片段 02",
+    "duration": 22.89,
+    "source": "用户提供的 train_video.zip",
+    "poster": "posters/nba-sample-2.jpg"
+  }
+]

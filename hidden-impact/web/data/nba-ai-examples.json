@@ -1,0 +1,2426 @@
+{
+  "nba-0042500404-658": {
+    "version": "video-evidence-v1.2",
+    "model": "qwen.qwen3-vl-235b-a22b",
+    "overview": "OG阿努诺比在左侧底角命中三分，尼克斯队在第四节关键时刻缩小分差。",
+    "events": [],
+    "frameTimes": [
+      0.1,
+      0.87,
+      1.63,
+      2.4,
+      3.17,
+      3.93,
+      4.7,
+      5.47,
+      6.23,
+      7.0,
+      7.76,
+      8.53,
+      9.3,
+      10.06,
+      10.83,
+      11.6,
+      12.36,
+      13.13
+    ],
+    "video": {
+      "id": "nba-0042500404-658",
+      "title": "OG 阿努诺比 · 跳投",
+      "duration": 13.33,
+      "source": "NBA China · Inside the Game"
+    },
+    "deepData": {
+      "videoId": "nba-0042500404-658",
+      "official": {
+        "source": "NBA China · Inside the Game",
+        "url": "https://china.nba.cn/inside-the-game/video/1628384?gameId=0042500404&playerId=1628384",
+        "gameId": "0042500404",
+        "eventId": 658,
+        "playerId": "1628384",
+        "shooter": "OG 阿努诺比",
+        "team": "尼克斯",
+        "date": "2026-06-11",
+        "matchup": "尼克斯@马刺",
+        "shot": {
+          "shotDesc": "跳投",
+          "value": 0.437,
+          "newsId": "2606111127259502",
+          "gameId": "0042500404",
+          "eventId": 658,
+          "playerId": "1628384",
+          "shotType": "3分投篮",
+          "success": 1,
+          "period": 4,
+          "gameClock": "4:35",
+          "side": "left",
+          "locX": "5",
+          "locY": "96"
+        },
+        "gravityScope": "2025-26 Playoffs player aggregate; NOT per-possession gravity",
+        "rosterGravity": [
+          {
+            "id": "1641705",
+            "name": "维克托 文班亚马",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 8.013,
+              "ON_BALL_PERIM_GRAV": 2.289,
+              "ON_BALL_INTERIOR_GRAV": -7.037,
+              "OFF_BALL_PERIM_GRAV": 11.736,
+              "OFF_BALL_INTERIOR_GRAV": 7.378
+            },
+            "games": "22"
+          },
+          {
+            "id": "1628973",
+            "name": "杰伦 布伦森",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 7.935,
+              "ON_BALL_PERIM_GRAV": 7.382,
+              "ON_BALL_INTERIOR_GRAV": -13.118,
+              "OFF_BALL_PERIM_GRAV": 15.221,
+              "OFF_BALL_INTERIOR_GRAV": -1.027
+            },
+            "games": "19"
+          },
+          {
+            "id": "1630170",
+            "name": "德文 瓦塞尔",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 6.666,
+              "ON_BALL_PERIM_GRAV": -6.1,
+              "ON_BALL_INTERIOR_GRAV": -9.693,
+              "OFF_BALL_PERIM_GRAV": 8.581,
+              "OFF_BALL_INTERIOR_GRAV": 3.065
+            },
+            "games": "23"
+          },
+          {
+            "id": "1630577",
+            "name": "朱利安 尚帕涅",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 5.764,
+              "ON_BALL_PERIM_GRAV": -1.158,
+              "ON_BALL_INTERIOR_GRAV": -13.07,
+              "OFF_BALL_PERIM_GRAV": 7.277,
+              "OFF_BALL_INTERIOR_GRAV": 1.312
+            },
+            "games": "23"
+          },
+          {
+            "id": "1628969",
+            "name": "米卡尔 布里奇斯",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 4.153,
+              "ON_BALL_PERIM_GRAV": -1.457,
+              "ON_BALL_INTERIOR_GRAV": -21.434,
+              "OFF_BALL_PERIM_GRAV": 7.302,
+              "OFF_BALL_INTERIOR_GRAV": -0.855
+            },
+            "games": "19"
+          },
+          {
+            "id": "1630540",
+            "name": "迈尔斯 麦克布赖德",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.744,
+              "ON_BALL_PERIM_GRAV": -1.9,
+              "ON_BALL_INTERIOR_GRAV": -20.212,
+              "OFF_BALL_PERIM_GRAV": 6.656,
+              "OFF_BALL_INTERIOR_GRAV": -2.576
+            },
+            "games": "19"
+          },
+          {
+            "id": "1628384",
+            "name": "OG 阿努诺比",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.4,
+              "ON_BALL_PERIM_GRAV": -2.408,
+              "ON_BALL_INTERIOR_GRAV": -16.102,
+              "OFF_BALL_PERIM_GRAV": 6.472,
+              "OFF_BALL_INTERIOR_GRAV": -3.056
+            },
+            "games": "17"
+          },
+          {
+            "id": "1628368",
+            "name": "达龙 福克斯",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 3.044,
+              "ON_BALL_PERIM_GRAV": -1.33,
+              "ON_BALL_INTERIOR_GRAV": -15.942,
+              "OFF_BALL_PERIM_GRAV": 9.033,
+              "OFF_BALL_INTERIOR_GRAV": -2.225
+            },
+            "games": "21"
+          },
+          {
+            "id": "203084",
+            "name": "哈里森 巴恩斯",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 3.008,
+              "ON_BALL_PERIM_GRAV": -6.463,
+              "ON_BALL_INTERIOR_GRAV": -12.116,
+              "OFF_BALL_PERIM_GRAV": 6.327,
+              "OFF_BALL_INTERIOR_GRAV": -2.242
+            },
+            "games": "20"
+          },
+          {
+            "id": "1629013",
+            "name": "兰德里 沙梅特",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.003,
+              "ON_BALL_PERIM_GRAV": -3.954,
+              "ON_BALL_INTERIOR_GRAV": -26.522,
+              "OFF_BALL_PERIM_GRAV": 5.119,
+              "OFF_BALL_INTERIOR_GRAV": -2.791
+            },
+            "games": "19"
+          },
+          {
+            "id": "1626157",
+            "name": "卡尔-安东尼 唐斯",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 2.311,
+              "ON_BALL_PERIM_GRAV": 1.43,
+              "ON_BALL_INTERIOR_GRAV": -14.017,
+              "OFF_BALL_PERIM_GRAV": 9.226,
+              "OFF_BALL_INTERIOR_GRAV": -3.404
+            },
+            "games": "19"
+          },
+          {
+            "id": "203903",
+            "name": "乔丹 克拉克森",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 1.903,
+              "ON_BALL_PERIM_GRAV": -2.119,
+              "ON_BALL_INTERIOR_GRAV": -16.055,
+              "OFF_BALL_PERIM_GRAV": 6.226,
+              "OFF_BALL_INTERIOR_GRAV": -3.443
+            },
+            "games": "18"
+          },
+          {
+            "id": "1642844",
+            "name": "迪伦 哈珀",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 1.503,
+              "ON_BALL_PERIM_GRAV": -0.711,
+              "ON_BALL_INTERIOR_GRAV": -14.268,
+              "OFF_BALL_PERIM_GRAV": 5.378,
+              "OFF_BALL_INTERIOR_GRAV": -2.867
+            },
+            "games": "23"
+          },
+          {
+            "id": "1629640",
+            "name": "凯尔登 约翰逊",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 1.473,
+              "ON_BALL_PERIM_GRAV": -2.946,
+              "ON_BALL_INTERIOR_GRAV": -14.488,
+              "OFF_BALL_PERIM_GRAV": 4.213,
+              "OFF_BALL_INTERIOR_GRAV": -2.807
+            },
+            "games": "23"
+          },
+          {
+            "id": "1630631",
+            "name": "何塞 阿尔瓦拉多",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -0.365,
+              "ON_BALL_PERIM_GRAV": -0.338,
+              "ON_BALL_INTERIOR_GRAV": -29.16,
+              "OFF_BALL_PERIM_GRAV": 3.46,
+              "OFF_BALL_INTERIOR_GRAV": -12.047
+            },
+            "games": "18"
+          },
+          {
+            "id": "1628404",
+            "name": "约什 哈特",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -2.777,
+              "ON_BALL_PERIM_GRAV": -5.083,
+              "ON_BALL_INTERIOR_GRAV": -29.609,
+              "OFF_BALL_PERIM_GRAV": 0.993,
+              "OFF_BALL_INTERIOR_GRAV": -10.492
+            },
+            "games": "19"
+          },
+          {
+            "id": "1642264",
+            "name": "斯蒂芬 卡斯尔",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -4.8,
+              "ON_BALL_PERIM_GRAV": -5.236,
+              "ON_BALL_INTERIOR_GRAV": -23.541,
+              "OFF_BALL_PERIM_GRAV": -0.313,
+              "OFF_BALL_INTERIOR_GRAV": -8.352
+            },
+            "games": "23"
+          },
+          {
+            "id": "1642868",
+            "name": "卡特 布莱恩特",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -6.651,
+              "ON_BALL_PERIM_GRAV": -14.168,
+              "ON_BALL_INTERIOR_GRAV": -12.351,
+              "OFF_BALL_PERIM_GRAV": -3.648,
+              "OFF_BALL_INTERIOR_GRAV": -13.644
+            },
+            "games": "22"
+          },
+          {
+            "id": "1629011",
+            "name": "米切尔 罗宾逊",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -7.574,
+              "ON_BALL_PERIM_GRAV": -6.306,
+              "ON_BALL_INTERIOR_GRAV": -19.598,
+              "OFF_BALL_PERIM_GRAV": -3.197,
+              "OFF_BALL_INTERIOR_GRAV": -9.946
+            },
+            "games": "18"
+          },
+          {
+            "id": "1628436",
+            "name": "卢克 科内特",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -12.945,
+              "ON_BALL_PERIM_GRAV": -22.879,
+              "ON_BALL_INTERIOR_GRAV": -31.139,
+              "OFF_BALL_PERIM_GRAV": -15.224,
+              "OFF_BALL_INTERIOR_GRAV": -10.289
+            },
+            "games": "23"
+          }
+        ],
+        "capturedAt": "2026-10-07T08:18:54Z"
+      }
+    },
+    "source": "Qwen3-VL / Amazon Bedrock",
+    "limitations": [
+      "关键帧视觉推断，非完整 tracking",
+      "分数衡量证据支持程度，不是因果贡献或官方 Gravity"
+    ],
+    "usage": {
+      "inputTokens": 12893,
+      "outputTokens": 36,
+      "totalTokens": 12929
+    },
+    "elapsedSeconds": 5.47,
+    "modelInvoked": true,
+    "job": "ff708c89f579637584cba72543eed871",
+    "createdAt": "2026-10-07T08:31:03.015208+00:00",
+    "thumbnails": [],
+    "review": {
+      "status": "unverified",
+      "reason": "模型候选分析，需结合视频核验。"
+    }
+  },
+  "nba-0042500404-622": {
+    "version": "video-evidence-v1.2",
+    "model": "qwen.qwen3-vl-235b-a22b",
+    "overview": "尼克斯队卡尔-安东尼·唐斯在第四节7分30秒左右完成一次后撤步三分跳投，球进后比分变为95比83，现场观众欢呼。",
+    "events": [],
+    "frameTimes": [
+      0.1,
+      0.86,
+      1.62,
+      2.38,
+      3.14,
+      3.91,
+      4.67,
+      5.43,
+      6.19,
+      6.95,
+      7.71,
+      8.47,
+      9.23,
+      10.0,
+      10.76,
+      11.52,
+      12.28,
+      13.04
+    ],
+    "video": {
+      "id": "nba-0042500404-622",
+      "title": "卡尔-安东尼 唐斯 · 后撤步跳投",
+      "duration": 13.24,
+      "source": "NBA China · Inside the Game"
+    },
+    "deepData": {
+      "videoId": "nba-0042500404-622",
+      "official": {
+        "source": "NBA China · Inside the Game",
+        "url": "https://china.nba.cn/inside-the-game/video/1626157?gameId=0042500404&playerId=1626157",
+        "gameId": "0042500404",
+        "eventId": 622,
+        "playerId": "1626157",
+        "shooter": "卡尔-安东尼 唐斯",
+        "team": "尼克斯",
+        "date": "2026-06-11",
+        "matchup": "尼克斯@马刺",
+        "shot": {
+          "shotDesc": "后撤步跳投",
+          "value": 0.331,
+          "newsId": "2606111117300602",
+          "gameId": "0042500404",
+          "eventId": 622,
+          "playerId": "1626157",
+          "shotType": "3分投篮",
+          "success": 1,
+          "period": 4,
+          "gameClock": "7:30",
+          "side": "left",
+          "locX": "14",
+          "locY": "95"
+        },
+        "gravityScope": "2025-26 Playoffs player aggregate; NOT per-possession gravity",
+        "rosterGravity": [
+          {
+            "id": "1641705",
+            "name": "维克托 文班亚马",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 8.013,
+              "ON_BALL_PERIM_GRAV": 2.289,
+              "ON_BALL_INTERIOR_GRAV": -7.037,
+              "OFF_BALL_PERIM_GRAV": 11.736,
+              "OFF_BALL_INTERIOR_GRAV": 7.378
+            },
+            "games": "22"
+          },
+          {
+            "id": "1628973",
+            "name": "杰伦 布伦森",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 7.935,
+              "ON_BALL_PERIM_GRAV": 7.382,
+              "ON_BALL_INTERIOR_GRAV": -13.118,
+              "OFF_BALL_PERIM_GRAV": 15.221,
+              "OFF_BALL_INTERIOR_GRAV": -1.027
+            },
+            "games": "19"
+          },
+          {
+            "id": "1630170",
+            "name": "德文 瓦塞尔",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 6.666,
+              "ON_BALL_PERIM_GRAV": -6.1,
+              "ON_BALL_INTERIOR_GRAV": -9.693,
+              "OFF_BALL_PERIM_GRAV": 8.581,
+              "OFF_BALL_INTERIOR_GRAV": 3.065
+            },
+            "games": "23"
+          },
+          {
+            "id": "1630577",
+            "name": "朱利安 尚帕涅",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 5.764,
+              "ON_BALL_PERIM_GRAV": -1.158,
+              "ON_BALL_INTERIOR_GRAV": -13.07,
+              "OFF_BALL_PERIM_GRAV": 7.277,
+              "OFF_BALL_INTERIOR_GRAV": 1.312
+            },
+            "games": "23"
+          },
+          {
+            "id": "1628969",
+            "name": "米卡尔 布里奇斯",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 4.153,
+              "ON_BALL_PERIM_GRAV": -1.457,
+              "ON_BALL_INTERIOR_GRAV": -21.434,
+              "OFF_BALL_PERIM_GRAV": 7.302,
+              "OFF_BALL_INTERIOR_GRAV": -0.855
+            },
+            "games": "19"
+          },
+          {
+            "id": "1630540",
+            "name": "迈尔斯 麦克布赖德",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.744,
+              "ON_BALL_PERIM_GRAV": -1.9,
+              "ON_BALL_INTERIOR_GRAV": -20.212,
+              "OFF_BALL_PERIM_GRAV": 6.656,
+              "OFF_BALL_INTERIOR_GRAV": -2.576
+            },
+            "games": "19"
+          },
+          {
+            "id": "1628384",
+            "name": "OG 阿努诺比",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.4,
+              "ON_BALL_PERIM_GRAV": -2.408,
+              "ON_BALL_INTERIOR_GRAV": -16.102,
+              "OFF_BALL_PERIM_GRAV": 6.472,
+              "OFF_BALL_INTERIOR_GRAV": -3.056
+            },
+            "games": "17"
+          },
+          {
+            "id": "1628368",
+            "name": "达龙 福克斯",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 3.044,
+              "ON_BALL_PERIM_GRAV": -1.33,
+              "ON_BALL_INTERIOR_GRAV": -15.942,
+              "OFF_BALL_PERIM_GRAV": 9.033,
+              "OFF_BALL_INTERIOR_GRAV": -2.225
+            },
+            "games": "21"
+          },
+          {
+            "id": "203084",
+            "name": "哈里森 巴恩斯",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 3.008,
+              "ON_BALL_PERIM_GRAV": -6.463,
+              "ON_BALL_INTERIOR_GRAV": -12.116,
+              "OFF_BALL_PERIM_GRAV": 6.327,
+              "OFF_BALL_INTERIOR_GRAV": -2.242
+            },
+            "games": "20"
+          },
+          {
+            "id": "1629013",
+            "name": "兰德里 沙梅特",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.003,
+              "ON_BALL_PERIM_GRAV": -3.954,
+              "ON_BALL_INTERIOR_GRAV": -26.522,
+              "OFF_BALL_PERIM_GRAV": 5.119,
+              "OFF_BALL_INTERIOR_GRAV": -2.791
+            },
+            "games": "19"
+          },
+          {
+            "id": "1626157",
+            "name": "卡尔-安东尼 唐斯",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 2.311,
+              "ON_BALL_PERIM_GRAV": 1.43,
+              "ON_BALL_INTERIOR_GRAV": -14.017,
+              "OFF_BALL_PERIM_GRAV": 9.226,
+              "OFF_BALL_INTERIOR_GRAV": -3.404
+            },
+            "games": "19"
+          },
+          {
+            "id": "203903",
+            "name": "乔丹 克拉克森",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 1.903,
+              "ON_BALL_PERIM_GRAV": -2.119,
+              "ON_BALL_INTERIOR_GRAV": -16.055,
+              "OFF_BALL_PERIM_GRAV": 6.226,
+              "OFF_BALL_INTERIOR_GRAV": -3.443
+            },
+            "games": "18"
+          },
+          {
+            "id": "1642844",
+            "name": "迪伦 哈珀",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 1.503,
+              "ON_BALL_PERIM_GRAV": -0.711,
+              "ON_BALL_INTERIOR_GRAV": -14.268,
+              "OFF_BALL_PERIM_GRAV": 5.378,
+              "OFF_BALL_INTERIOR_GRAV": -2.867
+            },
+            "games": "23"
+          },
+          {
+            "id": "1629640",
+            "name": "凯尔登 约翰逊",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 1.473,
+              "ON_BALL_PERIM_GRAV": -2.946,
+              "ON_BALL_INTERIOR_GRAV": -14.488,
+              "OFF_BALL_PERIM_GRAV": 4.213,
+              "OFF_BALL_INTERIOR_GRAV": -2.807
+            },
+            "games": "23"
+          },
+          {
+            "id": "1630631",
+            "name": "何塞 阿尔瓦拉多",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -0.365,
+              "ON_BALL_PERIM_GRAV": -0.338,
+              "ON_BALL_INTERIOR_GRAV": -29.16,
+              "OFF_BALL_PERIM_GRAV": 3.46,
+              "OFF_BALL_INTERIOR_GRAV": -12.047
+            },
+            "games": "18"
+          },
+          {
+            "id": "1628404",
+            "name": "约什 哈特",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -2.777,
+              "ON_BALL_PERIM_GRAV": -5.083,
+              "ON_BALL_INTERIOR_GRAV": -29.609,
+              "OFF_BALL_PERIM_GRAV": 0.993,
+              "OFF_BALL_INTERIOR_GRAV": -10.492
+            },
+            "games": "19"
+          },
+          {
+            "id": "1642264",
+            "name": "斯蒂芬 卡斯尔",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -4.8,
+              "ON_BALL_PERIM_GRAV": -5.236,
+              "ON_BALL_INTERIOR_GRAV": -23.541,
+              "OFF_BALL_PERIM_GRAV": -0.313,
+              "OFF_BALL_INTERIOR_GRAV": -8.352
+            },
+            "games": "23"
+          },
+          {
+            "id": "1642868",
+            "name": "卡特 布莱恩特",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -6.651,
+              "ON_BALL_PERIM_GRAV": -14.168,
+              "ON_BALL_INTERIOR_GRAV": -12.351,
+              "OFF_BALL_PERIM_GRAV": -3.648,
+              "OFF_BALL_INTERIOR_GRAV": -13.644
+            },
+            "games": "22"
+          },
+          {
+            "id": "1629011",
+            "name": "米切尔 罗宾逊",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -7.574,
+              "ON_BALL_PERIM_GRAV": -6.306,
+              "ON_BALL_INTERIOR_GRAV": -19.598,
+              "OFF_BALL_PERIM_GRAV": -3.197,
+              "OFF_BALL_INTERIOR_GRAV": -9.946
+            },
+            "games": "18"
+          },
+          {
+            "id": "1628436",
+            "name": "卢克 科内特",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -12.945,
+              "ON_BALL_PERIM_GRAV": -22.879,
+              "ON_BALL_INTERIOR_GRAV": -31.139,
+              "OFF_BALL_PERIM_GRAV": -15.224,
+              "OFF_BALL_INTERIOR_GRAV": -10.289
+            },
+            "games": "23"
+          }
+        ],
+        "capturedAt": "2026-10-07T08:18:59Z"
+      }
+    },
+    "source": "Qwen3-VL / Amazon Bedrock",
+    "limitations": [
+      "关键帧视觉推断，非完整 tracking",
+      "分数衡量证据支持程度，不是因果贡献或官方 Gravity"
+    ],
+    "usage": {
+      "inputTokens": 12899,
+      "outputTokens": 55,
+      "totalTokens": 12954
+    },
+    "elapsedSeconds": 7.38,
+    "modelInvoked": true,
+    "job": "aa01e576cb665cfde2124b43d9b06d02",
+    "createdAt": "2026-10-07T08:31:19.453062+00:00",
+    "thumbnails": [],
+    "review": {
+      "status": "unverified",
+      "reason": "模型候选分析，需结合视频核验。"
+    }
+  },
+  "nba-0042500404-565": {
+    "version": "video-evidence-v1.2",
+    "model": "qwen.qwen3-vl-235b-a22b",
+    "overview": "迪伦·哈珀持球突破上篮得分，过程中无明显无球掩护或空间创造动作。",
+    "events": [],
+    "frameTimes": [
+      0.1,
+      0.66,
+      1.22,
+      1.78,
+      2.34,
+      2.89,
+      3.45,
+      4.01,
+      4.57,
+      5.13,
+      5.69,
+      6.25,
+      6.81,
+      7.36,
+      7.92,
+      8.48,
+      9.04,
+      9.6
+    ],
+    "video": {
+      "id": "nba-0042500404-565",
+      "title": "迪伦 哈珀 · 突破上篮",
+      "duration": 9.8,
+      "source": "NBA China · Inside the Game"
+    },
+    "deepData": {
+      "videoId": "nba-0042500404-565",
+      "official": {
+        "source": "NBA China · Inside the Game",
+        "url": "https://china.nba.cn/inside-the-game/video/1642844?gameId=0042500404&playerId=1642844",
+        "gameId": "0042500404",
+        "eventId": 565,
+        "playerId": "1642844",
+        "shooter": "迪伦 哈珀",
+        "team": "马刺",
+        "date": "2026-06-11",
+        "matchup": "尼克斯@马刺",
+        "shot": {
+          "shotDesc": "突破上篮",
+          "value": 0.458,
+          "newsId": "2606111108181802",
+          "gameId": "0042500404",
+          "eventId": 565,
+          "playerId": "1642844",
+          "shotType": "2分投篮",
+          "success": 1,
+          "period": 4,
+          "gameClock": "11:13",
+          "side": "right",
+          "locX": "93",
+          "locY": "50"
+        },
+        "gravityScope": "2025-26 Playoffs player aggregate; NOT per-possession gravity",
+        "rosterGravity": [
+          {
+            "id": "1641705",
+            "name": "维克托 文班亚马",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 8.013,
+              "ON_BALL_PERIM_GRAV": 2.289,
+              "ON_BALL_INTERIOR_GRAV": -7.037,
+              "OFF_BALL_PERIM_GRAV": 11.736,
+              "OFF_BALL_INTERIOR_GRAV": 7.378
+            },
+            "games": "22"
+          },
+          {
+            "id": "1628973",
+            "name": "杰伦 布伦森",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 7.935,
+              "ON_BALL_PERIM_GRAV": 7.382,
+              "ON_BALL_INTERIOR_GRAV": -13.118,
+              "OFF_BALL_PERIM_GRAV": 15.221,
+              "OFF_BALL_INTERIOR_GRAV": -1.027
+            },
+            "games": "19"
+          },
+          {
+            "id": "1630170",
+            "name": "德文 瓦塞尔",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 6.666,
+              "ON_BALL_PERIM_GRAV": -6.1,
+              "ON_BALL_INTERIOR_GRAV": -9.693,
+              "OFF_BALL_PERIM_GRAV": 8.581,
+              "OFF_BALL_INTERIOR_GRAV": 3.065
+            },
+            "games": "23"
+          },
+          {
+            "id": "1630577",
+            "name": "朱利安 尚帕涅",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 5.764,
+              "ON_BALL_PERIM_GRAV": -1.158,
+              "ON_BALL_INTERIOR_GRAV": -13.07,
+              "OFF_BALL_PERIM_GRAV": 7.277,
+              "OFF_BALL_INTERIOR_GRAV": 1.312
+            },
+            "games": "23"
+          },
+          {
+            "id": "1628969",
+            "name": "米卡尔 布里奇斯",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 4.153,
+              "ON_BALL_PERIM_GRAV": -1.457,
+              "ON_BALL_INTERIOR_GRAV": -21.434,
+              "OFF_BALL_PERIM_GRAV": 7.302,
+              "OFF_BALL_INTERIOR_GRAV": -0.855
+            },
+            "games": "19"
+          },
+          {
+            "id": "1630540",
+            "name": "迈尔斯 麦克布赖德",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.744,
+              "ON_BALL_PERIM_GRAV": -1.9,
+              "ON_BALL_INTERIOR_GRAV": -20.212,
+              "OFF_BALL_PERIM_GRAV": 6.656,
+              "OFF_BALL_INTERIOR_GRAV": -2.576
+            },
+            "games": "19"
+          },
+          {
+            "id": "1628384",
+            "name": "OG 阿努诺比",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.4,
+              "ON_BALL_PERIM_GRAV": -2.408,
+              "ON_BALL_INTERIOR_GRAV": -16.102,
+              "OFF_BALL_PERIM_GRAV": 6.472,
+              "OFF_BALL_INTERIOR_GRAV": -3.056
+            },
+            "games": "17"
+          },
+          {
+            "id": "1628368",
+            "name": "达龙 福克斯",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 3.044,
+              "ON_BALL_PERIM_GRAV": -1.33,
+              "ON_BALL_INTERIOR_GRAV": -15.942,
+              "OFF_BALL_PERIM_GRAV": 9.033,
+              "OFF_BALL_INTERIOR_GRAV": -2.225
+            },
+            "games": "21"
+          },
+          {
+            "id": "203084",
+            "name": "哈里森 巴恩斯",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 3.008,
+              "ON_BALL_PERIM_GRAV": -6.463,
+              "ON_BALL_INTERIOR_GRAV": -12.116,
+              "OFF_BALL_PERIM_GRAV": 6.327,
+              "OFF_BALL_INTERIOR_GRAV": -2.242
+            },
+            "games": "20"
+          },
+          {
+            "id": "1629013",
+            "name": "兰德里 沙梅特",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.003,
+              "ON_BALL_PERIM_GRAV": -3.954,
+              "ON_BALL_INTERIOR_GRAV": -26.522,
+              "OFF_BALL_PERIM_GRAV": 5.119,
+              "OFF_BALL_INTERIOR_GRAV": -2.791
+            },
+            "games": "19"
+          },
+          {
+            "id": "1626157",
+            "name": "卡尔-安东尼 唐斯",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 2.311,
+              "ON_BALL_PERIM_GRAV": 1.43,
+              "ON_BALL_INTERIOR_GRAV": -14.017,
+              "OFF_BALL_PERIM_GRAV": 9.226,
+              "OFF_BALL_INTERIOR_GRAV": -3.404
+            },
+            "games": "19"
+          },
+          {
+            "id": "203903",
+            "name": "乔丹 克拉克森",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 1.903,
+              "ON_BALL_PERIM_GRAV": -2.119,
+              "ON_BALL_INTERIOR_GRAV": -16.055,
+              "OFF_BALL_PERIM_GRAV": 6.226,
+              "OFF_BALL_INTERIOR_GRAV": -3.443
+            },
+            "games": "18"
+          },
+          {
+            "id": "1642844",
+            "name": "迪伦 哈珀",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 1.503,
+              "ON_BALL_PERIM_GRAV": -0.711,
+              "ON_BALL_INTERIOR_GRAV": -14.268,
+              "OFF_BALL_PERIM_GRAV": 5.378,
+              "OFF_BALL_INTERIOR_GRAV": -2.867
+            },
+            "games": "23"
+          },
+          {
+            "id": "1629640",
+            "name": "凯尔登 约翰逊",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 1.473,
+              "ON_BALL_PERIM_GRAV": -2.946,
+              "ON_BALL_INTERIOR_GRAV": -14.488,
+              "OFF_BALL_PERIM_GRAV": 4.213,
+              "OFF_BALL_INTERIOR_GRAV": -2.807
+            },
+            "games": "23"
+          },
+          {
+            "id": "1630631",
+            "name": "何塞 阿尔瓦拉多",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -0.365,
+              "ON_BALL_PERIM_GRAV": -0.338,
+              "ON_BALL_INTERIOR_GRAV": -29.16,
+              "OFF_BALL_PERIM_GRAV": 3.46,
+              "OFF_BALL_INTERIOR_GRAV": -12.047
+            },
+            "games": "18"
+          },
+          {
+            "id": "1628404",
+            "name": "约什 哈特",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -2.777,
+              "ON_BALL_PERIM_GRAV": -5.083,
+              "ON_BALL_INTERIOR_GRAV": -29.609,
+              "OFF_BALL_PERIM_GRAV": 0.993,
+              "OFF_BALL_INTERIOR_GRAV": -10.492
+            },
+            "games": "19"
+          },
+          {
+            "id": "1642264",
+            "name": "斯蒂芬 卡斯尔",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -4.8,
+              "ON_BALL_PERIM_GRAV": -5.236,
+              "ON_BALL_INTERIOR_GRAV": -23.541,
+              "OFF_BALL_PERIM_GRAV": -0.313,
+              "OFF_BALL_INTERIOR_GRAV": -8.352
+            },
+            "games": "23"
+          },
+          {
+            "id": "1642868",
+            "name": "卡特 布莱恩特",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -6.651,
+              "ON_BALL_PERIM_GRAV": -14.168,
+              "ON_BALL_INTERIOR_GRAV": -12.351,
+              "OFF_BALL_PERIM_GRAV": -3.648,
+              "OFF_BALL_INTERIOR_GRAV": -13.644
+            },
+            "games": "22"
+          },
+          {
+            "id": "1629011",
+            "name": "米切尔 罗宾逊",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -7.574,
+              "ON_BALL_PERIM_GRAV": -6.306,
+              "ON_BALL_INTERIOR_GRAV": -19.598,
+              "OFF_BALL_PERIM_GRAV": -3.197,
+              "OFF_BALL_INTERIOR_GRAV": -9.946
+            },
+            "games": "18"
+          },
+          {
+            "id": "1628436",
+            "name": "卢克 科内特",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -12.945,
+              "ON_BALL_PERIM_GRAV": -22.879,
+              "ON_BALL_INTERIOR_GRAV": -31.139,
+              "OFF_BALL_PERIM_GRAV": -15.224,
+              "OFF_BALL_INTERIOR_GRAV": -10.289
+            },
+            "games": "23"
+          }
+        ],
+        "capturedAt": "2026-10-07T08:19:04Z"
+      }
+    },
+    "source": "Qwen3-VL / Amazon Bedrock",
+    "limitations": [
+      "关键帧视觉推断，非完整 tracking",
+      "分数衡量证据支持程度，不是因果贡献或官方 Gravity"
+    ],
+    "usage": {
+      "inputTokens": 12888,
+      "outputTokens": 37,
+      "totalTokens": 12925
+    },
+    "elapsedSeconds": 6.15,
+    "modelInvoked": true,
+    "job": "8f3660e6dc35dd12581bae82ac3d71a2",
+    "createdAt": "2026-10-07T08:31:33.527819+00:00",
+    "thumbnails": [],
+    "review": {
+      "status": "unverified",
+      "reason": "模型候选分析，需结合视频核验。"
+    }
+  },
+  "nba-0042500404-532": {
+    "version": "video-evidence-v1.2",
+    "model": "qwen.qwen3-vl-235b-a22b",
+    "overview": "该片段的模型归因未通过画面核验，暂不提供无球贡献评分。",
+    "events": [],
+    "frameTimes": [
+      0.1,
+      0.92,
+      1.74,
+      2.56,
+      3.38,
+      4.21,
+      5.03,
+      5.85,
+      6.67,
+      7.49,
+      8.31,
+      9.13,
+      9.95,
+      10.78,
+      11.6,
+      12.42,
+      13.24,
+      14.06
+    ],
+    "video": {
+      "id": "nba-0042500404-532",
+      "title": "OG 阿努诺比 · 后撤步跳投",
+      "duration": 14.26,
+      "source": "NBA China · Inside the Game"
+    },
+    "deepData": {
+      "videoId": "nba-0042500404-532",
+      "official": {
+        "source": "NBA China · Inside the Game",
+        "url": "https://china.nba.cn/inside-the-game/video/1628384?gameId=0042500404&playerId=1628384",
+        "gameId": "0042500404",
+        "eventId": 532,
+        "playerId": "1628384",
+        "shooter": "OG 阿努诺比",
+        "team": "尼克斯",
+        "date": "2026-06-11",
+        "matchup": "尼克斯@马刺",
+        "shot": {
+          "shotDesc": "后撤步跳投",
+          "value": 0.328,
+          "newsId": "2606111055370802",
+          "gameId": "0042500404",
+          "eventId": 532,
+          "playerId": "1628384",
+          "shotType": "3分投篮",
+          "success": 1,
+          "period": 3,
+          "gameClock": "55.3",
+          "side": "left",
+          "locX": "30",
+          "locY": "29"
+        },
+        "gravityScope": "2025-26 Playoffs player aggregate; NOT per-possession gravity",
+        "rosterGravity": [
+          {
+            "id": "1641705",
+            "name": "维克托 文班亚马",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 8.013,
+              "ON_BALL_PERIM_GRAV": 2.289,
+              "ON_BALL_INTERIOR_GRAV": -7.037,
+              "OFF_BALL_PERIM_GRAV": 11.736,
+              "OFF_BALL_INTERIOR_GRAV": 7.378
+            },
+            "games": "22"
+          },
+          {
+            "id": "1628973",
+            "name": "杰伦 布伦森",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 7.935,
+              "ON_BALL_PERIM_GRAV": 7.382,
+              "ON_BALL_INTERIOR_GRAV": -13.118,
+              "OFF_BALL_PERIM_GRAV": 15.221,
+              "OFF_BALL_INTERIOR_GRAV": -1.027
+            },
+            "games": "19"
+          },
+          {
+            "id": "1630170",
+            "name": "德文 瓦塞尔",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 6.666,
+              "ON_BALL_PERIM_GRAV": -6.1,
+              "ON_BALL_INTERIOR_GRAV": -9.693,
+              "OFF_BALL_PERIM_GRAV": 8.581,
+              "OFF_BALL_INTERIOR_GRAV": 3.065
+            },
+            "games": "23"
+          },
+          {
+            "id": "1630577",
+            "name": "朱利安 尚帕涅",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 5.764,
+              "ON_BALL_PERIM_GRAV": -1.158,
+              "ON_BALL_INTERIOR_GRAV": -13.07,
+              "OFF_BALL_PERIM_GRAV": 7.277,
+              "OFF_BALL_INTERIOR_GRAV": 1.312
+            },
+            "games": "23"
+          },
+          {
+            "id": "1628969",
+            "name": "米卡尔 布里奇斯",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 4.153,
+              "ON_BALL_PERIM_GRAV": -1.457,
+              "ON_BALL_INTERIOR_GRAV": -21.434,
+              "OFF_BALL_PERIM_GRAV": 7.302,
+              "OFF_BALL_INTERIOR_GRAV": -0.855
+            },
+            "games": "19"
+          },
+          {
+            "id": "1630540",
+            "name": "迈尔斯 麦克布赖德",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.744,
+              "ON_BALL_PERIM_GRAV": -1.9,
+              "ON_BALL_INTERIOR_GRAV": -20.212,
+              "OFF_BALL_PERIM_GRAV": 6.656,
+              "OFF_BALL_INTERIOR_GRAV": -2.576
+            },
+            "games": "19"
+          },
+          {
+            "id": "1628384",
+            "name": "OG 阿努诺比",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.4,
+              "ON_BALL_PERIM_GRAV": -2.408,
+              "ON_BALL_INTERIOR_GRAV": -16.102,
+              "OFF_BALL_PERIM_GRAV": 6.472,
+              "OFF_BALL_INTERIOR_GRAV": -3.056
+            },
+            "games": "17"
+          },
+          {
+            "id": "1628368",
+            "name": "达龙 福克斯",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 3.044,
+              "ON_BALL_PERIM_GRAV": -1.33,
+              "ON_BALL_INTERIOR_GRAV": -15.942,
+              "OFF_BALL_PERIM_GRAV": 9.033,
+              "OFF_BALL_INTERIOR_GRAV": -2.225
+            },
+            "games": "21"
+          },
+          {
+            "id": "203084",
+            "name": "哈里森 巴恩斯",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 3.008,
+              "ON_BALL_PERIM_GRAV": -6.463,
+              "ON_BALL_INTERIOR_GRAV": -12.116,
+              "OFF_BALL_PERIM_GRAV": 6.327,
+              "OFF_BALL_INTERIOR_GRAV": -2.242
+            },
+            "games": "20"
+          },
+          {
+            "id": "1629013",
+            "name": "兰德里 沙梅特",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.003,
+              "ON_BALL_PERIM_GRAV": -3.954,
+              "ON_BALL_INTERIOR_GRAV": -26.522,
+              "OFF_BALL_PERIM_GRAV": 5.119,
+              "OFF_BALL_INTERIOR_GRAV": -2.791
+            },
+            "games": "19"
+          },
+          {
+            "id": "1626157",
+            "name": "卡尔-安东尼 唐斯",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 2.311,
+              "ON_BALL_PERIM_GRAV": 1.43,
+              "ON_BALL_INTERIOR_GRAV": -14.017,
+              "OFF_BALL_PERIM_GRAV": 9.226,
+              "OFF_BALL_INTERIOR_GRAV": -3.404
+            },
+            "games": "19"
+          },
+          {
+            "id": "203903",
+            "name": "乔丹 克拉克森",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 1.903,
+              "ON_BALL_PERIM_GRAV": -2.119,
+              "ON_BALL_INTERIOR_GRAV": -16.055,
+              "OFF_BALL_PERIM_GRAV": 6.226,
+              "OFF_BALL_INTERIOR_GRAV": -3.443
+            },
+            "games": "18"
+          },
+          {
+            "id": "1642844",
+            "name": "迪伦 哈珀",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 1.503,
+              "ON_BALL_PERIM_GRAV": -0.711,
+              "ON_BALL_INTERIOR_GRAV": -14.268,
+              "OFF_BALL_PERIM_GRAV": 5.378,
+              "OFF_BALL_INTERIOR_GRAV": -2.867
+            },
+            "games": "23"
+          },
+          {
+            "id": "1629640",
+            "name": "凯尔登 约翰逊",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 1.473,
+              "ON_BALL_PERIM_GRAV": -2.946,
+              "ON_BALL_INTERIOR_GRAV": -14.488,
+              "OFF_BALL_PERIM_GRAV": 4.213,
+              "OFF_BALL_INTERIOR_GRAV": -2.807
+            },
+            "games": "23"
+          },
+          {
+            "id": "1630631",
+            "name": "何塞 阿尔瓦拉多",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -0.365,
+              "ON_BALL_PERIM_GRAV": -0.338,
+              "ON_BALL_INTERIOR_GRAV": -29.16,
+              "OFF_BALL_PERIM_GRAV": 3.46,
+              "OFF_BALL_INTERIOR_GRAV": -12.047
+            },
+            "games": "18"
+          },
+          {
+            "id": "1628404",
+            "name": "约什 哈特",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -2.777,
+              "ON_BALL_PERIM_GRAV": -5.083,
+              "ON_BALL_INTERIOR_GRAV": -29.609,
+              "OFF_BALL_PERIM_GRAV": 0.993,
+              "OFF_BALL_INTERIOR_GRAV": -10.492
+            },
+            "games": "19"
+          },
+          {
+            "id": "1642264",
+            "name": "斯蒂芬 卡斯尔",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -4.8,
+              "ON_BALL_PERIM_GRAV": -5.236,
+              "ON_BALL_INTERIOR_GRAV": -23.541,
+              "OFF_BALL_PERIM_GRAV": -0.313,
+              "OFF_BALL_INTERIOR_GRAV": -8.352
+            },
+            "games": "23"
+          },
+          {
+            "id": "1642868",
+            "name": "卡特 布莱恩特",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -6.651,
+              "ON_BALL_PERIM_GRAV": -14.168,
+              "ON_BALL_INTERIOR_GRAV": -12.351,
+              "OFF_BALL_PERIM_GRAV": -3.648,
+              "OFF_BALL_INTERIOR_GRAV": -13.644
+            },
+            "games": "22"
+          },
+          {
+            "id": "1629011",
+            "name": "米切尔 罗宾逊",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -7.574,
+              "ON_BALL_PERIM_GRAV": -6.306,
+              "ON_BALL_INTERIOR_GRAV": -19.598,
+              "OFF_BALL_PERIM_GRAV": -3.197,
+              "OFF_BALL_INTERIOR_GRAV": -9.946
+            },
+            "games": "18"
+          },
+          {
+            "id": "1628436",
+            "name": "卢克 科内特",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -12.945,
+              "ON_BALL_PERIM_GRAV": -22.879,
+              "ON_BALL_INTERIOR_GRAV": -31.139,
+              "OFF_BALL_PERIM_GRAV": -15.224,
+              "OFF_BALL_INTERIOR_GRAV": -10.289
+            },
+            "games": "23"
+          }
+        ],
+        "capturedAt": "2026-10-07T08:19:09Z"
+      }
+    },
+    "source": "Qwen3-VL / Amazon Bedrock",
+    "limitations": [
+      "关键帧视觉推断，非完整 tracking",
+      "分数衡量证据支持程度，不是因果贡献或官方 Gravity"
+    ],
+    "usage": {
+      "inputTokens": 12899,
+      "outputTokens": 1031,
+      "totalTokens": 13930
+    },
+    "elapsedSeconds": 23.38,
+    "modelInvoked": true,
+    "job": "6d19f03b58941f8de021367f5db55ea3",
+    "createdAt": "2026-10-07T08:32:07.772424+00:00",
+    "thumbnails": [],
+    "review": {
+      "status": "rejected",
+      "method": "visual-frame-review",
+      "reason": "关键帧中的白衣8号是最终出手者。模型将其误认成无球贡献者，并给出了不匹配的球员ID，已撤下该归因及评分。",
+      "frameTimes": [
+        7.49,
+        8.31,
+        9.13
+      ]
+    }
+  },
+  "nba-0042500404-497": {
+    "version": "video-evidence-v1.2",
+    "model": "qwen.qwen3-vl-235b-a22b",
+    "overview": "杰伦·布伦森持球突破后漂移跳投命中，期间队友通过无球跑动牵制防守，但未观察到明确的掩护或空间创造动作。",
+    "events": [],
+    "frameTimes": [
+      0.1,
+      0.9,
+      1.71,
+      2.51,
+      3.31,
+      4.12,
+      4.92,
+      5.72,
+      6.53,
+      7.33,
+      8.14,
+      8.94,
+      9.74,
+      10.55,
+      11.35,
+      12.15,
+      12.96,
+      13.76
+    ],
+    "video": {
+      "id": "nba-0042500404-497",
+      "title": "杰伦 布伦森 · 突破漂移跳投",
+      "duration": 13.96,
+      "source": "NBA China · Inside the Game"
+    },
+    "deepData": {
+      "videoId": "nba-0042500404-497",
+      "official": {
+        "source": "NBA China · Inside the Game",
+        "url": "https://china.nba.cn/inside-the-game/video/1628973?gameId=0042500404&playerId=1628973",
+        "gameId": "0042500404",
+        "eventId": 497,
+        "playerId": "1628973",
+        "shooter": "杰伦 布伦森",
+        "team": "尼克斯",
+        "date": "2026-06-11",
+        "matchup": "尼克斯@马刺",
+        "shot": {
+          "shotDesc": "突破漂移跳投",
+          "value": 0.321,
+          "newsId": "2606111047194002",
+          "gameId": "0042500404",
+          "eventId": 497,
+          "playerId": "1628973",
+          "shotType": "2分投篮",
+          "success": 1,
+          "period": 3,
+          "gameClock": "3:52",
+          "side": "left",
+          "locX": "24",
+          "locY": "26"
+        },
+        "gravityScope": "2025-26 Playoffs player aggregate; NOT per-possession gravity",
+        "rosterGravity": [
+          {
+            "id": "1641705",
+            "name": "维克托 文班亚马",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 8.013,
+              "ON_BALL_PERIM_GRAV": 2.289,
+              "ON_BALL_INTERIOR_GRAV": -7.037,
+              "OFF_BALL_PERIM_GRAV": 11.736,
+              "OFF_BALL_INTERIOR_GRAV": 7.378
+            },
+            "games": "22"
+          },
+          {
+            "id": "1628973",
+            "name": "杰伦 布伦森",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 7.935,
+              "ON_BALL_PERIM_GRAV": 7.382,
+              "ON_BALL_INTERIOR_GRAV": -13.118,
+              "OFF_BALL_PERIM_GRAV": 15.221,
+              "OFF_BALL_INTERIOR_GRAV": -1.027
+            },
+            "games": "19"
+          },
+          {
+            "id": "1630170",
+            "name": "德文 瓦塞尔",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 6.666,
+              "ON_BALL_PERIM_GRAV": -6.1,
+              "ON_BALL_INTERIOR_GRAV": -9.693,
+              "OFF_BALL_PERIM_GRAV": 8.581,
+              "OFF_BALL_INTERIOR_GRAV": 3.065
+            },
+            "games": "23"
+          },
+          {
+            "id": "1630577",
+            "name": "朱利安 尚帕涅",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 5.764,
+              "ON_BALL_PERIM_GRAV": -1.158,
+              "ON_BALL_INTERIOR_GRAV": -13.07,
+              "OFF_BALL_PERIM_GRAV": 7.277,
+              "OFF_BALL_INTERIOR_GRAV": 1.312
+            },
+            "games": "23"
+          },
+          {
+            "id": "1628969",
+            "name": "米卡尔 布里奇斯",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 4.153,
+              "ON_BALL_PERIM_GRAV": -1.457,
+              "ON_BALL_INTERIOR_GRAV": -21.434,
+              "OFF_BALL_PERIM_GRAV": 7.302,
+              "OFF_BALL_INTERIOR_GRAV": -0.855
+            },
+            "games": "19"
+          },
+          {
+            "id": "1630540",
+            "name": "迈尔斯 麦克布赖德",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.744,
+              "ON_BALL_PERIM_GRAV": -1.9,
+              "ON_BALL_INTERIOR_GRAV": -20.212,
+              "OFF_BALL_PERIM_GRAV": 6.656,
+              "OFF_BALL_INTERIOR_GRAV": -2.576
+            },
+            "games": "19"
+          },
+          {
+            "id": "1628384",
+            "name": "OG 阿努诺比",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.4,
+              "ON_BALL_PERIM_GRAV": -2.408,
+              "ON_BALL_INTERIOR_GRAV": -16.102,
+              "OFF_BALL_PERIM_GRAV": 6.472,
+              "OFF_BALL_INTERIOR_GRAV": -3.056
+            },
+            "games": "17"
+          },
+          {
+            "id": "1628368",
+            "name": "达龙 福克斯",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 3.044,
+              "ON_BALL_PERIM_GRAV": -1.33,
+              "ON_BALL_INTERIOR_GRAV": -15.942,
+              "OFF_BALL_PERIM_GRAV": 9.033,
+              "OFF_BALL_INTERIOR_GRAV": -2.225
+            },
+            "games": "21"
+          },
+          {
+            "id": "203084",
+            "name": "哈里森 巴恩斯",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 3.008,
+              "ON_BALL_PERIM_GRAV": -6.463,
+              "ON_BALL_INTERIOR_GRAV": -12.116,
+              "OFF_BALL_PERIM_GRAV": 6.327,
+              "OFF_BALL_INTERIOR_GRAV": -2.242
+            },
+            "games": "20"
+          },
+          {
+            "id": "1629013",
+            "name": "兰德里 沙梅特",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.003,
+              "ON_BALL_PERIM_GRAV": -3.954,
+              "ON_BALL_INTERIOR_GRAV": -26.522,
+              "OFF_BALL_PERIM_GRAV": 5.119,
+              "OFF_BALL_INTERIOR_GRAV": -2.791
+            },
+            "games": "19"
+          },
+          {
+            "id": "1626157",
+            "name": "卡尔-安东尼 唐斯",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 2.311,
+              "ON_BALL_PERIM_GRAV": 1.43,
+              "ON_BALL_INTERIOR_GRAV": -14.017,
+              "OFF_BALL_PERIM_GRAV": 9.226,
+              "OFF_BALL_INTERIOR_GRAV": -3.404
+            },
+            "games": "19"
+          },
+          {
+            "id": "203903",
+            "name": "乔丹 克拉克森",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 1.903,
+              "ON_BALL_PERIM_GRAV": -2.119,
+              "ON_BALL_INTERIOR_GRAV": -16.055,
+              "OFF_BALL_PERIM_GRAV": 6.226,
+              "OFF_BALL_INTERIOR_GRAV": -3.443
+            },
+            "games": "18"
+          },
+          {
+            "id": "1642844",
+            "name": "迪伦 哈珀",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 1.503,
+              "ON_BALL_PERIM_GRAV": -0.711,
+              "ON_BALL_INTERIOR_GRAV": -14.268,
+              "OFF_BALL_PERIM_GRAV": 5.378,
+              "OFF_BALL_INTERIOR_GRAV": -2.867
+            },
+            "games": "23"
+          },
+          {
+            "id": "1629640",
+            "name": "凯尔登 约翰逊",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 1.473,
+              "ON_BALL_PERIM_GRAV": -2.946,
+              "ON_BALL_INTERIOR_GRAV": -14.488,
+              "OFF_BALL_PERIM_GRAV": 4.213,
+              "OFF_BALL_INTERIOR_GRAV": -2.807
+            },
+            "games": "23"
+          },
+          {
+            "id": "1630631",
+            "name": "何塞 阿尔瓦拉多",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -0.365,
+              "ON_BALL_PERIM_GRAV": -0.338,
+              "ON_BALL_INTERIOR_GRAV": -29.16,
+              "OFF_BALL_PERIM_GRAV": 3.46,
+              "OFF_BALL_INTERIOR_GRAV": -12.047
+            },
+            "games": "18"
+          },
+          {
+            "id": "1628404",
+            "name": "约什 哈特",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -2.777,
+              "ON_BALL_PERIM_GRAV": -5.083,
+              "ON_BALL_INTERIOR_GRAV": -29.609,
+              "OFF_BALL_PERIM_GRAV": 0.993,
+              "OFF_BALL_INTERIOR_GRAV": -10.492
+            },
+            "games": "19"
+          },
+          {
+            "id": "1642264",
+            "name": "斯蒂芬 卡斯尔",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -4.8,
+              "ON_BALL_PERIM_GRAV": -5.236,
+              "ON_BALL_INTERIOR_GRAV": -23.541,
+              "OFF_BALL_PERIM_GRAV": -0.313,
+              "OFF_BALL_INTERIOR_GRAV": -8.352
+            },
+            "games": "23"
+          },
+          {
+            "id": "1642868",
+            "name": "卡特 布莱恩特",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -6.651,
+              "ON_BALL_PERIM_GRAV": -14.168,
+              "ON_BALL_INTERIOR_GRAV": -12.351,
+              "OFF_BALL_PERIM_GRAV": -3.648,
+              "OFF_BALL_INTERIOR_GRAV": -13.644
+            },
+            "games": "22"
+          },
+          {
+            "id": "1629011",
+            "name": "米切尔 罗宾逊",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -7.574,
+              "ON_BALL_PERIM_GRAV": -6.306,
+              "ON_BALL_INTERIOR_GRAV": -19.598,
+              "OFF_BALL_PERIM_GRAV": -3.197,
+              "OFF_BALL_INTERIOR_GRAV": -9.946
+            },
+            "games": "18"
+          },
+          {
+            "id": "1628436",
+            "name": "卢克 科内特",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -12.945,
+              "ON_BALL_PERIM_GRAV": -22.879,
+              "ON_BALL_INTERIOR_GRAV": -31.139,
+              "OFF_BALL_PERIM_GRAV": -15.224,
+              "OFF_BALL_INTERIOR_GRAV": -10.289
+            },
+            "games": "23"
+          }
+        ],
+        "capturedAt": "2026-10-07T08:19:16Z"
+      }
+    },
+    "source": "Qwen3-VL / Amazon Bedrock",
+    "limitations": [
+      "关键帧视觉推断，非完整 tracking",
+      "分数衡量证据支持程度，不是因果贡献或官方 Gravity"
+    ],
+    "usage": {
+      "inputTokens": 12901,
+      "outputTokens": 53,
+      "totalTokens": 12954
+    },
+    "elapsedSeconds": 5.87,
+    "modelInvoked": true,
+    "job": "cd53b3062000760635b698c88abf35cc",
+    "createdAt": "2026-10-07T08:32:23.496509+00:00",
+    "thumbnails": [],
+    "review": {
+      "status": "unverified",
+      "reason": "模型候选分析，需结合视频核验。"
+    }
+  },
+  "nba-0042500404-428": {
+    "version": "video-evidence-v1.2",
+    "model": "qwen.qwen3-vl-235b-a22b",
+    "overview": "该片段的模型归因未通过画面核验，暂不提供无球贡献评分。",
+    "events": [],
+    "frameTimes": [
+      0.1,
+      0.68,
+      1.26,
+      1.84,
+      2.42,
+      3.0,
+      3.58,
+      4.16,
+      4.74,
+      5.31,
+      5.89,
+      6.47,
+      7.05,
+      7.63,
+      8.21,
+      8.79,
+      9.37,
+      9.95
+    ],
+    "video": {
+      "id": "nba-0042500404-428",
+      "title": "OG 阿努诺比 · 切入扣篮",
+      "duration": 10.15,
+      "source": "NBA China · Inside the Game"
+    },
+    "deepData": {
+      "videoId": "nba-0042500404-428",
+      "official": {
+        "source": "NBA China · Inside the Game",
+        "url": "https://china.nba.cn/inside-the-game/video/1628384?gameId=0042500404&playerId=1628384",
+        "gameId": "0042500404",
+        "eventId": 428,
+        "playerId": "1628384",
+        "shooter": "OG 阿努诺比",
+        "team": "尼克斯",
+        "date": "2026-06-11",
+        "matchup": "尼克斯@马刺",
+        "shot": {
+          "shotDesc": "切入扣篮",
+          "value": 0.87,
+          "newsId": "2606111033189202",
+          "gameId": "0042500404",
+          "eventId": 428,
+          "playerId": "1628384",
+          "shotType": "2分投篮",
+          "success": 1,
+          "period": 3,
+          "gameClock": "8:47",
+          "side": "left",
+          "locX": "6",
+          "locY": "50"
+        },
+        "gravityScope": "2025-26 Playoffs player aggregate; NOT per-possession gravity",
+        "rosterGravity": [
+          {
+            "id": "1641705",
+            "name": "维克托 文班亚马",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 8.013,
+              "ON_BALL_PERIM_GRAV": 2.289,
+              "ON_BALL_INTERIOR_GRAV": -7.037,
+              "OFF_BALL_PERIM_GRAV": 11.736,
+              "OFF_BALL_INTERIOR_GRAV": 7.378
+            },
+            "games": "22"
+          },
+          {
+            "id": "1628973",
+            "name": "杰伦 布伦森",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 7.935,
+              "ON_BALL_PERIM_GRAV": 7.382,
+              "ON_BALL_INTERIOR_GRAV": -13.118,
+              "OFF_BALL_PERIM_GRAV": 15.221,
+              "OFF_BALL_INTERIOR_GRAV": -1.027
+            },
+            "games": "19"
+          },
+          {
+            "id": "1630170",
+            "name": "德文 瓦塞尔",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 6.666,
+              "ON_BALL_PERIM_GRAV": -6.1,
+              "ON_BALL_INTERIOR_GRAV": -9.693,
+              "OFF_BALL_PERIM_GRAV": 8.581,
+              "OFF_BALL_INTERIOR_GRAV": 3.065
+            },
+            "games": "23"
+          },
+          {
+            "id": "1630577",
+            "name": "朱利安 尚帕涅",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 5.764,
+              "ON_BALL_PERIM_GRAV": -1.158,
+              "ON_BALL_INTERIOR_GRAV": -13.07,
+              "OFF_BALL_PERIM_GRAV": 7.277,
+              "OFF_BALL_INTERIOR_GRAV": 1.312
+            },
+            "games": "23"
+          },
+          {
+            "id": "1628969",
+            "name": "米卡尔 布里奇斯",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 4.153,
+              "ON_BALL_PERIM_GRAV": -1.457,
+              "ON_BALL_INTERIOR_GRAV": -21.434,
+              "OFF_BALL_PERIM_GRAV": 7.302,
+              "OFF_BALL_INTERIOR_GRAV": -0.855
+            },
+            "games": "19"
+          },
+          {
+            "id": "1630540",
+            "name": "迈尔斯 麦克布赖德",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.744,
+              "ON_BALL_PERIM_GRAV": -1.9,
+              "ON_BALL_INTERIOR_GRAV": -20.212,
+              "OFF_BALL_PERIM_GRAV": 6.656,
+              "OFF_BALL_INTERIOR_GRAV": -2.576
+            },
+            "games": "19"
+          },
+          {
+            "id": "1628384",
+            "name": "OG 阿努诺比",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.4,
+              "ON_BALL_PERIM_GRAV": -2.408,
+              "ON_BALL_INTERIOR_GRAV": -16.102,
+              "OFF_BALL_PERIM_GRAV": 6.472,
+              "OFF_BALL_INTERIOR_GRAV": -3.056
+            },
+            "games": "17"
+          },
+          {
+            "id": "1628368",
+            "name": "达龙 福克斯",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 3.044,
+              "ON_BALL_PERIM_GRAV": -1.33,
+              "ON_BALL_INTERIOR_GRAV": -15.942,
+              "OFF_BALL_PERIM_GRAV": 9.033,
+              "OFF_BALL_INTERIOR_GRAV": -2.225
+            },
+            "games": "21"
+          },
+          {
+            "id": "203084",
+            "name": "哈里森 巴恩斯",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 3.008,
+              "ON_BALL_PERIM_GRAV": -6.463,
+              "ON_BALL_INTERIOR_GRAV": -12.116,
+              "OFF_BALL_PERIM_GRAV": 6.327,
+              "OFF_BALL_INTERIOR_GRAV": -2.242
+            },
+            "games": "20"
+          },
+          {
+            "id": "1629013",
+            "name": "兰德里 沙梅特",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.003,
+              "ON_BALL_PERIM_GRAV": -3.954,
+              "ON_BALL_INTERIOR_GRAV": -26.522,
+              "OFF_BALL_PERIM_GRAV": 5.119,
+              "OFF_BALL_INTERIOR_GRAV": -2.791
+            },
+            "games": "19"
+          },
+          {
+            "id": "1626157",
+            "name": "卡尔-安东尼 唐斯",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 2.311,
+              "ON_BALL_PERIM_GRAV": 1.43,
+              "ON_BALL_INTERIOR_GRAV": -14.017,
+              "OFF_BALL_PERIM_GRAV": 9.226,
+              "OFF_BALL_INTERIOR_GRAV": -3.404
+            },
+            "games": "19"
+          },
+          {
+            "id": "203903",
+            "name": "乔丹 克拉克森",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 1.903,
+              "ON_BALL_PERIM_GRAV": -2.119,
+              "ON_BALL_INTERIOR_GRAV": -16.055,
+              "OFF_BALL_PERIM_GRAV": 6.226,
+              "OFF_BALL_INTERIOR_GRAV": -3.443
+            },
+            "games": "18"
+          },
+          {
+            "id": "1642844",
+            "name": "迪伦 哈珀",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 1.503,
+              "ON_BALL_PERIM_GRAV": -0.711,
+              "ON_BALL_INTERIOR_GRAV": -14.268,
+              "OFF_BALL_PERIM_GRAV": 5.378,
+              "OFF_BALL_INTERIOR_GRAV": -2.867
+            },
+            "games": "23"
+          },
+          {
+            "id": "1629640",
+            "name": "凯尔登 约翰逊",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 1.473,
+              "ON_BALL_PERIM_GRAV": -2.946,
+              "ON_BALL_INTERIOR_GRAV": -14.488,
+              "OFF_BALL_PERIM_GRAV": 4.213,
+              "OFF_BALL_INTERIOR_GRAV": -2.807
+            },
+            "games": "23"
+          },
+          {
+            "id": "1630631",
+            "name": "何塞 阿尔瓦拉多",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -0.365,
+              "ON_BALL_PERIM_GRAV": -0.338,
+              "ON_BALL_INTERIOR_GRAV": -29.16,
+              "OFF_BALL_PERIM_GRAV": 3.46,
+              "OFF_BALL_INTERIOR_GRAV": -12.047
+            },
+            "games": "18"
+          },
+          {
+            "id": "1628404",
+            "name": "约什 哈特",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -2.777,
+              "ON_BALL_PERIM_GRAV": -5.083,
+              "ON_BALL_INTERIOR_GRAV": -29.609,
+              "OFF_BALL_PERIM_GRAV": 0.993,
+              "OFF_BALL_INTERIOR_GRAV": -10.492
+            },
+            "games": "19"
+          },
+          {
+            "id": "1642264",
+            "name": "斯蒂芬 卡斯尔",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -4.8,
+              "ON_BALL_PERIM_GRAV": -5.236,
+              "ON_BALL_INTERIOR_GRAV": -23.541,
+              "OFF_BALL_PERIM_GRAV": -0.313,
+              "OFF_BALL_INTERIOR_GRAV": -8.352
+            },
+            "games": "23"
+          },
+          {
+            "id": "1642868",
+            "name": "卡特 布莱恩特",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -6.651,
+              "ON_BALL_PERIM_GRAV": -14.168,
+              "ON_BALL_INTERIOR_GRAV": -12.351,
+              "OFF_BALL_PERIM_GRAV": -3.648,
+              "OFF_BALL_INTERIOR_GRAV": -13.644
+            },
+            "games": "22"
+          },
+          {
+            "id": "1629011",
+            "name": "米切尔 罗宾逊",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -7.574,
+              "ON_BALL_PERIM_GRAV": -6.306,
+              "ON_BALL_INTERIOR_GRAV": -19.598,
+              "OFF_BALL_PERIM_GRAV": -3.197,
+              "OFF_BALL_INTERIOR_GRAV": -9.946
+            },
+            "games": "18"
+          },
+          {
+            "id": "1628436",
+            "name": "卢克 科内特",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -12.945,
+              "ON_BALL_PERIM_GRAV": -22.879,
+              "ON_BALL_INTERIOR_GRAV": -31.139,
+              "OFF_BALL_PERIM_GRAV": -15.224,
+              "OFF_BALL_INTERIOR_GRAV": -10.289
+            },
+            "games": "23"
+          }
+        ],
+        "capturedAt": "2026-10-07T08:35:23Z"
+      }
+    },
+    "source": "Qwen3-VL / Amazon Bedrock",
+    "limitations": [
+      "关键帧视觉推断，非完整 tracking",
+      "分数衡量证据支持程度，不是因果贡献或官方 Gravity"
+    ],
+    "usage": {
+      "inputTokens": 12889,
+      "outputTokens": 1381,
+      "totalTokens": 14270
+    },
+    "elapsedSeconds": 24.96,
+    "modelInvoked": true,
+    "job": "abdcfc6f6cc30d577ea20bdef14c215d",
+    "createdAt": "2026-10-07T08:40:14.405154+00:00",
+    "thumbnails": [],
+    "review": {
+      "status": "rejected",
+      "method": "visual-frame-review",
+      "reason": "模型给出的32号球员身份ID不匹配；引用画面及人物框不足以支持所描述的掩护与弱侧牵制，已撤下候选评分。",
+      "frameTimes": [
+        3.0,
+        4.74
+      ]
+    }
+  },
+  "nba-0042500404-197": {
+    "version": "video-evidence-v1.2",
+    "model": "qwen.qwen3-vl-235b-a22b",
+    "overview": "该片段的模型归因未通过画面核验，暂不提供无球贡献评分。",
+    "events": [],
+    "frameTimes": [
+      0.1,
+      0.88,
+      1.65,
+      2.43,
+      3.2,
+      3.98,
+      4.76,
+      5.53,
+      6.31,
+      7.08,
+      7.86,
+      8.63,
+      9.41,
+      10.19,
+      10.96,
+      11.74,
+      12.51,
+      13.29
+    ],
+    "video": {
+      "id": "nba-0042500404-197",
+      "title": "OG 阿努诺比 · 跳投",
+      "duration": 13.49,
+      "source": "NBA China · Inside the Game"
+    },
+    "deepData": {
+      "videoId": "nba-0042500404-197",
+      "official": {
+        "source": "NBA China · Inside the Game",
+        "url": "https://china.nba.cn/inside-the-game/video/1628384?gameId=0042500404&playerId=1628384",
+        "gameId": "0042500404",
+        "eventId": 197,
+        "playerId": "1628384",
+        "shooter": "OG 阿努诺比",
+        "team": "尼克斯",
+        "date": "2026-06-11",
+        "matchup": "尼克斯@马刺",
+        "shot": {
+          "shotDesc": "跳投",
+          "value": 0.42,
+          "newsId": "2606110935182802",
+          "gameId": "0042500404",
+          "eventId": 197,
+          "playerId": "1628384",
+          "shotType": "3分投篮",
+          "success": 1,
+          "period": 2,
+          "gameClock": "11:37",
+          "side": "right",
+          "locX": "92",
+          "locY": "3"
+        },
+        "gravityScope": "2025-26 Playoffs player aggregate; NOT per-possession gravity",
+        "rosterGravity": [
+          {
+            "id": "1641705",
+            "name": "维克托 文班亚马",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 8.013,
+              "ON_BALL_PERIM_GRAV": 2.289,
+              "ON_BALL_INTERIOR_GRAV": -7.037,
+              "OFF_BALL_PERIM_GRAV": 11.736,
+              "OFF_BALL_INTERIOR_GRAV": 7.378
+            },
+            "games": "22"
+          },
+          {
+            "id": "1628973",
+            "name": "杰伦 布伦森",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 7.935,
+              "ON_BALL_PERIM_GRAV": 7.382,
+              "ON_BALL_INTERIOR_GRAV": -13.118,
+              "OFF_BALL_PERIM_GRAV": 15.221,
+              "OFF_BALL_INTERIOR_GRAV": -1.027
+            },
+            "games": "19"
+          },
+          {
+            "id": "1630170",
+            "name": "德文 瓦塞尔",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 6.666,
+              "ON_BALL_PERIM_GRAV": -6.1,
+              "ON_BALL_INTERIOR_GRAV": -9.693,
+              "OFF_BALL_PERIM_GRAV": 8.581,
+              "OFF_BALL_INTERIOR_GRAV": 3.065
+            },
+            "games": "23"
+          },
+          {
+            "id": "1630577",
+            "name": "朱利安 尚帕涅",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 5.764,
+              "ON_BALL_PERIM_GRAV": -1.158,
+              "ON_BALL_INTERIOR_GRAV": -13.07,
+              "OFF_BALL_PERIM_GRAV": 7.277,
+              "OFF_BALL_INTERIOR_GRAV": 1.312
+            },
+            "games": "23"
+          },
+          {
+            "id": "1628969",
+            "name": "米卡尔 布里奇斯",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 4.153,
+              "ON_BALL_PERIM_GRAV": -1.457,
+              "ON_BALL_INTERIOR_GRAV": -21.434,
+              "OFF_BALL_PERIM_GRAV": 7.302,
+              "OFF_BALL_INTERIOR_GRAV": -0.855
+            },
+            "games": "19"
+          },
+          {
+            "id": "1630540",
+            "name": "迈尔斯 麦克布赖德",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.744,
+              "ON_BALL_PERIM_GRAV": -1.9,
+              "ON_BALL_INTERIOR_GRAV": -20.212,
+              "OFF_BALL_PERIM_GRAV": 6.656,
+              "OFF_BALL_INTERIOR_GRAV": -2.576
+            },
+            "games": "19"
+          },
+          {
+            "id": "1628384",
+            "name": "OG 阿努诺比",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.4,
+              "ON_BALL_PERIM_GRAV": -2.408,
+              "ON_BALL_INTERIOR_GRAV": -16.102,
+              "OFF_BALL_PERIM_GRAV": 6.472,
+              "OFF_BALL_INTERIOR_GRAV": -3.056
+            },
+            "games": "17"
+          },
+          {
+            "id": "1628368",
+            "name": "达龙 福克斯",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 3.044,
+              "ON_BALL_PERIM_GRAV": -1.33,
+              "ON_BALL_INTERIOR_GRAV": -15.942,
+              "OFF_BALL_PERIM_GRAV": 9.033,
+              "OFF_BALL_INTERIOR_GRAV": -2.225
+            },
+            "games": "21"
+          },
+          {
+            "id": "203084",
+            "name": "哈里森 巴恩斯",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 3.008,
+              "ON_BALL_PERIM_GRAV": -6.463,
+              "ON_BALL_INTERIOR_GRAV": -12.116,
+              "OFF_BALL_PERIM_GRAV": 6.327,
+              "OFF_BALL_INTERIOR_GRAV": -2.242
+            },
+            "games": "20"
+          },
+          {
+            "id": "1629013",
+            "name": "兰德里 沙梅特",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 3.003,
+              "ON_BALL_PERIM_GRAV": -3.954,
+              "ON_BALL_INTERIOR_GRAV": -26.522,
+              "OFF_BALL_PERIM_GRAV": 5.119,
+              "OFF_BALL_INTERIOR_GRAV": -2.791
+            },
+            "games": "19"
+          },
+          {
+            "id": "1626157",
+            "name": "卡尔-安东尼 唐斯",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 2.311,
+              "ON_BALL_PERIM_GRAV": 1.43,
+              "ON_BALL_INTERIOR_GRAV": -14.017,
+              "OFF_BALL_PERIM_GRAV": 9.226,
+              "OFF_BALL_INTERIOR_GRAV": -3.404
+            },
+            "games": "19"
+          },
+          {
+            "id": "203903",
+            "name": "乔丹 克拉克森",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": 1.903,
+              "ON_BALL_PERIM_GRAV": -2.119,
+              "ON_BALL_INTERIOR_GRAV": -16.055,
+              "OFF_BALL_PERIM_GRAV": 6.226,
+              "OFF_BALL_INTERIOR_GRAV": -3.443
+            },
+            "games": "18"
+          },
+          {
+            "id": "1642844",
+            "name": "迪伦 哈珀",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 1.503,
+              "ON_BALL_PERIM_GRAV": -0.711,
+              "ON_BALL_INTERIOR_GRAV": -14.268,
+              "OFF_BALL_PERIM_GRAV": 5.378,
+              "OFF_BALL_INTERIOR_GRAV": -2.867
+            },
+            "games": "23"
+          },
+          {
+            "id": "1629640",
+            "name": "凯尔登 约翰逊",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": 1.473,
+              "ON_BALL_PERIM_GRAV": -2.946,
+              "ON_BALL_INTERIOR_GRAV": -14.488,
+              "OFF_BALL_PERIM_GRAV": 4.213,
+              "OFF_BALL_INTERIOR_GRAV": -2.807
+            },
+            "games": "23"
+          },
+          {
+            "id": "1630631",
+            "name": "何塞 阿尔瓦拉多",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -0.365,
+              "ON_BALL_PERIM_GRAV": -0.338,
+              "ON_BALL_INTERIOR_GRAV": -29.16,
+              "OFF_BALL_PERIM_GRAV": 3.46,
+              "OFF_BALL_INTERIOR_GRAV": -12.047
+            },
+            "games": "18"
+          },
+          {
+            "id": "1628404",
+            "name": "约什 哈特",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -2.777,
+              "ON_BALL_PERIM_GRAV": -5.083,
+              "ON_BALL_INTERIOR_GRAV": -29.609,
+              "OFF_BALL_PERIM_GRAV": 0.993,
+              "OFF_BALL_INTERIOR_GRAV": -10.492
+            },
+            "games": "19"
+          },
+          {
+            "id": "1642264",
+            "name": "斯蒂芬 卡斯尔",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -4.8,
+              "ON_BALL_PERIM_GRAV": -5.236,
+              "ON_BALL_INTERIOR_GRAV": -23.541,
+              "OFF_BALL_PERIM_GRAV": -0.313,
+              "OFF_BALL_INTERIOR_GRAV": -8.352
+            },
+            "games": "23"
+          },
+          {
+            "id": "1642868",
+            "name": "卡特 布莱恩特",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -6.651,
+              "ON_BALL_PERIM_GRAV": -14.168,
+              "ON_BALL_INTERIOR_GRAV": -12.351,
+              "OFF_BALL_PERIM_GRAV": -3.648,
+              "OFF_BALL_INTERIOR_GRAV": -13.644
+            },
+            "games": "22"
+          },
+          {
+            "id": "1629011",
+            "name": "米切尔 罗宾逊",
+            "team": "NYK",
+            "gravity": {
+              "OVERALL_GRAV": -7.574,
+              "ON_BALL_PERIM_GRAV": -6.306,
+              "ON_BALL_INTERIOR_GRAV": -19.598,
+              "OFF_BALL_PERIM_GRAV": -3.197,
+              "OFF_BALL_INTERIOR_GRAV": -9.946
+            },
+            "games": "18"
+          },
+          {
+            "id": "1628436",
+            "name": "卢克 科内特",
+            "team": "SAS",
+            "gravity": {
+              "OVERALL_GRAV": -12.945,
+              "ON_BALL_PERIM_GRAV": -22.879,
+              "ON_BALL_INTERIOR_GRAV": -31.139,
+              "OFF_BALL_PERIM_GRAV": -15.224,
+              "OFF_BALL_INTERIOR_GRAV": -10.289
+            },
+            "games": "23"
+          }
+        ],
+        "capturedAt": "2026-10-07T08:35:28Z"
+      }
+    },
+    "source": "Qwen3-VL / Amazon Bedrock",
+    "limitations": [
+      "关键帧视觉推断，非完整 tracking",
+      "分数衡量证据支持程度，不是因果贡献或官方 Gravity"
+    ],
+    "usage": {
+      "inputTokens": 12893,
+      "outputTokens": 768,
+      "totalTokens": 13661
+    },
+    "elapsedSeconds": 18.87,
+    "modelInvoked": true,
+    "job": "b275ce7b4e99e9f8d07973a4b6fc67f2",
+    "createdAt": "2026-10-07T08:40:39.546083+00:00",
+    "thumbnails": [],
+    "review": {
+      "status": "rejected",
+      "method": "visual-frame-review",
+      "reason": "引用的6.31秒和7.86秒画面不支持“44号在底角为阿努诺比完成掩护”的描述，已撤下该归因及评分。",
+      "frameTimes": [
+        6.31,
+        7.86
+      ]
+    }
+  }
+}

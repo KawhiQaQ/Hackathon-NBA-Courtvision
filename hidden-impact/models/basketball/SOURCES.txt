@@ -1,0 +1,7 @@
+Research prototype weights from https://github.com/abdullahtarek/basketball_analysis
+Google Drive IDs: ball 1KejdrcEnto2AKjdgdo1U1syr5gODp6EL; court 1nGoG-pUkSg4bWAUIeQ8aN6n7O1fOkXU0; player 1fVBLZtPy9Yu6Tf186oS4siotkioHBLHy.
+Downloaded 2026-10-07; original weights retained locally; exported ONNX with Ultralytics 8.4.174, opset17, 640px.
+Runtime uses ball.onnx (all basketball classes) and court.onnx. Class 4 player; class5 referee; class0 ball.
+Court keypoint layout is model-specific 28x15 reference court, not a claim of NBA metric calibration.
+Upstream README declares MIT for project code; separate model/dataset redistribution rights not independently established. Do not publish weights as our own; review before commercial redistribution.
+No upstream Python source copied. DLT, assignment, temporal score and rendering implemented in this project.

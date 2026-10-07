@@ -1,0 +1,14 @@
+boto3==1.43.108
+botocore==1.43.108
+flatbuffers==25.12.19
+imageio-ffmpeg==0.6.0
+jmespath==1.1.0
+numpy==2.5.3
+onnxruntime==1.30.0
+packaging==26.3
+pillow==12.3.0
+protobuf==7.36.2
+python-dateutil==2.9.0.post0
+s3transfer==0.19.2
+six==1.17.0
+urllib3==2.8.0

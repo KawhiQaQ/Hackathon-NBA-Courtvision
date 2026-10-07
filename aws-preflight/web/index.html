@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>NBA × AI · 赛前部署检查</title>
+  <style>
+    :root{color-scheme:dark;font-family:system-ui,-apple-system,"PingFang SC",sans-serif;background:#091118;color:#ecf4f4}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:28px}
+    main{width:min(780px,100%);padding:clamp(28px,6vw,64px);border:1px solid #263a43;border-radius:24px;background:linear-gradient(135deg,#122330,#0d1920)}
+    .eyebrow{font-size:12px;letter-spacing:.16em;color:#72ddc7}h1{font-size:clamp(30px,5vw,48px);line-height:1.2;margin:24px 0 16px}p{color:#a9bdc5;line-height:1.8}
+    .status{display:flex;align-items:center;gap:12px;padding:20px 0;margin-top:24px;border-top:1px solid #263a43}.dot{width:10px;height:10px;border-radius:50%;background:#72ddc7;box-shadow:0 0 20px #72ddc760}
+    button{margin-top:20px;background:#72ddc7;color:#081916;border:0;border-radius:9px;padding:13px 18px;font:inherit;font-weight:600;cursor:pointer}button:focus-visible{outline:3px solid white;outline-offset:4px}
+    #result{min-height:32px;margin-top:16px;font-size:14px;white-space:pre-line;overflow-wrap:anywhere}.foot{font-size:12px;color:#69848f;margin-top:36px}button:disabled{opacity:.6;cursor:wait}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">NBA × AI / TEAM 14 / PREFLIGHT</div>
+    <h1>赛前部署检查</h1>
+    <p>这是基础设施验证页面。比赛开始后，正式作品将在 Web 界面中展示视频与深度赛场数据。</p>
+    <div class="status"><span class="dot"></span><span>前端页面已加载</span></div>
+    <button id="check" type="button">验证 AgentCore 云端调用</button>
+    <p id="result" role="status" aria-live="polite">点击按钮，发送一次真实请求。首次启动可能需要数秒。</p>
+    <div class="foot">CloudFront → API Gateway → Lambda → AgentCore<br>此页面不调用大模型，也不处理比赛数据。</div>
+  </main>
+  <script>
+    document.getElementById('check').addEventListener('click',async()=>{
+      const button=document.getElementById('check');
+      const result=document.getElementById('result');
+      button.disabled=true;
+      result.textContent='正在请求 AgentCore 云端运行时…';
+      const nonce=crypto.randomUUID();
+      try{
+        const response=await fetch('/api/agent',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'ping',nonce}),signal:AbortSignal.timeout(35000)
+        });
+        const data=await response.json();
+        if(!response.ok)throw new Error(data.error||`HTTP ${response.status}`);
+        if(data.ok!==true||data.nonce!==nonce||data.modelInvoked!==false)throw new Error('云端响应校验未通过。');
+        result.textContent=`验证通过 · AgentCore 已真实返回结果\n云端处理耗时：${data.elapsedMs} ms\n返回时间：${new Date(data.timestamp).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false})}（北京时间）\n请求编号：${data.requestId}\n本次没有调用大模型。`;
+      }catch(error){
+        result.textContent=`验证未通过：${error.message}\n请稍后重试；首次启动可能较慢。`;
+      }finally{button.disabled=false;}
+    });
+  </script>
+</body>
+</html>
