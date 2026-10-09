@@ -43,7 +43,7 @@ class LocalShowcaseTest(unittest.TestCase):
  def test_role_change_invalidates_old_score_and_excludes_shooter(self):
   with self.get('/demo/analysis.json') as r:d=json.load(r)
   e=d['events'][0];players={p['id']:p for p in d['players']}
-  self.assertEqual(e['actorTrackId'],'P13');self.assertEqual(e['supportTrackIds'],['P2']);self.assertEqual(e['defenderTrackIds'],['P3','P4']);self.assertEqual(e['beneficiaryTrackId'],'P1')
+  self.assertEqual(e['actorTrackId'],'P6');self.assertEqual(e['supportTrackIds'],['P2']);self.assertEqual(e['defenderTrackIds'],['P21','P30']);self.assertEqual(e['beneficiaryTrackId'],'P1')
   self.assertEqual(players[e['beneficiaryTrackId']]['status'],'shooter')
   self.assertEqual(len({e[k] for k in ['actorTrackId','beneficiaryTrackId','defenderTrackId']}),3)
   self.assertIsNone(e['score']);self.assertTrue(all(p['score'] is None for p in d['players']))
@@ -52,4 +52,15 @@ class LocalShowcaseTest(unittest.TestCase):
    self.assertNotRegex(value,r'P\d+|浅色|深色')
   with self.get('/demo/showcase.json') as r:showcase=json.load(r)
   self.assertEqual(showcase['score'],63);self.assertEqual(showcase['scoreSource'],'user-requested-preset');self.assertEqual(len(showcase['roles']),5);self.assertEqual(d['presentationScore']['value'],63);self.assertEqual(showcase['actor']['id'],d['focusPlayerId'])
+ def test_story_has_annotated_scenes_and_verified_shot_outcome(self):
+  with self.get('/demo/showcase.json') as r:s=json.load(r)
+  self.assertEqual(s['actor']['label'],'尼克斯 44号 · 主角')
+  self.assertEqual([f['kind'] for f in s['evidence']],['setup','pressure','pass','shot','made'])
+  self.assertEqual(len({f['image'] for f in s['evidence']}),5)
+  self.assertTrue(all(f['text'] and f['chapter'] for f in s['evidence']))
+  catalog=json.loads((ROOT/'web/data/nba-catalog.json').read_text())
+  shot=next(v for v in catalog if v['id']=='nba-0042500404-197')['official']['shot']
+  self.assertEqual(shot['success'],1);self.assertEqual(shot['shotType'],'3分投篮')
+  with self.get('/') as r:html=r.read().decode()
+  self.assertIn('film-track',html);self.assertNotIn('id="intervals"',html)
 if __name__=='__main__':unittest.main()

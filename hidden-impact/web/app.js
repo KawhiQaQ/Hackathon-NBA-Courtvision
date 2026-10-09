@@ -85,7 +85,7 @@ function playerName(p){return result()?.confirmedNames?.[p?.id]||result()?.displ
 function safeCommentary(e){const text=e.commentary||'';return text&&!/导致|致|造成|创造了|使得|因此/.test(text)?text:e.summary;}
 function storyFor(p,e){
  const m=e?.measurement,spacing=e?.actionType==='spacing';
- if(e?.actionType==='review')return {title:'跟随主角，看得分机会如何形成',badge:'无球跑位',summary:e.summary,limit:''};
+ if(e?.actionType==='review')return {title:'跟随主角，看得分机会如何形成',badge:'接应与分球',summary:e.summary,limit:''};
  if(!p)return {title:'这段画面，还不足以选出幕后贡献者',summary:'没有确认到可分析的上场球员。可换用人物更清晰、镜头连续的回合。',badge:'证据不足'};
  if(!e||!m)return {title:p.role==='defense'?'查看这位防守人的画面证据':['ballhandler','shooter'].includes(p.status)?'这是进攻执行者，继续寻找无球贡献':p.score===0?'看到了无球参与，尚未测得贡献信号':p.diagnostics?.knownHandlerFrames<3?'持球者未可靠定位，暂时无法评估贡献':'贡献证据不足，先核验这位球员',summary:p.reason||'暂不评分。',badge:p.role==='defense'?'防守观察':p.score===0?'已观察 · 未检出信号':'暂不评分'};
  if(e.origin==='temporal-geometry-v5')return {title:{screen:'他接近防守路径，队友的空间随后变化',decoy:'跟随他的跑位，看防守如何被带动',spacing:'他在无球侧，持续撑开进攻空间'}[e.actionType],badge:{screen:'掩护协同候选',decoy:'跑位响应候选',spacing:'空间支撑候选'}[e.actionType],summary:safeCommentary(e),limit:'连续视频测量 · 观察指数，尚不等于因果贡献'};
@@ -118,7 +118,7 @@ function renderPlayerReports(){
 }
 // Render markings only for identities participating in the selected explanation.
 function storyRoles(e,p){
- return e?[[e.actorTrackId,'主角','actor','#ffdc79'],...(e.supportTrackIds||[]).map(id=>[id,'协同队友','support','#b0a4f4']),[e.beneficiaryTrackId,'收益队友','beneficiary','#87d9ff'],...(e.defenderTrackIds||[e.defenderTrackId]).map((id,i)=>[id,e.defenderTrackIds?(i===0?'内侧防守':'外侧防守'):'防守者','defender','#ff9e8b'])]:p?[[p.id,'观察球员','actor','#ffdc79']]:[];
+ return e?[[e.actorTrackId,'主角','actor','#ffdc79'],...(e.supportTrackIds||[]).map(id=>[id,'协同队友','support','#b0a4f4']),[e.beneficiaryTrackId,'收益队友','beneficiary','#87d9ff'],...(e.defenderTrackIds||[e.defenderTrackId]).map((id,i)=>[id,e.defenderTrackIds?(i===0?'追防者':'协防者'):'防守者','defender','#ff9e8b'])]:p?[[p.id,'观察球员','actor','#ffdc79']]:[];
 }
 function focusMarks(people,e,p,px,py,labels=true,active=true){
  if(!$('relation-toggle').checked)e=null;
@@ -196,7 +196,7 @@ function motionShapes(r,p,e,t,people,px,py){
  return out;
 }
 function intervalExplanation(e,start,end){
- if(e?.actionType==='review'&&e.supportTrackIds?.length)return start<e.keyTime?'主角与右侧协同队友分路移动，观察两名马刺防守者的移动方向，以及他们与两位无球队员的位置关系。':'左侧收益队友接球出手。结合主角与协同队友的跑位，回看防守移动与出手时机。';
+ if(e?.actionType==='review'&&e.supportTrackIds?.length)return start<e.keyTime?'44号接球后向左前方推进，两名防守者向持球区域靠近；右侧协同队友保持宽度。':'44号把球分向左侧，阿努诺比接球起跳，追防者回扑；最终三分命中。';
  if(!e){
   const p=activePlayer(),rows=(p?.series||[]).filter(q=>q.time>=start-.04&&q.time<=end+.04&&Number.isFinite(q.separation));
   if(rows.length<2)return `${playerName(p)} 在这段画面中的连续定位不足，无法可靠比较空间变化。`;

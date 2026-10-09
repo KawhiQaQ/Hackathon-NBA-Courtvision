@@ -55,7 +55,7 @@ def future_path(frames,current,actor,matrix,t,horizon=1.6):
 
 def draw_future_arrow(d,path,color=GOLD,width=7):
  # Each role keeps its color and a clear arrowhead, with a lighter hierarchy for support.
- head=26 if width>=7 else 18;half=12 if width>=7 else 8
+ head=min(26 if width>=7 else 18,math.dist(path[0],path[-1])*.6);half=head*.46
  tip=path[-1];back=next((p for p in reversed(path[:-1]) if math.dist(p,tip)>=head),path[0])
  angle=math.atan2(tip[1]-back[1],tip[0]-back[0]);ux,uy=math.cos(angle),math.sin(angle)
  base=(tip[0]-head*ux,tip[1]-head*uy);left=(base[0]-half*uy,base[1]+half*ux);right=(base[0]+half*uy,base[1]-half*ux)
@@ -68,7 +68,7 @@ def draw_future_arrow(d,path,color=GOLD,width=7):
 class BroadcastRenderer:
  def __init__(self,result):
   self.names=result.get('displayNames',{});self.frames=result['vision']['frames'];self.event=result['events'][0];e=self.event
-  self.roles=[(e['actorTrackId'],'主角','OFF-BALL',GOLD),*[(pid,'协同队友','SUPPORT',LILAC) for pid in e.get('supportTrackIds',[])],(e['beneficiaryTrackId'],'收益队友','TEAMMATE',BLUE),*[(pid,'内侧防守' if i==0 else '外侧防守','DEFENDER',CORAL) for i,pid in enumerate(e.get('defenderTrackIds',[e['defenderTrackId']]))]]
+  self.roles=[(e['actorTrackId'],'主角','OFF-BALL',GOLD),*[(pid,'协同队友','SUPPORT',LILAC) for pid in e.get('supportTrackIds',[])],(e['beneficiaryTrackId'],'收益队友','TEAMMATE',BLUE),*[(pid,'追防者' if i==0 else '协防者','DEFENDER',CORAL) for i,pid in enumerate(e.get('defenderTrackIds',[e['defenderTrackId']]))]]
  def render(self,raw,t):
   e=self.event;im=Image.frombytes('RGB',(W,H),raw).convert('RGBA');people={p['trackId']:p for p in people_at(self.frames,t)}
   current=min(self.frames,key=lambda f:abs(f['time']-t));matrix=(current.get('calibration') or {}).get('courtToImage')
@@ -88,10 +88,13 @@ class BroadcastRenderer:
   ink=Image.new('RGBA',(W,H));d=ImageDraw.Draw(ink)
   for pid,label,english,color in self.roles:
    if english=='TEAMMATE':continue
-   person=people.get(pid);guide=future_path(self.frames,current,person,matrix,t)
+   person=people.get(pid);guide=future_path(self.frames,current,person,matrix,t,horizon=.8 if english=='DEFENDER' else 1.4)
    if guide:
     path,span=guide;lift=person['h']*H*.60
     path=[(x,y-lift) for x,y in path]
+    limit=150 if english=='OFF-BALL' else 110
+    endpoint=next((i for i,pt in enumerate(path) if math.dist(path[0],pt)>limit),len(path)-1)
+    path=path[:endpoint+1]
     draw_future_arrow(d,path,color,7 if english=='OFF-BALL' else 3)
   # Resolve overlapping labels before drawing; leader lines retain identity in a crowd.
   occupied=[]
@@ -116,9 +119,9 @@ class BroadcastRenderer:
   hud.rounded_rectangle((W-315,16,W-26,47),9,fill='#16303a',outline='#31474f');hud.text((W-299,24),'TEAM 14  /  NYK vs SAS',font=FONTS[14],fill='#b9cbd0')
   by=TOP+H;hud.line((0,by,W,by),fill='#34494f',width=1)
   phase=0 if t<e['keyTime'] else 1 if t<e['end'] else 2
-  captions=['主角与协同队友分路跑位','跟随两名防守者，看防守移动','左侧收益队友接球出手']
+  captions=['44号接应，向防线发起进攻','两人靠近44号，观察分球窗口','分球到左侧，收益队友接球出手']
   hud.text((28,by+20),captions[phase],font=FONTS[20],fill='#e6eeeb');hud.text((28,by+54),'金色 · 主角    紫色 · 协同    珊瑚色 · 防守方向',font=FONTS[12],fill='#819ba4')
-  labels=['双人牵制','防守移动','接球出手'];starts=[e['start'],e['keyTime'],e['end']]
+  labels=['接应持球','吸引分球','接球出手'];starts=[e['start'],e['keyTime'],e['end']]
   for i,label in enumerate(labels):
    xx=660+i*180;active=i==phase;color=GOLD if active else (95,120,130)
    hud.ellipse((xx,by+20,xx+24,by+44),fill=(*color,35),outline=(*color,200),width=1);hud.text((xx+7,by+24),str(i+1),font=FONTS[14],fill=(*color,255));hud.text((xx+36,by+24),label,font=FONTS[16],fill=(*color,255))
