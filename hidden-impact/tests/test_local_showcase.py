@@ -40,4 +40,16 @@ class LocalShowcaseTest(unittest.TestCase):
   with self.get('/demo/analysis.json') as r:d=json.load(r)
   self.assertTrue(d['demo']);self.assertFalse(d['modelInvoked']);self.assertNotIn('job',d);self.assertEqual(d['verificationVersion'],'demo-unverified')
   self.assertTrue(all(not e['visualVerified'] for e in d['events']))
+ def test_role_change_invalidates_old_score_and_excludes_shooter(self):
+  with self.get('/demo/analysis.json') as r:d=json.load(r)
+  e=d['events'][0];players={p['id']:p for p in d['players']}
+  self.assertEqual(e['actorTrackId'],'P2');self.assertEqual(e['beneficiaryTrackId'],'P1')
+  self.assertEqual(players[e['beneficiaryTrackId']]['status'],'shooter')
+  self.assertEqual(len({e[k] for k in ['actorTrackId','beneficiaryTrackId','defenderTrackId']}),3)
+  self.assertIsNone(e['score']);self.assertTrue(all(p['score'] is None for p in d['players']))
+  self.assertTrue(d['roleReview']['scoreInvalidated'])
+  for value in d['displayNames'].values():
+   self.assertNotRegex(value,r'P\d+|浅色|深色')
+  with self.get('/demo/showcase.json') as r:showcase=json.load(r)
+  self.assertIsNone(showcase['score']);self.assertEqual(showcase['actor']['id'],d['focusPlayerId'])
 if __name__=='__main__':unittest.main()

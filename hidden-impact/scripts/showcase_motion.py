@@ -65,7 +65,7 @@ def draw_future_arrow(d,path):
 
 class BroadcastRenderer:
  def __init__(self,result):
-  self.frames=result['vision']['frames'];self.event=result['events'][0];e=self.event
+  self.names=result.get('displayNames',{});self.frames=result['vision']['frames'];self.event=result['events'][0];e=self.event
   self.roles=[(e['actorTrackId'],'主角','OFF-BALL',GOLD),(e['beneficiaryTrackId'],'收益队友','TEAMMATE',BLUE),(e['defenderTrackId'],'防守者','DEFENDER',CORAL)]
  def render(self,raw,t):
   e=self.event;im=Image.frombytes('RGB',(W,H),raw).convert('RGBA');people={p['trackId']:p for p in people_at(self.frames,t)}
@@ -85,7 +85,7 @@ class BroadcastRenderer:
    mask=mask.filter(ImageFilter.GaussianBlur(10)).resize((W,H));shade=Image.new('RGBA',(W,H),(4,18,24));shade.putalpha(mask);im=Image.alpha_composite(im,shade)
   ink=Image.new('RGBA',(W,H));d=ImageDraw.Draw(ink)
   actor=people.get(e['actorTrackId'])
-  guide=future_path(self.frames,current,actor,matrix,t) if 5.5<=t<=10.3 else None
+  guide=future_path(self.frames,current,actor,matrix,t) if max(0,e['start']-2)<=t<=e['end']+.3 else None
   if guide:
    path,span=guide
    # Lift the direction cue onto the protagonist's torso so an occluding defender
@@ -110,7 +110,7 @@ class BroadcastRenderer:
    if not occluded(p,people) and pid!=e['actorTrackId']:
     d.line((x-12,y,x+12,y),fill=(*color,200),width=3)
    # Compact detached nameplates keep text out of player silhouettes.
-   px=(p['x']+p['w']/2)*W;py=p['y']*H;title=f'{label}  {pid}';tw=d.textlength(title,font=FONTS[16]);lx=max(12,min(W-tw-36,px-tw/2-14));ly=max(12,py-45)
+   px=(p['x']+p['w']/2)*W;py=p['y']*H;title=self.names.get(pid,label);tw=d.textlength(title,font=FONTS[16]);lx=max(12,min(W-tw-36,px-tw/2-14));ly=max(12,py-45)
    d.line((px,ly+30,px,py-5),fill=(*color,180),width=1);d.ellipse((px-2,py-7,px+2,py-3),fill=(*color,255))
    d.rounded_rectangle((lx,ly,lx+tw+28,ly+30),7,fill=(8,25,32,230),outline=(*color,105),width=1)
    d.rounded_rectangle((lx,ly+5,lx+3,ly+25),2,fill=(*color,255));d.text((lx+13,ly+7),title,font=FONTS[16],fill=(*color,255))
@@ -120,10 +120,10 @@ class BroadcastRenderer:
   hud.rectangle((0,0,5,TOP),fill=GOLD);hud.text((26,19),'HIDDEN IMPACT',font=FONTS[24],fill='#f1f4ed');hud.text((246,25),'幕后主角 · 战术回放',font=FONTS[16],fill='#9aaeb3')
   hud.rounded_rectangle((W-315,16,W-26,47),9,fill='#16303a',outline='#31474f');hud.text((W-299,24),'TEAM 14  /  演示预设 · 未经核验',font=FONTS[14],fill='#b9cbd0')
   by=TOP+H;hud.line((0,by,W,by),fill='#34494f',width=1)
-  phase=0 if t<9 else 1 if t<10 else 2
-  captions=['先看箭头，提前读懂主角的下一步','观察防守响应与队友的空间','回看机会变化，核验幕后贡献']
+  phase=0 if t<e['keyTime'] else 1 if t<e['end'] else 2
+  captions=['跟随右侧主角，看外拉跑位','观察防守站位与左侧的出手机会','左侧收益队友接球出手 · 归因待核验']
   hud.text((28,by+20),captions[phase],font=FONTS[20],fill='#e6eeeb');hud.text((28,by+54),'箭头示意后续位移方向 · 依据已有轨迹，非实时预测',font=FONTS[12],fill='#819ba4')
-  labels=['无球移动','防守响应','空间变化'];starts=[e['start'],9,10]
+  labels=['右侧外拉','防守站位','接球出手'];starts=[e['start'],e['keyTime'],e['end']]
   for i,label in enumerate(labels):
    xx=660+i*180;active=i==phase;color=GOLD if active else (95,120,130)
    hud.ellipse((xx,by+20,xx+24,by+44),fill=(*color,35),outline=(*color,200),width=1);hud.text((xx+7,by+24),str(i+1),font=FONTS[14],fill=(*color,255));hud.text((xx+36,by+24),label,font=FONTS[16],fill=(*color,255))
