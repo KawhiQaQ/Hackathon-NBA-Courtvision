@@ -16,6 +16,7 @@ def insights(result):
          'cues':[], 'narration':copy.deepcopy(result.get('narration') or {'segments':[]})}
     # Ignore data from a different clip, even if structurally valid.
     if deep.get('videoId') != result['video']['id']: return out
+    out['probabilitySource']='配套数据预期命中率' if deep.get('opportunitySource') else '官方预期命中率'
     for key in ['gameId','eventId','shooter','sourceUrl']:out[key]=official.get('url' if key=='sourceUrl' else key)
     shot=official.get('shot') or {}; p=shot.get('value'); points={'3分投篮':3,'2分投篮':2}.get(shot.get('shotType'))
     out.update(period=shot.get('period'),gameClock=shot.get('gameClock'))
@@ -90,7 +91,7 @@ def motion(result,event,fps=24,width=1280,height=720):
 
 
 def build(result,fps=24):
-    valid=[e for e in result.get('events',[]) if e.get('visualVerified') and finite(e.get('score')) and len({e.get(k) for k,_,_ in ROLES})==3 and all(e.get(k) for k,_,_ in ROLES)]
+    valid=[e for e in result.get('events',[]) if e.get('visualVerified') and finite(e.get('score')) and e['score']>0 and len({e.get(k) for k,_,_ in ROLES})==3 and all(e.get(k) for k,_,_ in ROLES)]
     if not valid or not result.get('vision',{}).get('frames'):
         result['presentation']={'status':'insufficient','reason':'尚无通过核验的三人配合事件。'}
         result.pop('presentationMotion',None)
@@ -130,6 +131,13 @@ def build(result,fps=24):
         'summary':e.get('commentary') or e.get('summary',''),'storyTitle':'从配合起点，看到进攻机会。',
         'generation':{'analysisModel':result.get('model'),'modelInvoked':result.get('modelInvoked',False),
                       'narration':{k:info['narration'].get(k) for k in ['status','source','model','modelInvoked']}}}
+    from game_summary import round_score
+    manifest['impact']=round_score(e['score'],info.get('shot'))
+    manifest.update(gameId=official.get('gameId'),team=official.get('team'),videoId=result['video']['id'],
+                    roundKey=str(official.get('gameId',''))+':'+str(official['eventId']) if official.get('eventId') is not None else result['video']['id'])
+    mapping=next((p for p in ((result.get('deepData') or {}).get('companion') or {}).get('players',[]) if p.get('trackId')==e['actorTrackId']),{})
+    if mapping.get('jersey') is not None:
+        manifest['identity']={'jersey':str(mapping['jersey']),'confirmed':True,'source':'supplied-companion'}
     result['presentation']=manifest
     result['presentationMotion']=motion(result,e,fps=fps)
     result['focusPlayerId']=e['actorTrackId']

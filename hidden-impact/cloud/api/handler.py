@@ -166,11 +166,22 @@ def handler(event,context):
       frame['url']=s3.generate_presigned_url('get_object',Params={'Bucket':BUCKET,'Key':frame['key']},ExpiresIn=3600)
    elif time.time()-status.get('updatedAt',time.time())>900:status.update(status='failed',error='任务超时，请重新分析。')
    return reply(200,status)
+  if method=='GET' and path.startswith('/api/games/'):
+   config=get('games/'+key_id(path.split('/')[-1])+'.json')
+   return reply(200,game_result(config,token))
   raw=event.get('body') or '{}'
   if event.get('isBase64Encoded'):raw=base64.b64decode(raw).decode()
   if len(raw)>5*1024*1024:return reply(413,{'error':'关键帧请求过大。'})
   body=json.loads(raw)
   if not isinstance(body,dict):raise ValueError('请求应为对象。')
+  if path=='/api/games' and method=='POST':
+   jobs=body.get('jobIds');mappings=body.get('identities',{})
+   if not isinstance(jobs,list) or not 1<=len(jobs)<=30 or not all(isinstance(j,str) for j in jobs):raise ValueError('一次汇总1–30段已完成的视频。')
+   if not isinstance(mappings,dict) or len(mappings)>30:raise ValueError('身份映射无效。')
+   config={'jobIds':list(dict.fromkeys(key_id(j) for j in jobs)),'gameId':key_id(body.get('gameId')),'team':str(body.get('team','')).strip()[:40],'identities':mappings}
+   summary=game_result(config,token)
+   gid=str(uuid.uuid4());put('games/'+gid+'.json',config)
+   return reply(200,{'id':gid,'summary':summary})
   if path=='/api/upload' and method=='POST':
    size=body.get('size')
    if not isinstance(size,int) or not 1<=size<=300*1024*1024:raise ValueError('视频大小上限为 300 MB。')
@@ -210,7 +221,12 @@ def handler(event,context):
     if body.get('companion') is not None:
      from companion import validate_companion
      body['deepData']['companion']=validate_companion(body.pop('companion'),body['video']['duration'])
-   digest=hashlib.sha256((VERSION+'temporal-impact-v5-presentation-r8'+json.dumps(body,sort_keys=True)).encode()).hexdigest()[:32]
+     context=body['deepData']['companion'].get('shotContext')
+     if context:
+      body['deepData']['official']=context
+      body['deepData']['opportunitySource']=body['deepData']['companion']['source']
+      body['deepData']['videoId']=body['video']['id']
+   digest=hashlib.sha256((VERSION+'temporal-impact-v5-game-r9'+json.dumps(body,sort_keys=True)).encode()).hexdigest()[:32]
    status=None
    if not body.get('force'):
     try:
@@ -227,3 +243,25 @@ def handler(event,context):
  except Exception as exc:
   print('api_error',type(exc).__name__,str(exc)[:500])
   return reply(502,{'error':'云端请求失败，请稍后重试。','requestId':context.aws_request_id})
+
+
+def game_result(config,token):
+ from game_summary import aggregate,identity,round_score
+ rounds=[]
+ for job in config['jobIds']:
+  value=handler({'rawPath':'/api/jobs/'+key_id(job),'headers':{'x-team-key':token}},None)
+  response=json.loads(value['body'])
+  if value['statusCode']!=200 or response.get('status')!='completed':raise ValueError('请等待所有回合完成分析。')
+  result=response['result'];presentation=result.get('presentation')
+  if not presentation or not presentation.get('rendered'):raise ValueError('回合尚未生成完整展示结果。')
+  official=(result.get('deepData') or {}).get('official') or {}
+  if official.get('gameId') and official['gameId']!=config['gameId']:raise ValueError('所选视频来自不同比赛。')
+  if official.get('team') and official['team']!=config['team']:raise ValueError('所选视频属于不同进攻球队。')
+  presentation.update(gameId=config['gameId'],team=config['team'],job=job)
+  presentation['impact']=round_score(presentation.get('score'),(presentation.get('insights') or {}).get('shot'))
+  mapping=config['identities'].get(job)
+  if mapping=='':presentation['identity']={'confirmed':False}
+  elif mapping is not None:
+   who=identity(config['team'],str(mapping));presentation['identity']={**who,'confirmed':True,'source':'user-confirmed-jersey'}
+  rounds.append(presentation)
+ return aggregate(rounds,config['gameId'],config['team'])

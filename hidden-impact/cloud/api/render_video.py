@@ -49,8 +49,9 @@ def composite(image,result,t):
  im=Image.new('RGB',(w,h+144),'#102b29');im.paste(image,(0,44))
  draw=ImageDraw.Draw(im,'RGBA')
  draw.text((20,10),'HIDDEN IMPACT  /  '+manifest['actor']['label'],font=font(19),fill='#f5d68e')
- draw.text((w-140,11),f"{manifest['score']} / 100",font=font(17),fill='white')
+ draw.text((w-130,11),'TEAM 14',font=font(17),fill='#aac1b3')
  frame=motion['frames'][min(len(motion['frames'])-1,max(0,round(t*motion['fps'])))];colors={r['id']:r for r in manifest['roles']}
+ occupied=[]
  for i,p in enumerate(frame['people']):
   role=colors[p['trackId']];color=tuple(bytes.fromhex(role['color'][1:]))
   if p.get('offscreen'):
@@ -58,16 +59,23 @@ def composite(image,result,t):
    x=18+i*w/3;y=h+50
    draw.text((x,y),role['displayName']+' · 定位中',font=font(13),fill=(*color,255));continue
   x=(p['x']+p['w']/2)*w;y=(p['y']+p['h'])*h+44;radius=max(15,p['w']*w*.7)
-  draw.ellipse((x-radius-8,y-10,x+radius+8,y+10),fill=(*color,45))
+  for spread,alpha in [(22,12),(13,22),(5,36)]:
+   draw.ellipse((x-radius-spread,y-8-spread*.35,x+radius+spread,y+8+spread*.35),fill=(*color,alpha))
   draw.ellipse((x-radius,y-5,x+radius,y+5),outline=(*color,255),width=3)
-  top=max(48,p['y']*h+44-25-i*3);text=role['displayName'];length=draw.textlength(text,font=font(14))+14
-  lx=max(4,min(w-length-4,x-length/2))
-  draw.rounded_rectangle((lx,top,lx+length,top+23),radius=6,fill=(14,38,36,225))
-  draw.text((lx+7,top+2),text,font=font(14),fill=(*color,255))
+  top=max(48,p['y']*h+44-35);text=role['displayName'].replace('尼克斯 ','').replace('马刺 ','');length=draw.textlength(text,font=font(18))+28
+  lx=max(8,min(w-length-8,x-length/2))
+  # Prefer stacked labels above the action, with a leader to the observed body.
+  while any(lx<rr+8 and lx+length>ll-8 and top<bb+7 and top+29>tt-7 for ll,tt,rr,bb in occupied) and top>83:top-=35
+  occupied.append((lx,top,lx+length,top+29))
+  draw.line((x,p['y']*h+44,lx+length/2,top+29),fill=(*color,180),width=1)
+  draw.rounded_rectangle((lx,top,lx+length,top+29),radius=7,fill=(9,30,30,235),outline=(*color,110),width=1)
+  draw.ellipse((lx+8,top+12,lx+12,top+16),fill=(*color,255))
+  draw.text((lx+18,top+2),text,font=font(18),fill=(*color,255))
  arrow=frame.get('heroArrow')
  if arrow:
   points=[(x/motion['width']*w,y/motion['height']*h+44) for x,y in arrow['points']]
-  draw.line(points,fill=(255,216,112,255),width=5)
+  draw.line(points,fill=(27,37,25,110),width=11)
+  draw.line(points,fill=(255,216,112,255),width=6)
   a,b=points[-2:];ang=math.atan2(b[1]-a[1],b[0]-a[0]);length=15
   draw.polygon([b,(b[0]-length*math.cos(ang-.45),b[1]-length*math.sin(ang-.45)),(b[0]-length*math.cos(ang+.45),b[1]-length*math.sin(ang+.45))],fill=(255,216,112,255))
  segments=manifest['insights'].get('narration',{}).get('segments',[])

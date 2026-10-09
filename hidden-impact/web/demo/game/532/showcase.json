@@ -1,0 +1,356 @@
+{
+  "schema": "hidden-impact/showcase-v1",
+  "mode": "demo",
+  "status": "ready",
+  "eventId": "nba-0042500404-532-reviewed",
+  "video": "replay.mp4",
+  "original": "original.mp4",
+  "actor": {
+    "id": "NYK-23",
+    "label": "尼克斯 23号"
+  },
+  "score": 52.0,
+  "components": [],
+  "roles": [
+    {
+      "id": "NYK-23",
+      "label": "主角",
+      "displayName": "尼克斯 23号 · 主角",
+      "name": "尼克斯 23号",
+      "color": "#f4c45e"
+    },
+    {
+      "id": "NYK-8",
+      "label": "收益队友",
+      "displayName": "尼克斯 8号 · 收益队友",
+      "name": "尼克斯 8号",
+      "color": "#77cfe4"
+    },
+    {
+      "id": "SAS-5",
+      "label": "防守者",
+      "displayName": "马刺 5号 · 防守者",
+      "name": "马刺 5号",
+      "color": "#ee927f"
+    }
+  ],
+  "evidence": [
+    {
+      "time": 1.5,
+      "label": "8号持球，23号等待接应",
+      "text": "8号在右侧持球，23号位于弧顶附近。两人的距离逐渐收近，准备衔接下一步配合。",
+      "chapter": "8号持球，23号等待接应",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "1.50s"
+      },
+      "source": "timed-narration",
+      "image": "frame-1.jpg"
+    },
+    {
+      "time": 4.25,
+      "label": "球先交到23号手中",
+      "text": "8号把球交给23号后继续移动。23号持球等待，将接球、掩护与队友绕行串在一起。",
+      "chapter": "球先交到23号手中",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "4.25s"
+      },
+      "source": "timed-narration",
+      "image": "frame-2.jpg"
+    },
+    {
+      "time": 6.75,
+      "label": "手递手后，各走一个方向",
+      "text": "23号完成交接后向篮下顺下，8号带球向外调整。相关防守者需要重新跟上持球者。",
+      "chapter": "手递手后，各走一个方向",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "6.75s"
+      },
+      "source": "timed-narration",
+      "image": "frame-3.jpg"
+    },
+    {
+      "time": 9.25,
+      "label": "8号后撤，完成外线出手",
+      "text": "8号调整后起跳投篮，23号继续占据内线位置。这次出手质量与同场均值，在下方数据中对照。",
+      "chapter": "8号后撤，完成外线出手",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "9.25s"
+      },
+      "source": "timed-narration",
+      "image": "frame-4.jpg"
+    },
+    {
+      "time": 12.38,
+      "label": "三分入账，回看手递手",
+      "text": "官方记录确认三分命中。隐藏在终结之前的，是23号接应、交接后顺下的连续参与。",
+      "chapter": "三分入账，回看手递手",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "12.38s"
+      },
+      "source": "timed-narration",
+      "image": "frame-5.jpg"
+    }
+  ],
+  "insights": {
+    "schema": "hidden-impact/evidence-insights-v1",
+    "shot": {
+      "probability": 0.328,
+      "points": 3,
+      "made": true,
+      "expectedPoints": 0.984,
+      "baseline": 0.39022222222222225,
+      "sampleCount": 9,
+      "deltaPercentagePoints": -6.222222222222223
+    },
+    "gravity": {
+      "player": "尼克斯 8号",
+      "scope": "2025–26 季后赛",
+      "games": "17",
+      "axes": [
+        {
+          "key": "OVERALL_GRAV",
+          "label": "总体引力",
+          "value": 3.4,
+          "teamMedian": 2.657,
+          "percentile": 66.45161290322581,
+          "sampleCount": 155
+        },
+        {
+          "key": "ON_BALL_PERIM_GRAV",
+          "label": "持球 · 外线",
+          "value": -2.408,
+          "teamMedian": -2.0095,
+          "percentile": 47.4025974025974,
+          "sampleCount": 154
+        },
+        {
+          "key": "ON_BALL_INTERIOR_GRAV",
+          "label": "持球 · 内线",
+          "value": -16.102,
+          "teamMedian": -19.905,
+          "percentile": 47.712418300653596,
+          "sampleCount": 153
+        },
+        {
+          "key": "OFF_BALL_PERIM_GRAV",
+          "label": "无球 · 外线",
+          "value": 6.472,
+          "teamMedian": 6.349,
+          "percentile": 67.74193548387096,
+          "sampleCount": 155
+        },
+        {
+          "key": "OFF_BALL_INTERIOR_GRAV",
+          "label": "无球 · 内线",
+          "value": -3.056,
+          "teamMedian": -3.23,
+          "percentile": 47.4025974025974,
+          "sampleCount": 154
+        }
+      ],
+      "comparison": "NYK样本中位数",
+      "note": "阶段汇总引力用于解释球员特点；不代表这一回合的实时牵制。"
+    },
+    "cues": [
+      {
+        "start": 0,
+        "end": 3,
+        "title": "8号持球，23号等待接应",
+        "text": "8号在右侧持球，23号位于弧顶附近。两人的距离逐渐收近，准备衔接下一步配合。",
+        "frameTimes": [
+          1.5,
+          2.8
+        ],
+        "seek": 1.5,
+        "phase": "8号持球，23号等待接应",
+        "evidence": "画面 · 1.50s"
+      },
+      {
+        "start": 3,
+        "end": 5.5,
+        "title": "球先交到23号手中",
+        "text": "8号把球交给23号后继续移动。23号持球等待，将接球、掩护与队友绕行串在一起。",
+        "frameTimes": [
+          4.25,
+          5.3
+        ],
+        "seek": 4.25,
+        "phase": "球先交到23号手中",
+        "evidence": "画面 · 4.25s"
+      },
+      {
+        "start": 5.5,
+        "end": 8,
+        "title": "手递手后，各走一个方向",
+        "text": "23号完成交接后向篮下顺下，8号带球向外调整。相关防守者需要重新跟上持球者。",
+        "frameTimes": [
+          6.75,
+          7.8
+        ],
+        "seek": 6.75,
+        "phase": "手递手后，各走一个方向",
+        "evidence": "画面 · 6.75s"
+      },
+      {
+        "start": 8,
+        "end": 10.5,
+        "title": "8号后撤，完成外线出手",
+        "text": "8号调整后起跳投篮，23号继续占据内线位置。这次出手质量与同场均值，在下方数据中对照。",
+        "frameTimes": [
+          9.25,
+          10.3
+        ],
+        "seek": 9.25,
+        "phase": "8号后撤，完成外线出手",
+        "evidence": "画面 · 9.25s"
+      },
+      {
+        "start": 10.5,
+        "end": 14.26,
+        "title": "三分入账，回看手递手",
+        "text": "官方记录确认三分命中。隐藏在终结之前的，是23号接应、交接后顺下的连续参与。",
+        "frameTimes": [
+          12.38,
+          14.06
+        ],
+        "seek": 12.38,
+        "phase": "三分入账，回看手递手",
+        "evidence": "画面 · 12.38s"
+      }
+    ],
+    "narration": {
+      "schema": "hidden-impact/timed-narration-v1",
+      "source": "prepared-evidence-script",
+      "modelInvoked": false,
+      "segments": [
+        {
+          "start": 0,
+          "end": 3,
+          "title": "8号持球，23号等待接应",
+          "text": "8号在右侧持球，23号位于弧顶附近。两人的距离逐渐收近，准备衔接下一步配合。",
+          "frameTimes": [
+            1.5,
+            2.8
+          ]
+        },
+        {
+          "start": 3,
+          "end": 5.5,
+          "title": "球先交到23号手中",
+          "text": "8号把球交给23号后继续移动。23号持球等待，将接球、掩护与队友绕行串在一起。",
+          "frameTimes": [
+            4.25,
+            5.3
+          ]
+        },
+        {
+          "start": 5.5,
+          "end": 8,
+          "title": "手递手后，各走一个方向",
+          "text": "23号完成交接后向篮下顺下，8号带球向外调整。相关防守者需要重新跟上持球者。",
+          "frameTimes": [
+            6.75,
+            7.8
+          ]
+        },
+        {
+          "start": 8,
+          "end": 10.5,
+          "title": "8号后撤，完成外线出手",
+          "text": "8号调整后起跳投篮，23号继续占据内线位置。这次出手质量与同场均值，在下方数据中对照。",
+          "frameTimes": [
+            9.25,
+            10.3
+          ]
+        },
+        {
+          "start": 10.5,
+          "end": 14.26,
+          "title": "三分入账，回看手递手",
+          "text": "官方记录确认三分命中。隐藏在终结之前的，是23号接应、交接后顺下的连续参与。",
+          "frameTimes": [
+            12.38,
+            14.06
+          ]
+        }
+      ]
+    },
+    "probabilitySource": "官方预期命中率",
+    "gameId": "0042500404",
+    "eventId": 532,
+    "shooter": "尼克斯 8号",
+    "sourceUrl": "https://china.nba.cn/inside-the-game/video/1628384?gameId=0042500404&playerId=1628384",
+    "period": 3,
+    "gameClock": "55.3"
+  },
+  "matchup": "尼克斯@马刺",
+  "actionTitle": "一次手递手，拆开防守任务",
+  "summary": "23号完成交接后向篮下顺下，8号带球向外调整。相关防守者需要重新跟上持球者。",
+  "storyTitle": "从配合起点，看到进攻机会。",
+  "generation": {
+    "analysisModel": null,
+    "modelInvoked": false,
+    "narration": {
+      "status": null,
+      "source": "prepared-evidence-script",
+      "model": null,
+      "modelInvoked": false
+    }
+  },
+  "impact": {
+    "version": "hidden-impact/game-impact-v1",
+    "score": 45.5,
+    "actionScore": 52.0,
+    "components": [
+      {
+        "key": "action",
+        "label": "配合与防守响应",
+        "weight": 65,
+        "value": 0.52,
+        "detail": "连续画面中的动作证据",
+        "points": 33.8
+      },
+      {
+        "key": "opportunity",
+        "label": "本次机会质量",
+        "weight": 20,
+        "value": 0.328,
+        "detail": "预期命中率 32.8%",
+        "points": 6.56
+      },
+      {
+        "key": "relative",
+        "label": "相对同场表现",
+        "weight": 15,
+        "value": 0.34444444444444444,
+        "detail": "相对同球员同类出手 -6.2 个百分点",
+        "points": 5.17
+      }
+    ],
+    "coverage": 1.0,
+    "label": "回合贡献指数",
+    "interpretation": "动作证据结合机会质量的观察指数，非个人因果贡献。",
+    "formula": "动作65% + 机会20% + 相对表现15%；相对项以同场均值为中点，±20个百分点为两端；缺项按可用权重归一化。"
+  },
+  "gameId": "0042500404",
+  "team": "尼克斯",
+  "videoId": "nba-0042500404-532",
+  "roundKey": "0042500404:532",
+  "identity": {
+    "jersey": "23",
+    "confirmed": true,
+    "source": "human-video-review"
+  },
+  "duration": 14.26,
+  "rendered": true
+}

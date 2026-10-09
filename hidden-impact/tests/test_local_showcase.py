@@ -17,11 +17,15 @@ class LocalShowcaseTest(unittest.TestCase):
  def get(self,path,**headers):return urllib.request.urlopen(urllib.request.Request(self.url+path,headers=headers))
  def test_root_is_precomputed_showcase(self):
   with self.get('/') as r:html=r.read().decode()
-  self.assertIn('TEAM 14',html);self.assertIn('demo/replay.mp4',html);self.assertIn('workbench.html',html);self.assertNotIn('type="file"',html)
+  self.assertIn('TEAM 14',html);self.assertIn('id="round-browser"',html);self.assertIn('workbench.html',html);self.assertNotIn('type="file"',html)
   with self.get('/demo/showcase.json') as r:d=json.load(r)
   self.assertEqual(d['mode'],'demo')
   for asset in [d['video'],d['original'],d['poster'],*[f['image'] for f in d['evidence']]]:
    with self.get('/'+asset,Range='bytes=0-31') as r:self.assertIn(r.status,[200,206]);self.assertTrue(r.read(32))
+ def test_game_summary_http(self):
+  data=json.loads((ROOT/'web/demo/game.json').read_text())
+  request=urllib.request.Request(self.url+'/api/game-summary',data=json.dumps(data).encode(),headers={'Content-Type':'application/json'})
+  with urllib.request.urlopen(request) as response:self.assertEqual(json.load(response)['ranking'],data['ranking'])
  def test_mp4_seek_and_suffix(self):
   raw=(ROOT/'web/demo/replay.mp4').read_bytes()
   with self.get('/demo/replay.mp4',Range='bytes=101-200') as r:

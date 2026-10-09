@@ -1,0 +1,21 @@
+{
+  "schema": "hidden-impact/companion-v2",
+  "source": "Example schema only — replace with the clip's actual provider data",
+  "players": [],
+  "shotContext": {
+    "gameId": "example-match",
+    "team": "尼克斯",
+    "eventId": "example-possession",
+    "playerId": "example-shooter",
+    "shooter": "尼克斯 8号",
+    "shot": {"value": 0.42, "shotType": "3分投篮", "success": 1},
+    "playerShots": {
+      "gameId": "example-match",
+      "playerId": "example-shooter",
+      "shotList": [
+        {"value": 0.36, "shotType": "3分投篮"},
+        {"value": 0.42, "shotType": "3分投篮", "success": 1}
+      ]
+    }
+  }
+}

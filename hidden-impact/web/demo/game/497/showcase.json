@@ -1,0 +1,356 @@
+{
+  "schema": "hidden-impact/showcase-v1",
+  "mode": "demo",
+  "status": "ready",
+  "eventId": "nba-0042500404-497-reviewed",
+  "video": "replay.mp4",
+  "original": "original.mp4",
+  "actor": {
+    "id": "NYK-23",
+    "label": "尼克斯 23号"
+  },
+  "score": 63.7,
+  "components": [],
+  "roles": [
+    {
+      "id": "NYK-23",
+      "label": "主角",
+      "displayName": "尼克斯 23号 · 主角",
+      "name": "尼克斯 23号",
+      "color": "#f4c45e"
+    },
+    {
+      "id": "NYK-11",
+      "label": "收益队友",
+      "displayName": "尼克斯 11号 · 收益队友",
+      "name": "尼克斯 11号",
+      "color": "#77cfe4"
+    },
+    {
+      "id": "SAS-24",
+      "label": "防守者",
+      "displayName": "马刺 24号 · 防守者",
+      "name": "马刺 24号",
+      "color": "#ee927f"
+    }
+  ],
+  "evidence": [
+    {
+      "time": 1.25,
+      "label": "23号从内线向外提",
+      "text": "11号在外线控球，23号主动离开篮下，向持球侧移动。防守也随两人的接近而调整。",
+      "chapter": "23号从内线向外提",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "1.25s"
+      },
+      "source": "timed-narration",
+      "image": "frame-1.jpg"
+    },
+    {
+      "time": 3.75,
+      "label": "挡拆连接两名队友",
+      "text": "23号来到11号身侧，随后向内线移动；11号沿另一个方向推进，防守需要同时照看持球与顺下。",
+      "chapter": "挡拆连接两名队友",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "3.75s"
+      },
+      "source": "timed-narration",
+      "image": "frame-2.jpg"
+    },
+    {
+      "time": 6.25,
+      "label": "顺下持续占住防线",
+      "text": "23号继续走向篮筐，11号进入出手区域。关注内线防守位置与持球者之间的距离变化。",
+      "chapter": "顺下持续占住防线",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "6.25s"
+      },
+      "source": "timed-narration",
+      "image": "frame-3.jpg"
+    },
+    {
+      "time": 9.25,
+      "label": "11号完成终结",
+      "text": "11号完成两分出手并得分，23号留在篮下争取后续位置。这次观察的重点是掩护与顺下的衔接。",
+      "chapter": "11号完成终结",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "9.25s"
+      },
+      "source": "timed-narration",
+      "image": "frame-4.jpg"
+    },
+    {
+      "time": 12.48,
+      "label": "记住得分之前的配合",
+      "text": "得分记在11号名下，23号的上提、掩护与顺下，构成这段进攻的另一条线索。",
+      "chapter": "记住得分之前的配合",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "12.48s"
+      },
+      "source": "timed-narration",
+      "image": "frame-5.jpg"
+    }
+  ],
+  "insights": {
+    "schema": "hidden-impact/evidence-insights-v1",
+    "shot": {
+      "probability": 0.321,
+      "points": 2,
+      "made": true,
+      "expectedPoints": 0.642,
+      "baseline": 0.42633333333333334,
+      "sampleCount": 18,
+      "deltaPercentagePoints": -10.533333333333333
+    },
+    "gravity": {
+      "player": "尼克斯 11号",
+      "scope": "2025–26 季后赛",
+      "games": "19",
+      "axes": [
+        {
+          "key": "OVERALL_GRAV",
+          "label": "总体引力",
+          "value": 7.935,
+          "teamMedian": 2.657,
+          "percentile": 86.45161290322581,
+          "sampleCount": 155
+        },
+        {
+          "key": "ON_BALL_PERIM_GRAV",
+          "label": "持球 · 外线",
+          "value": 7.382,
+          "teamMedian": -2.0095,
+          "percentile": 89.6103896103896,
+          "sampleCount": 154
+        },
+        {
+          "key": "ON_BALL_INTERIOR_GRAV",
+          "label": "持球 · 内线",
+          "value": -13.118,
+          "teamMedian": -19.905,
+          "percentile": 61.43790849673203,
+          "sampleCount": 153
+        },
+        {
+          "key": "OFF_BALL_PERIM_GRAV",
+          "label": "无球 · 外线",
+          "value": 15.221,
+          "teamMedian": 6.349,
+          "percentile": 92.90322580645162,
+          "sampleCount": 155
+        },
+        {
+          "key": "OFF_BALL_INTERIOR_GRAV",
+          "label": "无球 · 内线",
+          "value": -1.027,
+          "teamMedian": -3.23,
+          "percentile": 61.03896103896104,
+          "sampleCount": 154
+        }
+      ],
+      "comparison": "NYK样本中位数",
+      "note": "阶段汇总引力用于解释球员特点；不代表这一回合的实时牵制。"
+    },
+    "cues": [
+      {
+        "start": 0,
+        "end": 2.5,
+        "title": "23号从内线向外提",
+        "text": "11号在外线控球，23号主动离开篮下，向持球侧移动。防守也随两人的接近而调整。",
+        "frameTimes": [
+          1.25,
+          2.3
+        ],
+        "seek": 1.25,
+        "phase": "23号从内线向外提",
+        "evidence": "画面 · 1.25s"
+      },
+      {
+        "start": 2.5,
+        "end": 5,
+        "title": "挡拆连接两名队友",
+        "text": "23号来到11号身侧，随后向内线移动；11号沿另一个方向推进，防守需要同时照看持球与顺下。",
+        "frameTimes": [
+          3.75,
+          4.8
+        ],
+        "seek": 3.75,
+        "phase": "挡拆连接两名队友",
+        "evidence": "画面 · 3.75s"
+      },
+      {
+        "start": 5,
+        "end": 7.5,
+        "title": "顺下持续占住防线",
+        "text": "23号继续走向篮筐，11号进入出手区域。关注内线防守位置与持球者之间的距离变化。",
+        "frameTimes": [
+          6.25,
+          7.3
+        ],
+        "seek": 6.25,
+        "phase": "顺下持续占住防线",
+        "evidence": "画面 · 6.25s"
+      },
+      {
+        "start": 7.5,
+        "end": 11,
+        "title": "11号完成终结",
+        "text": "11号完成两分出手并得分，23号留在篮下争取后续位置。这次观察的重点是掩护与顺下的衔接。",
+        "frameTimes": [
+          9.25,
+          10.8
+        ],
+        "seek": 9.25,
+        "phase": "11号完成终结",
+        "evidence": "画面 · 9.25s"
+      },
+      {
+        "start": 11,
+        "end": 13.96,
+        "title": "记住得分之前的配合",
+        "text": "得分记在11号名下，23号的上提、掩护与顺下，构成这段进攻的另一条线索。",
+        "frameTimes": [
+          12.48,
+          13.76
+        ],
+        "seek": 12.48,
+        "phase": "记住得分之前的配合",
+        "evidence": "画面 · 12.48s"
+      }
+    ],
+    "narration": {
+      "schema": "hidden-impact/timed-narration-v1",
+      "source": "prepared-evidence-script",
+      "modelInvoked": false,
+      "segments": [
+        {
+          "start": 0,
+          "end": 2.5,
+          "title": "23号从内线向外提",
+          "text": "11号在外线控球，23号主动离开篮下，向持球侧移动。防守也随两人的接近而调整。",
+          "frameTimes": [
+            1.25,
+            2.3
+          ]
+        },
+        {
+          "start": 2.5,
+          "end": 5,
+          "title": "挡拆连接两名队友",
+          "text": "23号来到11号身侧，随后向内线移动；11号沿另一个方向推进，防守需要同时照看持球与顺下。",
+          "frameTimes": [
+            3.75,
+            4.8
+          ]
+        },
+        {
+          "start": 5,
+          "end": 7.5,
+          "title": "顺下持续占住防线",
+          "text": "23号继续走向篮筐，11号进入出手区域。关注内线防守位置与持球者之间的距离变化。",
+          "frameTimes": [
+            6.25,
+            7.3
+          ]
+        },
+        {
+          "start": 7.5,
+          "end": 11,
+          "title": "11号完成终结",
+          "text": "11号完成两分出手并得分，23号留在篮下争取后续位置。这次观察的重点是掩护与顺下的衔接。",
+          "frameTimes": [
+            9.25,
+            10.8
+          ]
+        },
+        {
+          "start": 11,
+          "end": 13.96,
+          "title": "记住得分之前的配合",
+          "text": "得分记在11号名下，23号的上提、掩护与顺下，构成这段进攻的另一条线索。",
+          "frameTimes": [
+            12.48,
+            13.76
+          ]
+        }
+      ]
+    },
+    "probabilitySource": "官方预期命中率",
+    "gameId": "0042500404",
+    "eventId": 497,
+    "shooter": "尼克斯 11号",
+    "sourceUrl": "https://china.nba.cn/inside-the-game/video/1628973?gameId=0042500404&playerId=1628973",
+    "period": 3,
+    "gameClock": "3:52"
+  },
+  "matchup": "尼克斯@马刺",
+  "actionTitle": "掩护之后，继续占住内线",
+  "summary": "23号继续走向篮筐，11号进入出手区域。关注内线防守位置与持球者之间的距离变化。",
+  "storyTitle": "从配合起点，看到进攻机会。",
+  "generation": {
+    "analysisModel": null,
+    "modelInvoked": false,
+    "narration": {
+      "status": null,
+      "source": "prepared-evidence-script",
+      "model": null,
+      "modelInvoked": false
+    }
+  },
+  "impact": {
+    "version": "hidden-impact/game-impact-v1",
+    "score": 51.4,
+    "actionScore": 63.7,
+    "components": [
+      {
+        "key": "action",
+        "label": "配合与防守响应",
+        "weight": 65,
+        "value": 0.637,
+        "detail": "连续画面中的动作证据",
+        "points": 41.41
+      },
+      {
+        "key": "opportunity",
+        "label": "本次机会质量",
+        "weight": 20,
+        "value": 0.321,
+        "detail": "预期命中率 32.1%",
+        "points": 6.42
+      },
+      {
+        "key": "relative",
+        "label": "相对同场表现",
+        "weight": 15,
+        "value": 0.2366666666666667,
+        "detail": "相对同球员同类出手 -10.5 个百分点",
+        "points": 3.55
+      }
+    ],
+    "coverage": 1.0,
+    "label": "回合贡献指数",
+    "interpretation": "动作证据结合机会质量的观察指数，非个人因果贡献。",
+    "formula": "动作65% + 机会20% + 相对表现15%；相对项以同场均值为中点，±20个百分点为两端；缺项按可用权重归一化。"
+  },
+  "gameId": "0042500404",
+  "team": "尼克斯",
+  "videoId": "nba-0042500404-497",
+  "roundKey": "0042500404:497",
+  "identity": {
+    "jersey": "23",
+    "confirmed": true,
+    "source": "human-video-review"
+  },
+  "duration": 13.96,
+  "rendered": true
+}

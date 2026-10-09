@@ -21,7 +21,7 @@ export function opportunityMarkup(insights) {
   const compared=Number.isFinite(s.baseline)&&Number.isFinite(s.deltaPercentagePoints);
   const delta = s.deltaPercentagePoints;
   return `<div class="data-kicker">这一球的机会质量</div>
-    <div class="opportunity-number"><strong>${pct(s.probability)}</strong><span>官方预期命中率<br><b>${escapeHTML(insights.shooter||'出手者')} · ${s.points===3?'三分':'两分'}出手</b></span></div>
+    <div class="opportunity-number"><strong>${pct(s.probability)}</strong><span>${escapeHTML(insights.probabilitySource||'官方预期命中率')}<br><b>${escapeHTML(insights.shooter||'出手者')} · ${s.points===3?'三分':'两分'}出手</b></span></div>
     <div class="quality-plot" role="img" aria-label="本次预期命中率${pct(s.probability)}${compared?`，同场同球员${s.sampleCount}次同类出手均值${pct(s.baseline)}`:''}">
       <div class="quality-row"><span>本次出手</span><div><i style="width:${s.probability * 100}%"></i></div><b>${pct(s.probability)}</b></div>
       ${compared?`<div class="quality-row baseline"><span>同场均值</span><div><i style="width:${s.baseline * 100}%"></i></div><b>${pct(s.baseline)}</b></div>`:''}

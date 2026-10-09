@@ -137,7 +137,7 @@ class BroadcastRenderer:
   index=next((i for i,c in enumerate(cues) if c['start']<=t<c['end']),len(cues)-1)
   cue=cues[index]
   line=next((s for s in data.get('narration',{}).get('segments',[]) if s['start']<=t<s['end']),cue)
-  title='阿努诺比接球，外线机会进入兑现时刻' if index==2 else line['title']
+  title='8号接球，外线机会进入兑现时刻' if index==2 else line['title']
   evidence='画面 · 接球起跳与出手' if index==2 else cue['evidence']
   hud.text((28,by+17),title,font=FONTS[20],fill='#edf3ed')
   hud.text((28,by+49),evidence,font=FONTS[12],fill='#a7c2b8')

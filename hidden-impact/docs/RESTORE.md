@@ -84,3 +84,17 @@ node tests/test_web_render.cjs
 ## 当前质量限制
 
 `temporal-impact-v5` + `focused-outcome-v2` 已把后续出手检查和举球释放动作冲突检查加入候选核验。VLM 仍可能错认球员、持球者和投篮者；阈值为工程规则，未经教练标注集校准。2026-10-08 上传示例的 P1 已退出排名，尚未产生通过全部核验的替代 MVP。不要把管线能运行或测试通过等同于篮球归因准确率达标。
+
+## 同场多回合结果（2026-10-10）
+
+默认作品入口读取 `web/demo/game.json`，包含同一场 `0042500404` 的五段尼克斯进攻。静态部署需完整上传 `web/`，包括 `demo/game/` 的视频、关键帧和单回合 manifest。历史单回合展示仍可单独访问。当前五回合使用人工复核的身份、故事文本与篮球检测模型校准的位置；来源保存在 manifest 和 `data/review-archive/game/`，不能作为五次新 VLM 调用的证明。
+
+真实工作流在工作台一次选择多个视频，逐个调用现有 `/api/jobs` 流程；每个结果包含分阶段 `narration`、`presentation`、动态 MP4 和故事帧。点击“汇总本场 MVP”，确认比赛、进攻队与主角球衣号码，再调用 `POST /api/games`。请求包含 `gameId`、`team`、`jobIds` 和可选的 `identities: {jobId: jersey}`。服务端重新读取已核验的任务结果、刷新媒体签名、计算分数并保存任务引用；`GET /api/games/{id}` 返回可直接由 `/?game={id}` 展示的完整汇总。比赛与球队不一致会被拒绝，相同 `roundKey` 仅计一次；无法确认号码的回合保留回放但不合并排名。未提供赛事回合 ID 时使用视频 ID，无法据此识别内容相同但 ID 不同的二次上传。
+
+回合分是动作证据 65%＋出手机会质量 20%＋相对同场同球员同类出手表现 15%；对照缺失时按可用权重归一化。比赛综合指数是总贡献占比 60%＋个人平均回合分 25%＋回合 MVP 次数占比 15%。这是版本化的观察指标，不是经标注比赛校准的个人因果价值模型；命中结果不加分，均分只统计当选回合，统计范围是上传的回合集合。阶段汇总 Gravity 保留为背景画像，不伪装成逐回合引力。
+
+没有 tracking 时，配套 JSON 仍可提供 `shotContext`（比赛、球队、出手者、预期命中率和同场出手列表），见 `web/data/shot-context-example.json` 的结构示例。其中示例数值不能作为真实比赛数据使用。身份映射可通过 companion-v2 的 `players[].jersey` 提供，也可在汇总对话框确认。上传配套数据的预期命中率显示为“配套数据预期命中率”，不会自动标为官方数据。
+
+本地通用导出：`python scripts/export_game.py --project project.json --out web/results/my-game`。项目文件结构：`{gameId, team, rounds: [{analysis, video, jersey}]}`，文件路径相对项目 JSON；输出页为 `/?result=results/my-game/game.json`。此入口实际使用通用分析结果、评分和渲染函数，不读取演示球员编号。
+
+本地离线工作台可载入五个现成样例并汇总，`/api/game-summary` 与云端共用聚合函数；新上传视频在未启用云端时只能预览，不会伪造 VLM 结果。静态样例由 `scripts/refine_game_tracks.py` 和 `scripts/build_game_showcase.py` 重建（需要原视频与本机篮球模型）。`cdk deploy` 恢复后再验证真实 AWS 权限与在线模型响应；此次本地测试不代表云端已部署。

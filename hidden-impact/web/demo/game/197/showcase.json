@@ -1,0 +1,368 @@
+{
+  "schema": "hidden-impact/showcase-v1",
+  "teamId": "14",
+  "mode": "demo",
+  "title": "让镜头跟随，得分之外的那个人。",
+  "matchup": "尼克斯 × 马刺",
+  "source": "NBA China · Inside the Game",
+  "duration": 13.466666666666667,
+  "renderStyle": "narration-v11",
+  "width": 1280,
+  "height": 900,
+  "video": "replay.mp4",
+  "original": "../../original.mp4",
+  "poster": "frame-1.jpg",
+  "actor": {
+    "id": "P6",
+    "label": "尼克斯 44号"
+  },
+  "roles": [
+    {
+      "id": "P6",
+      "label": "主角",
+      "displayName": "尼克斯 44号 · 主角",
+      "color": "#f4c45e"
+    },
+    {
+      "id": "P1",
+      "label": "收益队友",
+      "displayName": "尼克斯 8号 · 收益队友",
+      "color": "#77cfe4"
+    },
+    {
+      "id": "P30",
+      "label": "防守者",
+      "displayName": "马刺 30号 · 防守者",
+      "color": "#ee927f"
+    }
+  ],
+  "score": 83.8,
+  "components": [],
+  "evidence": [
+    {
+      "time": 7.5,
+      "label": "44号，进入接应位置",
+      "chapter": "接应",
+      "text": "44号在弧顶外侧准备接球，左侧的8号开始向外线移动。",
+      "kind": "setup",
+      "image": "frame-1.jpg"
+    },
+    {
+      "time": 8.25,
+      "label": "44号推进，防守靠近",
+      "chapter": "牵动防守",
+      "text": "44号接球后向左前方推进，标出的防守者向持球区域靠近。左侧的8号留在外线，准备接球。",
+      "kind": "pressure",
+      "image": "frame-2.jpg"
+    },
+    {
+      "time": 8.75,
+      "label": "把球送出夹击区域",
+      "chapter": "分球",
+      "text": "防守靠近时，44号将球分向左侧的8号。球转移到防线外侧，收益队友获得接球出手的窗口。",
+      "kind": "pass",
+      "image": "frame-3.jpg"
+    },
+    {
+      "time": 9.5,
+      "label": "接球起跳，完成出手",
+      "chapter": "出手",
+      "text": "8号接球后起跳投篮，44号已经完成分球。球转移到持球区域之外，衔接成一次左侧外线出手。",
+      "kind": "shot",
+      "image": "frame-4.jpg"
+    },
+    {
+      "time": 11.1,
+      "label": "三分命中，完成这次配合",
+      "chapter": "终结",
+      "text": "球穿过篮网，这次进攻以8号的三分命中结束。回看整段，44号的价值在接应、吸引防守和及时分球。",
+      "kind": "made",
+      "image": "frame-5.jpg"
+    }
+  ],
+  "storyOutcome": {
+    "made": true,
+    "points": 3,
+    "source": "web/data/nba-catalog.json",
+    "eventId": 197
+  },
+  "scoreKind": "reviewed-geometric-index",
+  "insights": {
+    "schema": "hidden-impact/evidence-insights-v1",
+    "sourceUrl": "https://china.nba.cn/inside-the-game/video/1628384?gameId=0042500404&playerId=1628384",
+    "gameId": "0042500404",
+    "eventId": 197,
+    "shooter": "尼克斯 8号",
+    "period": 2,
+    "gameClock": "11:37",
+    "shot": {
+      "probability": 0.42,
+      "points": 3,
+      "made": true,
+      "expectedPoints": 1.26,
+      "baseline": 0.39022222222222225,
+      "deltaPercentagePoints": 2.978,
+      "sampleCount": 9,
+      "baselineScope": "同一球员、本场、同类出手，含当前出手",
+      "samples": [
+        {
+          "eventId": 48,
+          "probability": 0.386,
+          "made": true
+        },
+        {
+          "eventId": 72,
+          "probability": 0.385,
+          "made": false
+        },
+        {
+          "eventId": 197,
+          "probability": 0.42,
+          "made": true
+        },
+        {
+          "eventId": 375,
+          "probability": 0.364,
+          "made": false
+        },
+        {
+          "eventId": 396,
+          "probability": 0.391,
+          "made": true
+        },
+        {
+          "eventId": 448,
+          "probability": 0.425,
+          "made": true
+        },
+        {
+          "eventId": 532,
+          "probability": 0.328,
+          "made": true
+        },
+        {
+          "eventId": 632,
+          "probability": 0.376,
+          "made": true
+        },
+        {
+          "eventId": 658,
+          "probability": 0.437,
+          "made": true
+        }
+      ]
+    },
+    "gravity": {
+      "playerId": "1628384",
+      "player": "尼克斯 8号",
+      "scope": "2025–26 季后赛",
+      "games": 17,
+      "axes": [
+        {
+          "key": "OVERALL_GRAV",
+          "label": "总体引力",
+          "value": 3.4,
+          "teamMedian": 2.657,
+          "sampleCount": 155,
+          "percentile": 66.5
+        },
+        {
+          "key": "ON_BALL_PERIM_GRAV",
+          "label": "持球 · 外线",
+          "value": -2.408,
+          "teamMedian": -2.0095,
+          "sampleCount": 154,
+          "percentile": 47.4
+        },
+        {
+          "key": "ON_BALL_INTERIOR_GRAV",
+          "label": "持球 · 内线",
+          "value": -16.102,
+          "teamMedian": -19.905,
+          "sampleCount": 153,
+          "percentile": 47.7
+        },
+        {
+          "key": "OFF_BALL_PERIM_GRAV",
+          "label": "无球 · 外线",
+          "value": 6.472,
+          "teamMedian": 6.349,
+          "sampleCount": 155,
+          "percentile": 67.7
+        },
+        {
+          "key": "OFF_BALL_INTERIOR_GRAV",
+          "label": "无球 · 内线",
+          "value": -3.056,
+          "teamMedian": -3.23,
+          "sampleCount": 154,
+          "percentile": 47.4
+        }
+      ],
+      "comparison": "尼克斯榜单球员中位数",
+      "note": "阶段汇总引力用于解释球员特点；不代表这一回合的实时牵制。"
+    },
+    "interpretation": "44号的接应与分球，把进攻衔接到8号的外线出手。画面解释过程，出手质量刻画机会，命中记录确认结果。",
+    "narrationSource": "prepared-evidence-script",
+    "cues": [
+      {
+        "start": 0,
+        "end": 8.1,
+        "seek": 7.5,
+        "phase": "接应",
+        "title": "先看机会出现之前",
+        "text": "看金色的44号：他向接应位置移动，8号留在左侧外线。把视线从最后的投篮，移到配合的起点。",
+        "evidence": "画面 · 接应与站位",
+        "frame": 0
+      },
+      {
+        "start": 8.1,
+        "end": 9.1,
+        "seek": 8.25,
+        "phase": "分球",
+        "title": "防守靠近，球向外线转移",
+        "text": "44号接球推进，防守者向持球区域靠近；随后把球分向左侧。值得关注的是出球时机与外线队友的衔接。",
+        "evidence": "画面 · 推进到分球",
+        "frame": 2
+      },
+      {
+        "start": 9.1,
+        "end": 10.8,
+        "seek": 9.5,
+        "phase": "出手",
+        "title": "这次机会，预期命中率 42%",
+        "text": "8号接球出手。官方给这次投篮的预期命中率为 42%，比他本场同类出手均值高 3.0 个百分点。这描述机会质量，不是44号个人创造的增益。",
+        "evidence": "官方出手 · 42% 预期命中率",
+        "frame": 3
+      },
+      {
+        "start": 10.8,
+        "end": 14,
+        "seek": 11.1,
+        "phase": "命中",
+        "title": "得分记在队友，故事回到44号",
+        "text": "三分命中。记分牌留下了8号的得分，而回放让我们看见44号此前的接应、推进和分球。",
+        "evidence": "官方结果 · +3",
+        "frame": 4
+      }
+    ],
+    "narration": {
+      "schema": "hidden-impact/timed-narration-v1",
+      "source": "prepared-evidence-script",
+      "modelInvoked": false,
+      "segments": [
+        {
+          "start": 0,
+          "end": 2.6,
+          "title": "8号靠向底角，44号绕向外线",
+          "text": "8号向左侧底角附近靠，44号从同侧向右侧外线绕出。两人的站位逐渐分开。",
+          "frameTimes": [
+            0,
+            1.5
+          ]
+        },
+        {
+          "start": 2.6,
+          "end": 5.4,
+          "title": "一人在左侧，一人绕到右侧接应",
+          "text": "8号保持左侧接应点；44号继续绕到右侧外线，转身看球，寻找下一次接应的位置。",
+          "frameTimes": [
+            3,
+            4.5
+          ]
+        },
+        {
+          "start": 5.4,
+          "end": 8.1,
+          "title": "8号调整站位，44号迎球",
+          "text": "8号向左侧外线调整，44号在右侧迎球。接到球后，44号向左前方推进，防守者也随之靠近。",
+          "frameTimes": [
+            6,
+            7.5
+          ]
+        },
+        {
+          "start": 8.1,
+          "end": 9.1,
+          "title": "防守靠近，球向外线转移",
+          "text": "44号接球推进，防守者向持球区域靠近；随后把球分向左侧。值得关注的是出球时机与外线队友的衔接。",
+          "frameTimes": [
+            8.25
+          ]
+        },
+        {
+          "start": 9.1,
+          "end": 10.8,
+          "title": "这次机会，预期命中率 42%",
+          "text": "8号接球出手。官方给这次投篮的预期命中率为 42%，比他本场同类出手均值高 3.0 个百分点。这描述机会质量，不是44号个人创造的增益。",
+          "frameTimes": [
+            9.5
+          ]
+        },
+        {
+          "start": 10.8,
+          "end": 14,
+          "title": "得分记在队友，故事回到44号",
+          "text": "三分命中。记分牌留下了8号的得分，而回放让我们看见44号此前的接应、推进和分球。",
+          "frameTimes": [
+            11.1
+          ]
+        }
+      ]
+    }
+  },
+  "impact": {
+    "version": "hidden-impact/game-impact-v1",
+    "score": 71.5,
+    "actionScore": 83.8,
+    "components": [
+      {
+        "key": "action",
+        "label": "配合与防守响应",
+        "weight": 65,
+        "value": 0.838,
+        "detail": "连续画面中的动作证据",
+        "points": 54.47
+      },
+      {
+        "key": "opportunity",
+        "label": "本次机会质量",
+        "weight": 20,
+        "value": 0.42,
+        "detail": "预期命中率 42.0%",
+        "points": 8.4
+      },
+      {
+        "key": "relative",
+        "label": "相对同场表现",
+        "weight": 15,
+        "value": 0.5744444444444443,
+        "detail": "相对同球员同类出手 +3.0 个百分点",
+        "points": 8.62
+      }
+    ],
+    "coverage": 1.0,
+    "label": "回合贡献指数",
+    "interpretation": "动作证据结合机会质量的观察指数，非个人因果贡献。",
+    "formula": "动作65% + 机会20% + 相对表现15%；相对项以同场均值为中点，±20个百分点为两端；缺项按可用权重归一化。"
+  },
+  "gameId": "0042500404",
+  "team": "尼克斯",
+  "videoId": "nba-0042500404-197",
+  "roundKey": "0042500404:197",
+  "identity": {
+    "jersey": "44",
+    "confirmed": true,
+    "source": "user-and-video-review"
+  },
+  "actionTitle": "接应之后，及时分球",
+  "summary": "44号接应并推进，再把球转移给外线的8号。",
+  "generation": {
+    "source": "human-reviewed-presentation",
+    "modelInvoked": false
+  },
+  "provenance": "历史视觉轨迹与人工复核位置；动作观察指数及回合贡献分由当前统一公式重新计算。",
+  "scoreSource": "measured-reviewed-geometry",
+  "scoreComponents": [],
+  "rendered": true
+}

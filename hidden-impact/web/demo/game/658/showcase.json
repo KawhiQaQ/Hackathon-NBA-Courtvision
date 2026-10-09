@@ -1,0 +1,356 @@
+{
+  "schema": "hidden-impact/showcase-v1",
+  "mode": "demo",
+  "status": "ready",
+  "eventId": "nba-0042500404-658-reviewed",
+  "video": "replay.mp4",
+  "original": "original.mp4",
+  "actor": {
+    "id": "NYK-5",
+    "label": "尼克斯 5号"
+  },
+  "score": 63.3,
+  "components": [],
+  "roles": [
+    {
+      "id": "NYK-5",
+      "label": "主角",
+      "displayName": "尼克斯 5号 · 主角",
+      "name": "尼克斯 5号",
+      "color": "#f4c45e"
+    },
+    {
+      "id": "NYK-8",
+      "label": "收益队友",
+      "displayName": "尼克斯 8号 · 收益队友",
+      "name": "尼克斯 8号",
+      "color": "#77cfe4"
+    },
+    {
+      "id": "SAS-4",
+      "label": "防守者",
+      "displayName": "马刺 4号 · 防守者",
+      "name": "马刺 4号",
+      "color": "#ee927f"
+    }
+  ],
+  "evidence": [
+    {
+      "time": 1.5,
+      "label": "5号绕出，接续外线配合",
+      "text": "5号从左侧绕向32号身旁，再继续向中路接应。8号留在远侧底角，保持另一处传球出口。",
+      "chapter": "5号绕出，接续外线配合",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "1.50s"
+      },
+      "source": "timed-narration",
+      "image": "frame-1.jpg"
+    },
+    {
+      "time": 4.0,
+      "label": "接球以后，往防线内部走",
+      "text": "5号接球向中路推进，附近防守随之收缩。注意8号仍在底角等待，形成内外两处选择。",
+      "chapter": "接球以后，往防线内部走",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "4.00s"
+      },
+      "source": "timed-narration",
+      "image": "frame-2.jpg"
+    },
+    {
+      "time": 6.0,
+      "label": "把球转移给底角8号",
+      "text": "5号继续向内吸引注意，球随后转移到底角。8号获得接球起跳的机会，相关防守者转身回看外线。",
+      "chapter": "把球转移给底角8号",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "6.00s"
+      },
+      "source": "timed-narration",
+      "image": "frame-3.jpg"
+    },
+    {
+      "time": 8.5,
+      "label": "底角出手，三分命中",
+      "text": "8号完成底角投篮，官方记录确认为三分命中。5号的推进和及时转移，是这段配合的观察重点。",
+      "chapter": "底角出手，三分命中",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "8.50s"
+      },
+      "source": "timed-narration",
+      "image": "frame-4.jpg"
+    },
+    {
+      "time": 11.66,
+      "label": "镜头结束，贡献留下",
+      "text": "本回合的价值同时看过程和机会质量；命中结果用于说明结局，不额外给贡献指数加分。",
+      "chapter": "镜头结束，贡献留下",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "11.66s"
+      },
+      "source": "timed-narration",
+      "image": "frame-5.jpg"
+    }
+  ],
+  "insights": {
+    "schema": "hidden-impact/evidence-insights-v1",
+    "shot": {
+      "probability": 0.437,
+      "points": 3,
+      "made": true,
+      "expectedPoints": 1.311,
+      "baseline": 0.39022222222222225,
+      "sampleCount": 9,
+      "deltaPercentagePoints": 4.677777777777775
+    },
+    "gravity": {
+      "player": "尼克斯 8号",
+      "scope": "2025–26 季后赛",
+      "games": "17",
+      "axes": [
+        {
+          "key": "OVERALL_GRAV",
+          "label": "总体引力",
+          "value": 3.4,
+          "teamMedian": 2.657,
+          "percentile": 66.45161290322581,
+          "sampleCount": 155
+        },
+        {
+          "key": "ON_BALL_PERIM_GRAV",
+          "label": "持球 · 外线",
+          "value": -2.408,
+          "teamMedian": -2.0095,
+          "percentile": 47.4025974025974,
+          "sampleCount": 154
+        },
+        {
+          "key": "ON_BALL_INTERIOR_GRAV",
+          "label": "持球 · 内线",
+          "value": -16.102,
+          "teamMedian": -19.905,
+          "percentile": 47.712418300653596,
+          "sampleCount": 153
+        },
+        {
+          "key": "OFF_BALL_PERIM_GRAV",
+          "label": "无球 · 外线",
+          "value": 6.472,
+          "teamMedian": 6.349,
+          "percentile": 67.74193548387096,
+          "sampleCount": 155
+        },
+        {
+          "key": "OFF_BALL_INTERIOR_GRAV",
+          "label": "无球 · 内线",
+          "value": -3.056,
+          "teamMedian": -3.23,
+          "percentile": 47.4025974025974,
+          "sampleCount": 154
+        }
+      ],
+      "comparison": "NYK样本中位数",
+      "note": "阶段汇总引力用于解释球员特点；不代表这一回合的实时牵制。"
+    },
+    "cues": [
+      {
+        "start": 0,
+        "end": 3,
+        "title": "5号绕出，接续外线配合",
+        "text": "5号从左侧绕向32号身旁，再继续向中路接应。8号留在远侧底角，保持另一处传球出口。",
+        "frameTimes": [
+          1.5,
+          2.8
+        ],
+        "seek": 1.5,
+        "phase": "5号绕出，接续外线配合",
+        "evidence": "画面 · 1.50s"
+      },
+      {
+        "start": 3,
+        "end": 5,
+        "title": "接球以后，往防线内部走",
+        "text": "5号接球向中路推进，附近防守随之收缩。注意8号仍在底角等待，形成内外两处选择。",
+        "frameTimes": [
+          4.0,
+          4.8
+        ],
+        "seek": 4.0,
+        "phase": "接球以后，往防线内部走",
+        "evidence": "画面 · 4.00s"
+      },
+      {
+        "start": 5,
+        "end": 7,
+        "title": "把球转移给底角8号",
+        "text": "5号继续向内吸引注意，球随后转移到底角。8号获得接球起跳的机会，相关防守者转身回看外线。",
+        "frameTimes": [
+          6.0,
+          6.8
+        ],
+        "seek": 6.0,
+        "phase": "把球转移给底角8号",
+        "evidence": "画面 · 6.00s"
+      },
+      {
+        "start": 7,
+        "end": 10,
+        "title": "底角出手，三分命中",
+        "text": "8号完成底角投篮，官方记录确认为三分命中。5号的推进和及时转移，是这段配合的观察重点。",
+        "frameTimes": [
+          8.5,
+          9.8
+        ],
+        "seek": 8.5,
+        "phase": "底角出手，三分命中",
+        "evidence": "画面 · 8.50s"
+      },
+      {
+        "start": 10,
+        "end": 13.33,
+        "title": "镜头结束，贡献留下",
+        "text": "本回合的价值同时看过程和机会质量；命中结果用于说明结局，不额外给贡献指数加分。",
+        "frameTimes": [
+          11.66,
+          13.13
+        ],
+        "seek": 11.66,
+        "phase": "镜头结束，贡献留下",
+        "evidence": "画面 · 11.66s"
+      }
+    ],
+    "narration": {
+      "schema": "hidden-impact/timed-narration-v1",
+      "source": "prepared-evidence-script",
+      "modelInvoked": false,
+      "segments": [
+        {
+          "start": 0,
+          "end": 3,
+          "title": "5号绕出，接续外线配合",
+          "text": "5号从左侧绕向32号身旁，再继续向中路接应。8号留在远侧底角，保持另一处传球出口。",
+          "frameTimes": [
+            1.5,
+            2.8
+          ]
+        },
+        {
+          "start": 3,
+          "end": 5,
+          "title": "接球以后，往防线内部走",
+          "text": "5号接球向中路推进，附近防守随之收缩。注意8号仍在底角等待，形成内外两处选择。",
+          "frameTimes": [
+            4.0,
+            4.8
+          ]
+        },
+        {
+          "start": 5,
+          "end": 7,
+          "title": "把球转移给底角8号",
+          "text": "5号继续向内吸引注意，球随后转移到底角。8号获得接球起跳的机会，相关防守者转身回看外线。",
+          "frameTimes": [
+            6.0,
+            6.8
+          ]
+        },
+        {
+          "start": 7,
+          "end": 10,
+          "title": "底角出手，三分命中",
+          "text": "8号完成底角投篮，官方记录确认为三分命中。5号的推进和及时转移，是这段配合的观察重点。",
+          "frameTimes": [
+            8.5,
+            9.8
+          ]
+        },
+        {
+          "start": 10,
+          "end": 13.33,
+          "title": "镜头结束，贡献留下",
+          "text": "本回合的价值同时看过程和机会质量；命中结果用于说明结局，不额外给贡献指数加分。",
+          "frameTimes": [
+            11.66,
+            13.13
+          ]
+        }
+      ]
+    },
+    "probabilitySource": "官方预期命中率",
+    "gameId": "0042500404",
+    "eventId": 658,
+    "shooter": "尼克斯 8号",
+    "sourceUrl": "https://china.nba.cn/inside-the-game/video/1628384?gameId=0042500404&playerId=1628384",
+    "period": 4,
+    "gameClock": "4:35"
+  },
+  "matchup": "尼克斯@马刺",
+  "actionTitle": "向内牵动，再把球送到底角",
+  "summary": "5号继续向内吸引注意，球随后转移到底角。8号获得接球起跳的机会，相关防守者转身回看外线。",
+  "storyTitle": "从配合起点，看到进攻机会。",
+  "generation": {
+    "analysisModel": null,
+    "modelInvoked": false,
+    "narration": {
+      "status": null,
+      "source": "prepared-evidence-script",
+      "model": null,
+      "modelInvoked": false
+    }
+  },
+  "impact": {
+    "version": "hidden-impact/game-impact-v1",
+    "score": 59.1,
+    "actionScore": 63.3,
+    "components": [
+      {
+        "key": "action",
+        "label": "配合与防守响应",
+        "weight": 65,
+        "value": 0.633,
+        "detail": "连续画面中的动作证据",
+        "points": 41.15
+      },
+      {
+        "key": "opportunity",
+        "label": "本次机会质量",
+        "weight": 20,
+        "value": 0.437,
+        "detail": "预期命中率 43.7%",
+        "points": 8.74
+      },
+      {
+        "key": "relative",
+        "label": "相对同场表现",
+        "weight": 15,
+        "value": 0.6169444444444444,
+        "detail": "相对同球员同类出手 +4.7 个百分点",
+        "points": 9.25
+      }
+    ],
+    "coverage": 1.0,
+    "label": "回合贡献指数",
+    "interpretation": "动作证据结合机会质量的观察指数，非个人因果贡献。",
+    "formula": "动作65% + 机会20% + 相对表现15%；相对项以同场均值为中点，±20个百分点为两端；缺项按可用权重归一化。"
+  },
+  "gameId": "0042500404",
+  "team": "尼克斯",
+  "videoId": "nba-0042500404-658",
+  "roundKey": "0042500404:658",
+  "identity": {
+    "jersey": "5",
+    "confirmed": true,
+    "source": "human-video-review"
+  },
+  "duration": 13.33,
+  "rendered": true
+}

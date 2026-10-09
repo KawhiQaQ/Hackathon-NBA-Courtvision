@@ -1,0 +1,320 @@
+{
+  "schema": "hidden-impact/showcase-v1",
+  "mode": "demo",
+  "status": "ready",
+  "eventId": "nba-0042500404-428-reviewed",
+  "video": "replay.mp4",
+  "original": "original.mp4",
+  "actor": {
+    "id": "NYK-32",
+    "label": "尼克斯 32号"
+  },
+  "score": 57.7,
+  "components": [],
+  "roles": [
+    {
+      "id": "NYK-32",
+      "label": "主角",
+      "displayName": "尼克斯 32号 · 主角",
+      "name": "尼克斯 32号",
+      "color": "#f4c45e"
+    },
+    {
+      "id": "NYK-8",
+      "label": "收益队友",
+      "displayName": "尼克斯 8号 · 收益队友",
+      "name": "尼克斯 8号",
+      "color": "#77cfe4"
+    },
+    {
+      "id": "SAS-5",
+      "label": "防守者",
+      "displayName": "马刺 5号 · 防守者",
+      "name": "马刺 5号",
+      "color": "#ee927f"
+    }
+  ],
+  "evidence": [
+    {
+      "time": 1.0,
+      "label": "转换中寻找接应",
+      "text": "32号沿中路推进，8号从另一侧加速跟进。先看两人逐渐形成的接应角度。",
+      "chapter": "转换中寻找接应",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "1.00s"
+      },
+      "source": "timed-narration",
+      "image": "frame-1.jpg"
+    },
+    {
+      "time": 3.0,
+      "label": "高位衔接，切入继续",
+      "text": "32号来到高位衔接区域，防守向球侧集中；8号沿空出的内线方向继续切入。",
+      "chapter": "高位衔接，切入继续",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "3.00s"
+      },
+      "source": "timed-narration",
+      "image": "frame-2.jpg"
+    },
+    {
+      "time": 5.0,
+      "label": "机会落到篮下",
+      "text": "8号接球后直接攻向篮筐。32号此前的高位参与，与这次切入衔接在同一段连续画面中。",
+      "chapter": "机会落到篮下",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "5.00s"
+      },
+      "source": "timed-narration",
+      "image": "frame-3.jpg"
+    },
+    {
+      "time": 8.07,
+      "label": "终结之后，回看起点",
+      "text": "本次进攻以两分结束。把镜头倒回高位站位与切入开始处，读懂出手机会形成的过程。",
+      "chapter": "终结之后，回看起点",
+      "kind": "analysis",
+      "fact": {
+        "label": "画面证据",
+        "value": "8.07s"
+      },
+      "source": "timed-narration",
+      "image": "frame-4.jpg"
+    }
+  ],
+  "insights": {
+    "schema": "hidden-impact/evidence-insights-v1",
+    "shot": {
+      "probability": 0.87,
+      "points": 2,
+      "made": true,
+      "expectedPoints": 1.74,
+      "baseline": 0.4965,
+      "sampleCount": 6,
+      "deltaPercentagePoints": 37.35
+    },
+    "gravity": {
+      "player": "尼克斯 8号",
+      "scope": "2025–26 季后赛",
+      "games": "17",
+      "axes": [
+        {
+          "key": "OVERALL_GRAV",
+          "label": "总体引力",
+          "value": 3.4,
+          "teamMedian": 2.657,
+          "percentile": 66.45161290322581,
+          "sampleCount": 155
+        },
+        {
+          "key": "ON_BALL_PERIM_GRAV",
+          "label": "持球 · 外线",
+          "value": -2.408,
+          "teamMedian": -2.0095,
+          "percentile": 47.4025974025974,
+          "sampleCount": 154
+        },
+        {
+          "key": "ON_BALL_INTERIOR_GRAV",
+          "label": "持球 · 内线",
+          "value": -16.102,
+          "teamMedian": -19.905,
+          "percentile": 47.712418300653596,
+          "sampleCount": 153
+        },
+        {
+          "key": "OFF_BALL_PERIM_GRAV",
+          "label": "无球 · 外线",
+          "value": 6.472,
+          "teamMedian": 6.349,
+          "percentile": 67.74193548387096,
+          "sampleCount": 155
+        },
+        {
+          "key": "OFF_BALL_INTERIOR_GRAV",
+          "label": "无球 · 内线",
+          "value": -3.056,
+          "teamMedian": -3.23,
+          "percentile": 47.4025974025974,
+          "sampleCount": 154
+        }
+      ],
+      "comparison": "NYK样本中位数",
+      "note": "阶段汇总引力用于解释球员特点；不代表这一回合的实时牵制。"
+    },
+    "cues": [
+      {
+        "start": 0,
+        "end": 2,
+        "title": "转换中寻找接应",
+        "text": "32号沿中路推进，8号从另一侧加速跟进。先看两人逐渐形成的接应角度。",
+        "frameTimes": [
+          1.0,
+          1.8
+        ],
+        "seek": 1.0,
+        "phase": "转换中寻找接应",
+        "evidence": "画面 · 1.00s"
+      },
+      {
+        "start": 2,
+        "end": 4,
+        "title": "高位衔接，切入继续",
+        "text": "32号来到高位衔接区域，防守向球侧集中；8号沿空出的内线方向继续切入。",
+        "frameTimes": [
+          3.0,
+          3.8
+        ],
+        "seek": 3.0,
+        "phase": "高位衔接，切入继续",
+        "evidence": "画面 · 3.00s"
+      },
+      {
+        "start": 4,
+        "end": 6,
+        "title": "机会落到篮下",
+        "text": "8号接球后直接攻向篮筐。32号此前的高位参与，与这次切入衔接在同一段连续画面中。",
+        "frameTimes": [
+          5.0,
+          5.8
+        ],
+        "seek": 5.0,
+        "phase": "机会落到篮下",
+        "evidence": "画面 · 5.00s"
+      },
+      {
+        "start": 6,
+        "end": 10.15,
+        "title": "终结之后，回看起点",
+        "text": "本次进攻以两分结束。把镜头倒回高位站位与切入开始处，读懂出手机会形成的过程。",
+        "frameTimes": [
+          8.07,
+          9.95
+        ],
+        "seek": 8.07,
+        "phase": "终结之后，回看起点",
+        "evidence": "画面 · 8.07s"
+      }
+    ],
+    "narration": {
+      "schema": "hidden-impact/timed-narration-v1",
+      "source": "prepared-evidence-script",
+      "modelInvoked": false,
+      "segments": [
+        {
+          "start": 0,
+          "end": 2,
+          "title": "转换中寻找接应",
+          "text": "32号沿中路推进，8号从另一侧加速跟进。先看两人逐渐形成的接应角度。",
+          "frameTimes": [
+            1.0,
+            1.8
+          ]
+        },
+        {
+          "start": 2,
+          "end": 4,
+          "title": "高位衔接，切入继续",
+          "text": "32号来到高位衔接区域，防守向球侧集中；8号沿空出的内线方向继续切入。",
+          "frameTimes": [
+            3.0,
+            3.8
+          ]
+        },
+        {
+          "start": 4,
+          "end": 6,
+          "title": "机会落到篮下",
+          "text": "8号接球后直接攻向篮筐。32号此前的高位参与，与这次切入衔接在同一段连续画面中。",
+          "frameTimes": [
+            5.0,
+            5.8
+          ]
+        },
+        {
+          "start": 6,
+          "end": 10.15,
+          "title": "终结之后，回看起点",
+          "text": "本次进攻以两分结束。把镜头倒回高位站位与切入开始处，读懂出手机会形成的过程。",
+          "frameTimes": [
+            8.07,
+            9.95
+          ]
+        }
+      ]
+    },
+    "probabilitySource": "官方预期命中率",
+    "gameId": "0042500404",
+    "eventId": 428,
+    "shooter": "尼克斯 8号",
+    "sourceUrl": "https://china.nba.cn/inside-the-game/video/1628384?gameId=0042500404&playerId=1628384",
+    "period": 3,
+    "gameClock": "8:47"
+  },
+  "matchup": "尼克斯@马刺",
+  "actionTitle": "高位衔接，让切入被看见",
+  "summary": "8号接球后直接攻向篮筐。32号此前的高位参与，与这次切入衔接在同一段连续画面中。",
+  "storyTitle": "从配合起点，看到进攻机会。",
+  "generation": {
+    "analysisModel": null,
+    "modelInvoked": false,
+    "narration": {
+      "status": null,
+      "source": "prepared-evidence-script",
+      "model": null,
+      "modelInvoked": false
+    }
+  },
+  "impact": {
+    "version": "hidden-impact/game-impact-v1",
+    "score": 69.9,
+    "actionScore": 57.7,
+    "components": [
+      {
+        "key": "action",
+        "label": "配合与防守响应",
+        "weight": 65,
+        "value": 0.5770000000000001,
+        "detail": "连续画面中的动作证据",
+        "points": 37.51
+      },
+      {
+        "key": "opportunity",
+        "label": "本次机会质量",
+        "weight": 20,
+        "value": 0.87,
+        "detail": "预期命中率 87.0%",
+        "points": 17.4
+      },
+      {
+        "key": "relative",
+        "label": "相对同场表现",
+        "weight": 15,
+        "value": 1,
+        "detail": "相对同球员同类出手 +37.4 个百分点",
+        "points": 15.0
+      }
+    ],
+    "coverage": 1.0,
+    "label": "回合贡献指数",
+    "interpretation": "动作证据结合机会质量的观察指数，非个人因果贡献。",
+    "formula": "动作65% + 机会20% + 相对表现15%；相对项以同场均值为中点，±20个百分点为两端；缺项按可用权重归一化。"
+  },
+  "gameId": "0042500404",
+  "team": "尼克斯",
+  "videoId": "nba-0042500404-428",
+  "roundKey": "0042500404:428",
+  "identity": {
+    "jersey": "32",
+    "confirmed": true,
+    "source": "human-video-review"
+  },
+  "duration": 10.15,
+  "rendered": true
+}

@@ -57,3 +57,11 @@ class WorkerPresentationTests(unittest.TestCase):
    self.assertIn('signature=test',view['video']);self.assertIn('signature=test',view['original'])
    self.assertTrue(all('signature=test' in f['image'] for f in view['evidence']))
    denied=handler.handler({'rawPath':'/api/jobs/'+job,'headers':{}},None);self.assertEqual(denied['statusCode'],401)
+
+   # Real API endpoints aggregate signed job presentations and persist only job references.
+   event={'rawPath':'/api/games','requestContext':{'http':{'method':'POST'}},'headers':{'x-team-key':'test-key'},'body':json.dumps({'jobIds':[job,job],'gameId':'match-a','team':'尼克斯','identities':{job:'44'}})}
+   response=handler.handler(event,None);self.assertEqual(response['statusCode'],200,response)
+   collection=json.loads(response['body']);self.assertEqual(collection['summary']['creditedRounds'],1);self.assertEqual(collection['summary']['winner']['jersey'],'44')
+   response=handler.handler({'rawPath':'/api/games/'+collection['id'],'headers':{'x-team-key':'test-key'}},None)
+   self.assertEqual(json.loads(response['body'])['roundCount'],1)
+   denied=handler.handler({'rawPath':'/api/games/'+collection['id'],'headers':{}},None);self.assertEqual(denied['statusCode'],401)

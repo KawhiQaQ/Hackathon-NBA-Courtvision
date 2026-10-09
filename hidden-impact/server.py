@@ -5,6 +5,7 @@ from http.server import SimpleHTTPRequestHandler,ThreadingHTTPServer
 from pathlib import Path
 ROOT=Path(__file__).parent
 sys.path.insert(0,str(ROOT/'src'))
+sys.path.insert(0,str(ROOT/'cloud/api'))
 from analysis import analyze_document
 class Handler(SimpleHTTPRequestHandler):
  def json_reply(self,status,body):
@@ -60,6 +61,10 @@ class Handler(SimpleHTTPRequestHandler):
    n=int(self.headers.get('Content-Length','0'))
    if not 0<n<=5*1024*1024:return self.json_reply(413,{'error':'请求过大。'})
    body=self.rfile.read(n)
+   if self.path=='/api/game-summary':
+    from game_summary import aggregate
+    data=json.loads(body)
+    return self.json_reply(200,aggregate(data['rounds'],data['gameId'],data['team']))
    if self.path=='/api/analyze':return self.json_reply(200,analyze_document(json.loads(body)))
    if self.path.startswith('/api/'):return self.proxy(body)
    return self.json_reply(404,{'error':'接口不存在。'})
