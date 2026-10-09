@@ -13,4 +13,6 @@ def display_names(result):
  for key,role in [('actorTrackId','主角'),('beneficiaryTrackId','收益队友'),('defenderTrackId','防守者')]:
   pid=e[key];player=next(p for p in result['players'] if p['id']==pid)
   names[pid]=f"{TEAM_NAMES[player['team']]} · {role}"
+ for pid,role in [(pid,'协同队友') for pid in e.get('supportTrackIds',[])]+[(pid,'内侧防守' if i==0 else '外侧防守') for i,pid in enumerate(e.get('defenderTrackIds',[]))]:
+  player=next(p for p in result['players'] if p['id']==pid);names[pid]=f"{TEAM_NAMES[player['team']]} · {role}"
  return names

@@ -63,3 +63,15 @@ assert.equal(vm.runInContext('visiblePeople(gap,.16).length',context),1);
 vm.runInContext('gap.frames[2].scene=1',context);
 assert.equal(vm.runInContext('visiblePeople(gap,.16).length',context),0);
 console.log('PASS: stable trio before the event, explicit missing-identity status and bounded interpolation.');
+// The reviewed collaboration keeps five distinct identities and gives both defenders directions.
+context.cooperation=JSON.parse(fs.readFileSync(path.join(root,'web/demo/analysis.json'),'utf8'));
+vm.runInContext('state.offline=true;state.results.set(state.id,cooperation);state.playerId=null;render();',context);
+nodes.get('video').currentTime=8.63;vm.runInContext('renderOverlay()',context);
+for(const id of ['P13','P2','P1','P3','P4'])assert(nodes.get('overlay').innerHTML.includes(`data-focus="${id}"`));
+for(const id of ['actor-P13','support-P2','defender-P3','defender-P4'])assert(nodes.get('overlay').innerHTML.includes(`direction-${id}`),`Expected future direction for ${id}`);
+assert(!nodes.get('overlay').innerHTML.includes('direction-beneficiary-P1'));
+assert(!nodes.get('overlay').innerHTML.includes('stroke-dasharray="6 6"'));
+assert(nodes.get('role-strip').innerHTML.includes('协同队友'));
+assert(nodes.get('impact-content').innerHTML.includes('63'));
+assert.equal(context.cooperation.events[0].score,null);
+console.log('PASS: five-person collaboration, four movement arrows, and presentation score separate from algorithm output.');

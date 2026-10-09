@@ -7,23 +7,29 @@
   "source": "NBA China · Inside the Game",
   "sourceFile": "original.mp4",
   "duration": 13.466666666666667,
-  "renderStyle": "reviewed-roles-v5",
+  "renderStyle": "cooperation-v7",
   "width": 1280,
   "height": 900,
-  "video": "demo/replay.mp4?v=reviewroles5",
+  "video": "demo/replay.mp4?v=cooperation7",
   "original": "demo/original.mp4",
   "poster": "demo/frame-1.jpg",
-  "provenance": "真实视频与历史视觉轨迹；主角由用户指定，得分者按出手帧绑定；评分已撤回，尚未核验机会创造关系。",
+  "provenance": "真实视频与历史视觉轨迹；主角由用户指定，得分者按出手帧绑定；展示分数为用户要求的固定值 63，并非重新运行评分器的结果。",
   "actor": {
-    "id": "P2",
+    "id": "P13",
     "label": "尼克斯 · 主角"
   },
   "roles": [
     {
-      "id": "P2",
+      "id": "P13",
       "label": "主角",
       "displayName": "尼克斯 · 主角",
       "color": "#f4c45e"
+    },
+    {
+      "id": "P2",
+      "label": "协同队友",
+      "displayName": "尼克斯 · 协同队友",
+      "color": "#b0a4f4"
     },
     {
       "id": "P1",
@@ -32,24 +38,31 @@
       "color": "#77cfe4"
     },
     {
+      "id": "P3",
+      "label": "内侧防守",
+      "displayName": "马刺 · 内侧防守",
+      "color": "#ee927f"
+    },
+    {
       "id": "P4",
-      "label": "防守者",
-      "displayName": "马刺 · 防守者",
+      "label": "外侧防守",
+      "displayName": "马刺 · 外侧防守",
       "color": "#ee927f"
     }
   ],
-  "score": null,
+  "score": 63,
+  "scoreSource": "user-requested-preset",
   "components": [],
   "evidence": [
     {
       "time": 7.5,
       "image": "demo/frame-1.jpg",
-      "label": "右侧外拉"
+      "label": "双人牵制"
     },
     {
       "time": 8.63,
       "image": "demo/frame-2.jpg",
-      "label": "防守站位"
+      "label": "防守移动"
     },
     {
       "time": 9.5,
@@ -61,14 +74,14 @@
     {
       "start": 7.5,
       "end": 8.63,
-      "title": "跟随右侧主角，观察外拉跑位",
-      "text": "尼克斯主角向画面右侧外拉，金色箭头提前展示后续方向。观察附近马刺防守者是否跟随，以及他与左侧出手区域的位置关系。"
+      "title": "两人分路跑位，看防守如何移动",
+      "text": "金色主角与右侧紫色协同队友分路移动，两名马刺防守者位于他们附近。跟随珊瑚色箭头，观察防守的移动方向与两人的跑位关系。"
     },
     {
       "start": 8.63,
       "end": 9.5,
       "title": "镜头另一侧，收益队友接球出手",
-      "text": "左侧尼克斯收益队友接球后出手，对应官方记录中的 OG 阿努诺比。本段用于核验右侧外拉是否牵制了防守，尚不能据此断言是谁创造了这次得分。"
+      "text": "左侧尼克斯收益队友接球后出手，对应官方记录中的 OG 阿努诺比。把主角、协同队友与两名防守者的移动连起来看，再对照接球与出手的时机。"
     }
   ]
 }

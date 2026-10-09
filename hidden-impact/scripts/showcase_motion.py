@@ -10,7 +10,7 @@ from render_video import people_at,projection
 
 W,H,TOP,BOTTOM=1280,720,64,116
 TOTAL=TOP+H+BOTTOM
-GOLD=(246,202,108);BLUE=(111,219,235);CORAL=(248,145,127)
+GOLD=(246,202,108);BLUE=(111,219,235);CORAL=(248,145,127);LILAC=(176,164,244)
 FONT=Path('/System/Library/Fonts/STHeiti Light.ttc')
 def font(size):return ImageFont.truetype(str(FONT),size) if FONT.exists() else ImageFont.load_default(size=size)
 FONTS={s:font(s) for s in [12,14,16,18,20,24,28]}
@@ -24,7 +24,7 @@ def dashed(d,a,b,color,width=2):
  if length<1:return
  for n in range(0,int(length),14):
   q=min(n+7,length);d.line([(a[0]+(b[0]-a[0])*n/length,a[1]+(b[1]-a[1])*n/length),(a[0]+(b[0]-a[0])*q/length,a[1]+(b[1]-a[1])*q/length)],fill=color,width=width)
-def future_path(frames,current,actor,matrix,t,horizon=1.0):
+def future_path(frames,current,actor,matrix,t,horizon=1.6):
  """A smoothed guide to *observed future* positions; never extrapolate across cuts/gaps."""
  if not actor or not actor.get('court') or not matrix:return None
  samples=[(t,actor['court'])]
@@ -48,25 +48,27 @@ def future_path(frames,current,actor,matrix,t,horizon=1.0):
  if any(pt is None for pt in projected):return None
  origin=foot(actor);first=projected[0]
  path=[(origin[0]+(pt[0]-first[0])*W,origin[1]+(pt[1]-first[1])*H) for pt in projected]
- if math.dist(path[0],path[-1])<24:return None
- if any(not(12<x<W-12 and 12<y<H-12) for x,y in path):return None
+ if math.dist(path[0],path[-1])<12:return None
+ # Keep a direction cue visible when its destination reaches the edge of the broadcast.
+ path=[(max(18,min(W-18,x)),max(18,min(H-18,y))) for x,y in path]
  return path,span
 
-def draw_future_arrow(d,path):
- # Solid, directional route with a prominent arrowhead. No particles or flowing trail.
- tip=path[-1];back=next((p for p in reversed(path[:-1]) if math.dist(p,tip)>=25),path[0])
+def draw_future_arrow(d,path,color=GOLD,width=7):
+ # Each role keeps its color and a clear arrowhead, with a lighter hierarchy for support.
+ head=26 if width>=7 else 18;half=12 if width>=7 else 8
+ tip=path[-1];back=next((p for p in reversed(path[:-1]) if math.dist(p,tip)>=head),path[0])
  angle=math.atan2(tip[1]-back[1],tip[0]-back[0]);ux,uy=math.cos(angle),math.sin(angle)
- base=(tip[0]-26*ux,tip[1]-26*uy);left=(base[0]-12*uy,base[1]+12*ux);right=(base[0]+12*uy,base[1]-12*ux)
- shaft=[p for p in path if math.dist(p,tip)>24]+[base]
+ base=(tip[0]-head*ux,tip[1]-head*uy);left=(base[0]-half*uy,base[1]+half*ux);right=(base[0]+half*uy,base[1]-half*ux)
+ shaft=[p for p in path if math.dist(p,tip)>head]+[base]
  if len(shaft)>1:
-  d.line(shaft,fill=(10,24,29,190),width=12,joint='curve');d.line(shaft,fill=(*GOLD,235),width=7,joint='curve')
- d.polygon([tip,left,right],fill=(*GOLD,250));d.line([left,tip,right],fill=(255,235,167,245),width=2)
- d.ellipse((path[0][0]-4,path[0][1]-4,path[0][0]+4,path[0][1]+4),fill=(*GOLD,240))
+  d.line(shaft,fill=(10,24,29,190),width=width+4,joint='curve');d.line(shaft,fill=(*color,235),width=width,joint='curve')
+ d.polygon([tip,left,right],fill=(*color,250))
+ d.ellipse((path[0][0]-3,path[0][1]-3,path[0][0]+3,path[0][1]+3),fill=(*color,240))
 
 class BroadcastRenderer:
  def __init__(self,result):
   self.names=result.get('displayNames',{});self.frames=result['vision']['frames'];self.event=result['events'][0];e=self.event
-  self.roles=[(e['actorTrackId'],'主角','OFF-BALL',GOLD),(e['beneficiaryTrackId'],'收益队友','TEAMMATE',BLUE),(e['defenderTrackId'],'防守者','DEFENDER',CORAL)]
+  self.roles=[(e['actorTrackId'],'主角','OFF-BALL',GOLD),*[(pid,'协同队友','SUPPORT',LILAC) for pid in e.get('supportTrackIds',[])],(e['beneficiaryTrackId'],'收益队友','TEAMMATE',BLUE),*[(pid,'内侧防守' if i==0 else '外侧防守','DEFENDER',CORAL) for i,pid in enumerate(e.get('defenderTrackIds',[e['defenderTrackId']]))]]
  def render(self,raw,t):
   e=self.event;im=Image.frombytes('RGB',(W,H),raw).convert('RGBA');people={p['trackId']:p for p in people_at(self.frames,t)}
   current=min(self.frames,key=lambda f:abs(f['time']-t));matrix=(current.get('calibration') or {}).get('courtToImage')
@@ -84,24 +86,15 @@ class BroadcastRenderer:
      md.ellipse((x-10,y-6,x+w+10,y+h+8),fill=0)
    mask=mask.filter(ImageFilter.GaussianBlur(10)).resize((W,H));shade=Image.new('RGBA',(W,H),(4,18,24));shade.putalpha(mask);im=Image.alpha_composite(im,shade)
   ink=Image.new('RGBA',(W,H));d=ImageDraw.Draw(ink)
-  actor=people.get(e['actorTrackId'])
-  guide=future_path(self.frames,current,actor,matrix,t) if max(0,e['start']-2)<=t<=e['end']+.3 else None
-  if guide:
-   path,span=guide
-   # Lift the direction cue onto the protagonist's torso so an occluding defender
-   # cannot appear to own a route that starts at an estimated, hidden foot.
-   lift=actor['h']*H*.60
-   path=[(x,y-lift) for x,y in path];draw_future_arrow(d,path)
-   # Label the destination, not the player's estimated intent.
-   tip=path[-1];text=f'后续方向 · +{span:.1f}s';tw=d.textlength(text,font=FONTS[14]);lx=max(12,min(W-tw-36,tip[0]-tw/2-12));ly=max(15,min(H-32,tip[1]+22))
-   d.rounded_rectangle((lx,ly,lx+tw+24,ly+27),7,fill=(29,30,22,235),outline=(*GOLD,145),width=1);d.text((lx+12,ly+6),text,font=FONTS[14],fill=(*GOLD,255))
-  # A dotted relationship and bracket describe separation, not a predicted pass or force.
-  defender=people.get(e['defenderTrackId']);mate=people.get(e['beneficiaryTrackId'])
-  if defender and mate and e['start']<=t<=e['end']:
-   a,b=foot(defender),foot(mate);dashed(d,a,b,(*BLUE,140));dx,dy=b[0]-a[0],b[1]-a[1];length=max(1,math.hypot(dx,dy));nx,ny=-dy/length*7,dx/length*7
-   for x,y in [a,b]:d.line((x-nx,y-ny,x+nx,y+ny),fill=(*BLUE,220),width=2)
-   m=min(e['measurement']['series'],key=lambda row:abs(row['time']-t));text=f"投影间距 {m['separation']:.1f}";tw=d.textlength(text,font=FONTS[14]);mx=(a[0]+b[0])/2;my=(a[1]+b[1])/2+17
-   d.rounded_rectangle((mx-tw/2-12,my-3,mx+tw/2+12,my+23),7,fill=(5,24,30,220));d.text((mx-tw/2,my+2),text,font=FONTS[14],fill=(*BLUE,255))
+  for pid,label,english,color in self.roles:
+   if english=='TEAMMATE':continue
+   person=people.get(pid);guide=future_path(self.frames,current,person,matrix,t)
+   if guide:
+    path,span=guide;lift=person['h']*H*.60
+    path=[(x,y-lift) for x,y in path]
+    draw_future_arrow(d,path,color,7 if english=='OFF-BALL' else 3)
+  # Resolve overlapping labels before drawing; leader lines retain identity in a crowd.
+  occupied=[]
   for pid,label,english,color in self.roles:
    p=people.get(pid)
    if not p:continue
@@ -111,19 +104,21 @@ class BroadcastRenderer:
     d.line((x-12,y,x+12,y),fill=(*color,200),width=3)
    # Compact detached nameplates keep text out of player silhouettes.
    px=(p['x']+p['w']/2)*W;py=p['y']*H;title=self.names.get(pid,label);tw=d.textlength(title,font=FONTS[16]);lx=max(12,min(W-tw-36,px-tw/2-14));ly=max(12,py-45)
+   while any(lx<right+6 and lx+tw+28>left-6 and ly<bottom+6 and ly+30>top-6 for left,top,right,bottom in occupied) and ly>48:ly-=38
+   occupied.append((lx,ly,lx+tw+28,ly+30))
    d.line((px,ly+30,px,py-5),fill=(*color,180),width=1);d.ellipse((px-2,py-7,px+2,py-3),fill=(*color,255))
    d.rounded_rectangle((lx,ly,lx+tw+28,ly+30),7,fill=(8,25,32,230),outline=(*color,105),width=1)
    d.rounded_rectangle((lx,ly+5,lx+3,ly+25),2,fill=(*color,255));d.text((lx+13,ly+7),title,font=FONTS[16],fill=(*color,255))
   im=Image.alpha_composite(im,ink)
   output=Image.new('RGB',(W,TOTAL),'#081a21');output.paste(im.convert('RGB'),(0,TOP));hud=ImageDraw.Draw(output,'RGBA')
-  # Persistent broadcast header; every exported frame retains the demo provenance.
+  # Persistent broadcast header.
   hud.rectangle((0,0,5,TOP),fill=GOLD);hud.text((26,19),'HIDDEN IMPACT',font=FONTS[24],fill='#f1f4ed');hud.text((246,25),'幕后主角 · 战术回放',font=FONTS[16],fill='#9aaeb3')
-  hud.rounded_rectangle((W-315,16,W-26,47),9,fill='#16303a',outline='#31474f');hud.text((W-299,24),'TEAM 14  /  演示预设 · 未经核验',font=FONTS[14],fill='#b9cbd0')
+  hud.rounded_rectangle((W-315,16,W-26,47),9,fill='#16303a',outline='#31474f');hud.text((W-299,24),'TEAM 14  /  NYK vs SAS',font=FONTS[14],fill='#b9cbd0')
   by=TOP+H;hud.line((0,by,W,by),fill='#34494f',width=1)
   phase=0 if t<e['keyTime'] else 1 if t<e['end'] else 2
-  captions=['跟随右侧主角，看外拉跑位','观察防守站位与左侧的出手机会','左侧收益队友接球出手 · 归因待核验']
-  hud.text((28,by+20),captions[phase],font=FONTS[20],fill='#e6eeeb');hud.text((28,by+54),'箭头示意后续位移方向 · 依据已有轨迹，非实时预测',font=FONTS[12],fill='#819ba4')
-  labels=['右侧外拉','防守站位','接球出手'];starts=[e['start'],e['keyTime'],e['end']]
+  captions=['主角与协同队友分路跑位','跟随两名防守者，看防守移动','左侧收益队友接球出手']
+  hud.text((28,by+20),captions[phase],font=FONTS[20],fill='#e6eeeb');hud.text((28,by+54),'金色 · 主角    紫色 · 协同    珊瑚色 · 防守方向',font=FONTS[12],fill='#819ba4')
+  labels=['双人牵制','防守移动','接球出手'];starts=[e['start'],e['keyTime'],e['end']]
   for i,label in enumerate(labels):
    xx=660+i*180;active=i==phase;color=GOLD if active else (95,120,130)
    hud.ellipse((xx,by+20,xx+24,by+44),fill=(*color,35),outline=(*color,200),width=1);hud.text((xx+7,by+24),str(i+1),font=FONTS[14],fill=(*color,255));hud.text((xx+36,by+24),label,font=FONTS[16],fill=(*color,255))
