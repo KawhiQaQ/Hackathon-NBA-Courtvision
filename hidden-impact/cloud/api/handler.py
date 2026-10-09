@@ -98,7 +98,10 @@ def worker(event):
     im=Image.open(io.BytesIO(base64.b64decode(frame['image']))).convert('RGB');im.thumbnail((480,270));buf=io.BytesIO();im.save(buf,format='JPEG',quality=75)
     key=prefix+f'frames/{i}.jpg';s3.put_object(Bucket=BUCKET,Key=key,Body=buf.getvalue(),ContentType='image/jpeg');thumbnails.append({'time':frame['time'],'key':key})
    result['result']['thumbnails']=thumbnails
-  if result['result'].get('scoringVersion')=='temporal-impact-v5' and result['result'].get('events'):
+  if result['result'].get('scoringVersion')=='temporal-impact-v5':
+   from presentation import build
+   build(result['result'])
+  if result['result'].get('presentation',{}).get('status')=='ready':
    try:
     from render_video import render
     import tempfile
@@ -108,6 +111,14 @@ def worker(event):
      replay=render(source,result['result'],target)
      key=prefix+'tactical.mp4';s3.upload_file(target,BUCKET,key,ExtraArgs={'ContentType':'video/mp4'})
      result['result']['tacticalReplay']={**replay,'key':key}
+     presentation=result['result']['presentation']
+     presentation['originalKey']=video_item['key']
+     presentation['videoKey']=key
+     for frame in presentation['evidence']:
+      frame_key=prefix+'presentation/'+frame['image']
+      s3.upload_file(workdir+'/'+frame['image'],BUCKET,frame_key,ExtraArgs={'ContentType':'image/jpeg'})
+      frame['imageKey']=frame_key
+     presentation['rendered']=True
    except Exception as exc:
     result['result']['renderError']='战术视频生成失败，网页动态回放仍可用。';print('render_failed',str(exc)[:300])
   put(prefix+'result.json',result['result']);put(prefix+'status.json',{'job':job,'status':'completed','updatedAt':time.time()})
@@ -141,6 +152,15 @@ def handler(event,context):
     status['result']=reviewed_result(get(f'jobs/{job}/result.json'))
     replay=status['result'].get('tacticalReplay')
     if replay and replay.get('key')==f'jobs/{job}/tactical.mp4':replay['url']=s3.generate_presigned_url('get_object',Params={'Bucket':BUCKET,'Key':replay['key']},ExpiresIn=3600)
+    presentation=status['result'].get('presentation',{})
+    if presentation.get('rendered'):
+     if presentation.get('videoKey')!=f'jobs/{job}/tactical.mp4':raise ValueError('Invalid replay asset')
+     presentation['video']=replay['url']
+     item=get(f"library/{key_id(status['result']['video']['id'])}.json")
+     presentation['original']=s3.generate_presigned_url('get_object',Params={'Bucket':BUCKET,'Key':item['key']},ExpiresIn=3600)
+     for frame in presentation.get('evidence',[]):
+      if not frame.get('imageKey','').startswith(f'jobs/{job}/presentation/'):raise ValueError('Invalid story asset')
+      frame['image']=s3.generate_presigned_url('get_object',Params={'Bucket':BUCKET,'Key':frame['imageKey']},ExpiresIn=3600)
     for frame in status['result'].get('thumbnails',[]):
      if frame.get('key','').startswith(f'jobs/{job}/frames/'):
       frame['url']=s3.generate_presigned_url('get_object',Params={'Bucket':BUCKET,'Key':frame['key']},ExpiresIn=3600)
@@ -190,7 +210,7 @@ def handler(event,context):
     if body.get('companion') is not None:
      from companion import validate_companion
      body['deepData']['companion']=validate_companion(body.pop('companion'),body['video']['duration'])
-   digest=hashlib.sha256((VERSION+'temporal-impact-v5-outcome-r7'+json.dumps(body,sort_keys=True)).encode()).hexdigest()[:32]
+   digest=hashlib.sha256((VERSION+'temporal-impact-v5-presentation-r8'+json.dumps(body,sort_keys=True)).encode()).hexdigest()[:32]
    status=None
    if not body.get('force'):
     try:

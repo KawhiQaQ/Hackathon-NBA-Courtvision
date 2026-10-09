@@ -35,9 +35,13 @@ def prepare(result,original_frames,events):
    beneficiary=next((p for p in f['people'] if p['trackId']==e['beneficiaryTrackId']),None)
    if beneficiary:
     x,y,w,h=beneficiary['x']*im.width,beneficiary['y']*im.height,beneficiary['w']*im.width,beneficiary['h']*im.height;draw.rectangle((x,y,x+w,y+h),outline='#45e4ff',width=4);draw.text((x,max(0,y-22)),'B',fill='#45e4ff',font=ImageFont.load_default(size=22))
+   defender=next((p for p in f['people'] if p['trackId']==e['defenderTrackId']),None)
+   if defender:
+    x,y,w,h=defender['x']*im.width,defender['y']*im.height,defender['w']*im.width,defender['h']*im.height
+    draw.rectangle((x,y,x+w,y+h),outline='#ff927f',width=4);draw.text((x,max(0,y-22)),'D',fill='#ff927f',font=ImageFont.load_default(size=22))
    buf=io.BytesIO();im.save(buf,format='JPEG',quality=87)
    frames.append({'time':original['time'],'phase':phase,'image':base64.b64encode(buf.getvalue()).decode()})
-  if len({f['time'] for f in frames if f['phase']=='action'})>=3:candidates.append({'id':e['id'],'frames':frames})
+  if len({f['time'] for f in frames if f['phase']=='action'})>=3:candidates.append({'id':e['id'],'actionType':e['actionType'],'frames':frames})
  return {'mode':'verify-temporal-candidates','candidates':candidates}
 
 def apply(result,checks):
@@ -45,8 +49,8 @@ def apply(result,checks):
  for check in checks:
   e=events.get(check.get('id'))
   if not e:continue
-  receipt={**check,'actorTrackId':e['actorTrackId'],'beneficiaryTrackId':e['beneficiaryTrackId'],'start':e['start'],'end':e['end']};reviewed.append(receipt)
-  if check.get('onBall') is True and (check.get('samePlayer') is True or check.get('samePlayer') is None and e['measurement']['quality']>=.65):
+  receipt={**check,'actorTrackId':e['actorTrackId'],'beneficiaryTrackId':e['beneficiaryTrackId'],'defenderTrackId':e['defenderTrackId'],'start':e['start'],'end':e['end']};reviewed.append(receipt)
+  if e['actionType']!='draw-kick' and check.get('onBall') is True and (check.get('samePlayer') is True or check.get('samePlayer') is None and e['measurement']['quality']>=.65):
    changed=True
    for f in result['vision']['frames']:
     if not e['start']<=f['time']<=e['end']:continue
@@ -60,17 +64,22 @@ def apply(result,checks):
  result['releaseSuspects']=release_suspects(result.get('vision',{}))
  shooters=set(result['releaseSuspects'])| {c['actorTrackId'] for c in reviewed if c.get('isShooter') is True}
  for e in result['events']:
-  ok=any(c.get('onBall') is False and c.get('isShooter') is False and (c.get('samePlayer') is True or c.get('samePlayer') is None and e['measurement']['quality']>=.65) and c['actorTrackId']==e['actorTrackId'] and c['beneficiaryTrackId']==e['beneficiaryTrackId'] and c['start']<=e['start']+.02 and c['end']>=e['end']-.02 for c in reviewed)
-  e['visualVerified']=ok
-  if e['actionType']=='spacing':ok=ok and any(c.get('beneficiaryOnBall') is True and c['actorTrackId']==e['actorTrackId'] and c['beneficiaryTrackId']==e['beneficiaryTrackId'] and c['start']<=e['start']+.02 and c['end']>=e['end']-.02 for c in reviewed)
-  ok=ok and e['actorTrackId'] not in shooters
+  ok=any(c.get('onBall') is False and c.get('isShooter') is False and (c.get('samePlayer') is True or c.get('samePlayer') is None and e['measurement']['quality']>=.65) and c['actorTrackId']==e['actorTrackId'] and c['beneficiaryTrackId']==e['beneficiaryTrackId'] and c.get('defenderTrackId')==e['defenderTrackId'] and c['start']<=e['start']+.02 and c['end']>=e['end']-.02 for c in reviewed)
+  if e['actionType']=='draw-kick':
+   ok=any(c.get('onBall') is True and c.get('isShooter') is False and c.get('samePlayer') is True and c.get('passObserved') is True and c.get('beneficiaryIsShooter') is True and c.get('defenderResponds') is True and c['actorTrackId']==e['actorTrackId'] and c['beneficiaryTrackId']==e['beneficiaryTrackId'] and c.get('defenderTrackId')==e['defenderTrackId'] and c['start']<=e['start']+.02 and c['end']>=e['end']-.02 for c in reviewed)
+  if e['actionType']=='spacing':ok=ok and any(c.get('beneficiaryOnBall') is True and c['actorTrackId']==e['actorTrackId'] and c['beneficiaryTrackId']==e['beneficiaryTrackId'] and c.get('defenderTrackId')==e['defenderTrackId'] and c['start']<=e['start']+.02 and c['end']>=e['end']-.02 for c in reviewed)
+  # An explicit pass-to-shot check disambiguates the generic ball-rise veto;
+  # an explicit shooter verdict still excludes the actor in every branch.
+  veto={c['actorTrackId'] for c in reviewed if c.get('isShooter') is True} if e['actionType']=='draw-kick' else shooters
+  ok=ok and e['actorTrackId'] not in veto
   e['visualVerified']=ok
   e['identityVerification']='visual-confirmed' if any(c.get('samePlayer') is True and c['actorTrackId']==e['actorTrackId'] for c in reviewed) else 'continuous-track-and-jersey'
   if ok:passed.append(e['id'])
  return result
 
 def finalize(result):
- valid=[e for e in result['events'] if e.get('visualVerified')];ids={e['id'] for e in valid}
+ shooters={c['actorTrackId'] for c in result.get('candidateChecks',[]) if c.get('isShooter') is True}
+ valid=[e for e in result['events'] if e.get('visualVerified') and e['actorTrackId'] not in shooters and (e['actionType']=='draw-kick' or e['actorTrackId'] not in result.get('releaseSuspects',{}))];ids={e['id'] for e in valid}
  for p in result['players']:
   d=p.get('diagnostics',{})
   if p.get('score')==0 and (d.get('knownHandlerFrames',0)<3 or d.get('knownHandlerFrames',0)/max(1,p.get('observationCount',0))<.25):p.update(score=None,status='insufficient',reason='持球覆盖不足，未将缺失证据记为零贡献。')
@@ -80,6 +89,11 @@ def finalize(result):
  shooters={c['actorTrackId'] for c in result.get('candidateChecks',[]) if c.get('isShooter') is True}
  for p in result['players']:
   if p['id'] in shooters:p.update(status='shooter',score=None,reason='核验为本回合最终出手者，不参与幕后 MVP 排名。')
-  elif p['id'] in result.get('releaseSuspects',{}):p.update(status='release-review',score=None,reason='画面检测到后续举球释放动作，与纯无球归因冲突；出手身份待核验，不进入幕后 MVP 排名。')
+  elif p['id'] in result.get('releaseSuspects',{}) and not any(e['actorTrackId']==p['id'] and e['actionType']=='draw-kick' for e in valid):p.update(status='release-review',score=None,reason='画面检测到后续举球释放动作，与纯无球归因冲突；出手身份待核验，不进入幕后 MVP 排名。')
+ for p in result['players']:
+  accepted=[e for e in valid if e['actorTrackId']==p['id']]
+  if accepted:
+   best=max(accepted,key=lambda e:e['score'])
+   p.update(score=best['score'],status='candidate',eventIds=[e['id'] for e in accepted],components=best['components'],measurement=best['measurement'],summary=best['summary'],evidence=best['observations'])
  result['players'].sort(key=lambda p:(p['role']=='offense',p['score'] is not None,p['score'] or 0),reverse=True)
  return result

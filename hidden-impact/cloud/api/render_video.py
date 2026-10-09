@@ -25,48 +25,86 @@ def people_at(frames,t):
   out.append(o)
  return out
 
-def render(source,result,output):
- events=result.get('events',[])
- if not events:return None
- e=events[0];frames=result['vision']['frames'];start=max(0,e['start']-.5);end=min(result['video']['duration'],e['end']+.5);width=960;height=round(width/result['vision']['aspectRatio']/2)*2;fps=24
- decode=subprocess.Popen([ffmpeg(),'-v','error','-ss',str(start),'-i',str(source),'-t',str(end-start),'-vf',f'fps={fps},scale={width}:{height}','-f','rawvideo','-pix_fmt','rgb24','pipe:1'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
- encode=subprocess.Popen([ffmpeg(),'-y','-v','error','-f','rawvideo','-pix_fmt','rgb24','-s',f'{width}x{height+120}','-r',str(fps),'-i','pipe:0','-ss',str(start),'-i',str(source),'-map','0:v','-map','1:a?','-t',str(end-start),'-c:v','libx264','-pix_fmt','yuv420p','-preset','veryfast','-crf','21','-c:a','aac','-movflags','+faststart',str(output)],stdin=subprocess.PIPE,stderr=subprocess.PIPE)
- colors={e['actorTrackId']:(255,222,125),e['defenderTrackId']:(255,148,125),e['beneficiaryTrackId']:(130,219,255)};font=ImageFont.load_default(size=19);small=ImageFont.load_default(size=13);index=0
+from functools import lru_cache
+
+@lru_cache(maxsize=8)
+def font(size):
+ path=Path(__file__).parent/'fonts/NotoSansSC.ttf'
+ if not path.exists():raise RuntimeError('Missing bundled CJK font')
+ return ImageFont.truetype(str(path),size)
+
+
+def wrap(draw,text,size,width):
+ rows=[];row=''
+ for c in text:
+  if draw.textlength(row+c,font=font(size))>width and row:rows.append(row);row=''
+  row+=c
+ if row:rows.append(row)
+ return rows
+
+
+def composite(image,result,t):
+ """Single compositor for the replay and story frames, driven by measured data."""
+ manifest=result['presentation'];motion=result['presentationMotion'];w,h=image.size
+ im=Image.new('RGB',(w,h+144),'#102b29');im.paste(image,(0,44))
+ draw=ImageDraw.Draw(im,'RGBA')
+ draw.text((20,10),'HIDDEN IMPACT  /  '+manifest['actor']['label'],font=font(19),fill='#f5d68e')
+ draw.text((w-140,11),f"{manifest['score']} / 100",font=font(17),fill='white')
+ frame=motion['frames'][min(len(motion['frames'])-1,max(0,round(t*motion['fps'])))];colors={r['id']:r for r in manifest['roles']}
+ for i,p in enumerate(frame['people']):
+  role=colors[p['trackId']];color=tuple(bytes.fromhex(role['color'][1:]))
+  if p.get('offscreen'):
+   # Identity stays visible in a status strip; no fictitious person location.
+   x=18+i*w/3;y=h+50
+   draw.text((x,y),role['displayName']+' · 定位中',font=font(13),fill=(*color,255));continue
+  x=(p['x']+p['w']/2)*w;y=(p['y']+p['h'])*h+44;radius=max(15,p['w']*w*.7)
+  draw.ellipse((x-radius-8,y-10,x+radius+8,y+10),fill=(*color,45))
+  draw.ellipse((x-radius,y-5,x+radius,y+5),outline=(*color,255),width=3)
+  top=max(48,p['y']*h+44-25-i*3);text=role['displayName'];length=draw.textlength(text,font=font(14))+14
+  lx=max(4,min(w-length-4,x-length/2))
+  draw.rounded_rectangle((lx,top,lx+length,top+23),radius=6,fill=(14,38,36,225))
+  draw.text((lx+7,top+2),text,font=font(14),fill=(*color,255))
+ arrow=frame.get('heroArrow')
+ if arrow:
+  points=[(x/motion['width']*w,y/motion['height']*h+44) for x,y in arrow['points']]
+  draw.line(points,fill=(255,216,112,255),width=5)
+  a,b=points[-2:];ang=math.atan2(b[1]-a[1],b[0]-a[0]);length=15
+  draw.polygon([b,(b[0]-length*math.cos(ang-.45),b[1]-length*math.sin(ang-.45)),(b[0]-length*math.cos(ang+.45),b[1]-length*math.sin(ang+.45))],fill=(255,216,112,255))
+ segments=manifest['insights'].get('narration',{}).get('segments',[])
+ seg=next((s for s in segments if s['start']<=t<s['end']),None)
+ if seg:title,text=seg['title'],seg['text']
+ else:title,text=manifest['actionTitle'],''
+ draw.text((20,h+76),title,font=font(17),fill='white')
+ for i,line in enumerate(wrap(draw,text,14,w-40)[:2]):draw.text((20,h+101+i*20),line,font=font(14),fill='#d7e2d9')
+ return im
+
+
+def render(source,result,output,story_dir=None):
+ from presentation import build
+ if result.get('presentation',{}).get('mode')!='analysis':build(result)
+ if result['presentation'].get('status')!='ready':return None
+ manifest=result['presentation'];start=0;end=result['video']['duration'];width=960
+ height=round(width/result['vision'].get('aspectRatio',16/9)/2)*2;fps=result['presentationMotion']['fps']
+ target=Path(output);target.parent.mkdir(parents=True,exist_ok=True)
+ story_dir=Path(story_dir) if story_dir else target.parent;story_dir.mkdir(parents=True,exist_ok=True)
+ decode=subprocess.Popen([ffmpeg(),'-v','error','-i',str(source),'-t',str(end),'-vf',f'fps={fps},scale={width}:{height}','-f','rawvideo','-pix_fmt','rgb24','pipe:1'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
+ encode=subprocess.Popen([ffmpeg(),'-y','-v','error','-f','rawvideo','-pix_fmt','rgb24','-s',f'{width}x{height+144}','-r',str(fps),'-i','pipe:0','-i',str(source),'-map','0:v','-map','1:a?','-t',str(end),'-c:v','libx264','-pix_fmt','yuv420p','-preset','veryfast','-crf','21','-c:a','aac','-movflags','+faststart',str(output)],stdin=subprocess.PIPE,stderr=subprocess.PIPE)
+ index=0;saved=set()
  try:
   while True:
    raw=decode.stdout.read(width*height*3)
    if len(raw)!=width*height*3:break
-   t=start+index/fps;index+=1;im=Image.new('RGB',(width,height+120),'#142c2a');im.paste(Image.frombytes('RGB',(width,height),raw));draw=ImageDraw.Draw(im,'RGBA');f=min(frames,key=lambda f:abs(f['time']-t));h=(f.get('calibration') or {}).get('courtToImage');persons=people_at(frames,t)
-   active=e['start']<=t<=e['end']
-   for pid,color in colors.items():
-    p=next((p for p in persons if p['trackId']==pid),None)
-    if not p or not active:continue
-    past=[q for q in frames if q['scene']==f['scene'] and max(e['start'],t-2.3)<=q['time']<=t];prev=None
-    for q in past:
-     person=next((p for p in q['people'] if p['trackId']==pid),None)
-     pt=projection(h,person['court']) if person and h and 'court' in person else ((person['x']+person['w']/2,person['y']+person['h']) if person else None)
-     if pt:
-      xy=(pt[0]*width,pt[1]*height)
-      if prev and q['time']-prev[1]<.4:draw.line([prev[0],xy],fill=(*color,int(40+150*(1-(t-q['time'])/2.3))),width=6 if pid==e['actorTrackId'] else 3)
-      prev=(xy,q['time'])
-     else:prev=None
-    x=(p['x']+p['w']/2)*width;y=(p['y']+p['h'])*height;draw.ellipse((x-20,y-6,x+20,y+6),fill=(*color,55),outline=(*color,240),width=3)
-    label=pid+('  FOCUS' if pid==e['actorTrackId'] else '  DEFENDER' if pid==e['defenderTrackId'] else '  TEAMMATE');ly=max(10,p['y']*height-(52 if pid==e['actorTrackId'] else 25));draw.rounded_rectangle((x-40,ly,x+100,ly+22),radius=5,fill=(15,39,37,230));draw.text((x-35,ly+3),label,fill=(*color,255),font=small)
-   # Lower strip is outside the footage, leaving the actual play readable.
-   draw.text((22,height+12),f"HIDDEN IMPACT  /  {e['actorTrackId']}  /  {e['actionType'].upper()}",fill='white',font=font)
-   phase='BEFORE' if t<e['start'] else 'AFTER' if t>e['end'] else 'MOVEMENT' if t<e.get('keyTime',e['start']+1) else 'DEFENSIVE RESPONSE'
-   draw.text((22,height+43),f"{t:05.2f}s   {phase}    Index {e['score']}/100",fill='#b5c8b5',font=small)
-   series=e['measurement']['series'];maximum=max(1,max(r['separation'] for r in series));points=[(450+(r['time']-e['start'])/(e['end']-e['start'])*300,height+85-r['separation']/maximum*65) for r in series];draw.line(points,fill='#ffe18d',width=3);x=450+max(0,min(1,(t-e['start'])/(e['end']-e['start'])))*300;draw.line((x,height+10,x,height+90),fill='#9cdfef',width=2);draw.text((450,height+97),'Teammate - defender separation',fill='#b5c8b5',font=small)
-   draw.rectangle((780,height+8,947,height+97),outline='#759183',width=1);draw.line((863,height+8,863,height+97),fill='#759183')
-   for p in persons:
-    if p['trackId'] in colors and p.get('court') and f.get('calibration'):
-     x=780+p['court'][0]/28*167;y=height+8+p['court'][1]/15*89
-     if 780<=x<=947 and height+8<=y<=height+97:draw.ellipse((x-3,y-3,x+3,y+3),fill=colors[p['trackId']])
-   draw.text((780,height+101),'Estimated court',fill='#b5c8b5',font=small);encode.stdin.write(im.tobytes())
+   t=index/fps;im=composite(Image.frombytes('RGB',(width,height),raw),result,t)
+   for j,f in enumerate(manifest['evidence']):
+    if j not in saved and index>=round(f['time']*fps):
+     im.save(story_dir/f['image'],quality=90);saved.add(j)
+   encode.stdin.write(im.tobytes());index+=1
   encode.stdin.close();errors=encode.stderr.read();code=encode.wait(timeout=60);decode.wait(timeout=10)
   if code:raise RuntimeError(errors.decode()[-500:])
-  if index<max(1,int((end-start)*fps*.8)):raise RuntimeError('Insufficient decoded video frames')
+  if index<max(1,int(end*fps*.95)) or len(saved)!=len(manifest['evidence']):raise RuntimeError('Incomplete replay or evidence frames')
  finally:
-  if decode.poll() is None:decode.kill()
-  if encode.poll() is None:encode.kill()
- return {'start':start,'end':end,'fps':fps,'frameCount':index,'focusPlayerId':e['actorTrackId'],'eventId':e['id']}
+  for process in [decode,encode]:
+   if process.poll() is None:process.kill();process.wait()
+   for stream in [process.stdin,process.stdout,process.stderr]:
+    if stream and not stream.closed:stream.close()
+ return {'start':0,'end':end,'fps':fps,'frameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':'presentation-v1'}

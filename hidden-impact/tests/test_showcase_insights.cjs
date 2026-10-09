@@ -22,8 +22,8 @@ assert(!ctx.opportunityMarkup({...manifest.insights,shooter:'<script>bad</script
  function node(){return {innerHTML:'',textContent:'',value:'1',hidden:true,dataset:{},style:{},currentTime:0,duration:13.49,readyState:2,paused:true,scrollLeft:0,clientWidth:500,scrollWidth:1000,classList:{toggle(){}},setAttribute(k,v){this[k]=v},addEventListener(k,f){events.set(k,f)},querySelectorAll(){return []},querySelector(){return null},pause(){this.paused=true},play(){this.paused=false;return Promise.resolve()},load(){},scrollBy(){}};}
  for(const m of html.matchAll(/id="([^"]+)"/g))nodes.set(m[1],node());
  const buttons=manifest.insights.cues.map(node);nodes.get('phase-rail').querySelectorAll=()=>buttons;
- const doc={getElementById:id=>{assert(nodes.has(id),'Missing DOM node '+id);return nodes.get(id)},querySelectorAll:()=>[],addEventListener(){}};
- const context=vm.createContext({document:doc,window:{addEventListener(){}},fetch:async()=>({ok:true,json:async()=>manifest}),URL,console});
+ const doc={getElementById:id=>{assert(nodes.has(id),'Missing DOM node '+id);return nodes.get(id)},querySelectorAll:()=>[],querySelector:()=>node(),addEventListener(){}};
+ const context=vm.createContext({document:doc,window:{addEventListener(){}},fetch:async()=>({ok:true,json:async()=>manifest}),URL,URLSearchParams,location:{search:'',href:'http://localhost/',origin:'http://localhost'},console});
  const source=fs.readFileSync(path.join(root,'web/showcase.js'),'utf8').replace(/^import .*;\n/,'');
  await vm.runInContext(view+'\n(async()=>{'+source+'})()',context);
  assert.equal(nodes.get('load-error').hidden,true);

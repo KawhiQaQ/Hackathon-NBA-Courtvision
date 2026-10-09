@@ -61,7 +61,7 @@ class NarrationTests(unittest.TestCase):
         self.assertEqual(request['frames'], self.payload['frames'])
 
     def test_api_and_agent_contracts_match(self):
-        for file in ['logic.py', 'narration.py']:
+        for file in ['logic.py', 'narration.py', 'temporal.py', 'playmaking.py']:
             self.assertEqual((ROOT/'cloud/api'/file).read_bytes(), (ROOT/'cloud/agent'/file).read_bytes())
 
 

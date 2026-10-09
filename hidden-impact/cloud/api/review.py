@@ -40,6 +40,7 @@ def reviewed_result(result):
             output['scoringVersion']=SCORING_VERSION
     review = REJECTIONS.get(output.get('job'))
     if review:
+        for key in ['presentation','presentationMotion','tacticalReplay','narration']:output.pop(key,None)
         output.update(review=review, events=[], thumbnails=[],
                       overview='该片段的模型归因未通过画面核验，暂不提供无球贡献评分。')
     else:

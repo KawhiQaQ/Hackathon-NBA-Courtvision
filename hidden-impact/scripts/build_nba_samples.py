@@ -44,7 +44,7 @@ for rec in selected:
   'gameId':game,'eventId':event,'playerId':player,'shooter':playerdata['playerFirstName']+' '+playerdata['playerLastName'],'team':playerdata['teamName'],'date':playerdata['gameDate'],'matchup':playerdata['matchup'],
   'shot':shot,'gravityScope':'2025-26 Playoffs player aggregate; NOT per-possession gravity','rosterGravity':roster,'capturedAt':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())}
  video={'id':id,'title':title,'duration':duration,'source':official['source']}
- payload={'video':video,'frames':payloadframes,'deepData':{'videoId':id,'official':official}}
+ payload={'video':video,'frames':payloadframes,'deepData':{'videoId':id,'official':official,'playerShots':{'gameId':game,'playerId':player,'shotList':playerdata['shotList']}}}
  (FRAMES/f'{id}-request.json').write_text(json.dumps(payload,ensure_ascii=False))
  entry=video|{'poster':f'posters/{id}.jpg','official':official,'key':f'videos/{id}.mp4','deepData':payload['deepData'],'sha256':hashlib.sha256(out.read_bytes()).hexdigest()}
  catalog.append(entry);print(id,'duration',duration,'quality',shot['value'],flush=True)

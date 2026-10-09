@@ -195,3 +195,17 @@ not a confirmed person identity. Unverified proposals are removed from the candi
 ranking, and insufficient possession coverage is not published as zero contribution.
 Private content-addressed perception caches include model revision, video object ETag,
 and exact source anchor hashes. Cached CV output does not bypass fresh candidate checks.
+
+### 普通分析结果与展示页接口
+
+当前生产路径：视觉检测/跟踪 → 时序候选评分 → VLM 核验角色与出手 → `narrate-video` 分段解说 → `presentation.build` → 视频及胶卷帧渲染。除无球掩护、跑位、空间支撑外，`draw-kick` 候选通过持续球权转移、相关防守者靠近和接应空间计算；必须再核验传球、相关防守响应与队友最终出手，才进入排名。
+
+- `result.narration` 使用 `hidden-impact/timed-narration-v1`，每段有 `start/end/title/text/frameTimes`。实际生成器在 AgentCore 调用 Bedrock `converse`，输入原视频 JPEG 帧、已核验角色和可选深度数据。失败返回 unavailable，不替换成示例文案。
+- `result.presentation` 使用 `hidden-impact/showcase-v1`，生产结果 `mode=analysis`。角色、评分、故事帧、解说和可用数据图表来自本次分析。`presentationMotion` 提供三人位置、同镜头短缺帧插值和主角后续移动方向。长时间缺失或断镜时保留身份状态，不捏造位置/方向。
+- Worker 导出完整片段 MP4 和已标注 JPG，完成后工作台可“打开完整结果页”。`/?job=<job>` 使用团队会话获取有时效的签名资源；适合团队查看。正式提交可使用静态结果包，避免依赖评审登录和资源签名有效期。
+- 本地生成静态结果包：`.venv/bin/python scripts/export_result.py --analysis result.json --video input.mp4 --out web/results/my-play`；然后打开 `/?result=results/my-play/showcase.json`。将生成目录放入现有网站部署资源，即可复用同一展示页。没有合格事件时不导出虚构 MVP。
+- 不同视频无需修改展示页中的人物、球队或时间点。官方出手记录只用于对应视频；同场对照均值需要匹配的完整 `playerShots`，缺失时省略。Gravity 保留阶段汇总范围，不当成本回合实时归因。
+
+验证：`test_worker_presentation.py` 使用内存 AWS/Agent 双替身与真实视频编码验证任务链；`test_presentation.py` 覆盖评分核验、断镜缺帧、数据匹配和渲染；`test_generated_showcase.cjs` 覆盖通用展示页入口。测试替身不能证明云端权限或真实模型效果；恢复 AWS 后仍需执行真实视频调用验收。
+
+渲染字体随 API 部署包提供：Google Fonts 的 Noto Sans SC，SIL Open Font License；许可保留于 `cloud/api/fonts/OFL.txt`。下载来源为 `https://github.com/google/fonts/tree/main/ofl/notosanssc`。

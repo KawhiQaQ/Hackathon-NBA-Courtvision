@@ -148,5 +148,12 @@ def reports(roster,vision,companion=None):
     q=next(q for q in f['people'] if q['trackId']==pid);p['evidence'].append({'time':f['time'],'text':'球员位置观察','marks':[dict(q,role='actor',label=player['label'])]})
   p['diagnostics']={'evaluatedWindows':tested,'acceptedInteractionWindows':usable,'offBallFrames':sum(next(q for q in f['people'] if q['trackId']==pid)['ball']=='off' for f in active),'knownHandlerFrames':sum(bool(f.get('handler')) for f in active),'rejections':{}}
   reports.append(p)
+ from playmaking import candidates
+ for event in candidates(roster,vision):
+  player=next(p for p in reports if p['id']==event['actorTrackId'])
+  events.append(event)
+  player['eventIds']=list(dict.fromkeys(player.get('eventIds',[])+[event['id']]))
+  if player.get('score') is None or event['score']>player['score']:
+   player.update(score=event['score'],status='candidate',components=event['components'],evidence=event['observations'],summary=event['summary'],measurement=event['measurement'],reason=event['caveat'])
  reports.sort(key=lambda p:(p['role']=='offense',p['score'] is not None,p['score'] or 0),reverse=True);events.sort(key=lambda e:e['score'],reverse=True)
  return reports,events
