@@ -391,6 +391,10 @@ def add_temporal_usage(payload,response):
 _before_focused_review=analyze
 
 def analyze(payload,client):
+    if payload.get('mode')=='narrate-video':
+        from narration import narrate
+        validate_payload(payload)
+        return narrate(payload,client,MODEL_ID)
     if payload.get('mode')=='verify-temporal-candidates':
         checks=[]
         for candidate in payload.get('candidates',[])[:3]:

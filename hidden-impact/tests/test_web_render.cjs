@@ -77,3 +77,12 @@ for(const time of [0,3,6.5,8.3,10.5,11.6,13.3]){nodes.get('video').currentTime=t
 assert(nodes.get('impact-content').innerHTML.includes('63'));
 assert.equal(context.cooperation.events[0].score,null);
 console.log('PASS: continuous three-person presentation, protagonist-only arrow, and presentation score separate from algorithm output.');
+// The workbench consumes the same timed-segment contract as the showcase.
+nodes.get('video').currentTime=3.5;vm.runInContext('renderOverlay()',context);
+assert.equal(nodes.get('timed-commentary').hidden,false);
+assert(nodes.get('timed-title').textContent.includes('右侧接应'));
+nodes.get('video').currentTime=6.5;vm.runInContext('renderOverlay()',context);
+assert(nodes.get('timed-title').textContent.includes('44号迎球'));
+vm.runInContext('state.results.set(state.id,fixture);renderOverlay()',context);
+assert.equal(nodes.get('timed-commentary').hidden,true,'Old results must not inherit another result’s commentary');
+console.log('PASS: timed workbench commentary, seeking, and clearing stale narration.');

@@ -6,12 +6,12 @@
   "matchup": "尼克斯 × 马刺",
   "source": "NBA China · Inside the Game",
   "duration": 13.466666666666667,
-  "renderStyle": "evidence-v10",
+  "renderStyle": "narration-v11",
   "width": 1280,
   "height": 900,
-  "video": "demo/replay.mp4?v=insight10",
+  "video": "demo/replay.mp4?v=narration11",
   "original": "demo/original.mp4",
-  "poster": "demo/frame-1.jpg?v=insight10",
+  "poster": "demo/frame-1.jpg?v=narration11",
   "actor": {
     "id": "P6",
     "label": "尼克斯 44号 · 主角"
@@ -45,7 +45,7 @@
       "chapter": "接应",
       "text": "44号在弧顶外侧准备接球，左侧的阿努诺比开始向外线移动。",
       "kind": "setup",
-      "image": "demo/frame-1.jpg?v=insight10"
+      "image": "demo/frame-1.jpg?v=narration11"
     },
     {
       "time": 8.25,
@@ -53,7 +53,7 @@
       "chapter": "牵动防守",
       "text": "44号接球后向左前方推进，标出的防守者向持球区域靠近。左侧的阿努诺比留在外线，准备接球。",
       "kind": "pressure",
-      "image": "demo/frame-2.jpg?v=insight10"
+      "image": "demo/frame-2.jpg?v=narration11"
     },
     {
       "time": 8.75,
@@ -61,7 +61,7 @@
       "chapter": "分球",
       "text": "防守靠近时，44号将球分向左侧的阿努诺比。球转移到防线外侧，收益队友获得接球出手的窗口。",
       "kind": "pass",
-      "image": "demo/frame-3.jpg?v=insight10"
+      "image": "demo/frame-3.jpg?v=narration11"
     },
     {
       "time": 9.5,
@@ -69,7 +69,7 @@
       "chapter": "出手",
       "text": "阿努诺比接球后起跳投篮，44号已经完成分球。球转移到持球区域之外，衔接成一次左侧外线出手。",
       "kind": "shot",
-      "image": "demo/frame-4.jpg?v=insight10"
+      "image": "demo/frame-4.jpg?v=narration11"
     },
     {
       "time": 11.1,
@@ -77,7 +77,7 @@
       "chapter": "终结",
       "text": "球穿过篮网，这次进攻以阿努诺比的三分命中结束。回看整段，44号的价值在接应、吸引防守和及时分球。",
       "kind": "made",
-      "image": "demo/frame-5.jpg?v=insight10"
+      "image": "demo/frame-5.jpg?v=narration11"
     }
   ],
   "storyOutcome": {
@@ -245,6 +245,70 @@
         "evidence": "官方结果 · +3",
         "frame": 4
       }
-    ]
+    ],
+    "narration": {
+      "schema": "hidden-impact/timed-narration-v1",
+      "source": "prepared-evidence-script",
+      "modelInvoked": false,
+      "segments": [
+        {
+          "start": 0,
+          "end": 2.6,
+          "title": "8号靠向底角，44号绕向外线",
+          "text": "8号阿努诺比向左侧底角附近靠，44号从同侧向右侧外线绕出。两人的站位逐渐分开。",
+          "frameTimes": [
+            0,
+            1.5
+          ]
+        },
+        {
+          "start": 2.6,
+          "end": 5.4,
+          "title": "一人在左侧，一人绕到右侧接应",
+          "text": "8号保持左侧接应点；44号继续绕到右侧外线，转身看球，寻找下一次接应的位置。",
+          "frameTimes": [
+            3,
+            4.5
+          ]
+        },
+        {
+          "start": 5.4,
+          "end": 8.1,
+          "title": "8号调整站位，44号迎球",
+          "text": "8号向左侧外线调整，44号在右侧迎球。接到球后，44号向左前方推进，防守者也随之靠近。",
+          "frameTimes": [
+            6,
+            7.5
+          ]
+        },
+        {
+          "start": 8.1,
+          "end": 9.1,
+          "title": "防守靠近，球向外线转移",
+          "text": "44号接球推进，防守者向持球区域靠近；随后把球分向左侧。值得关注的是出球时机与外线队友的衔接。",
+          "frameTimes": [
+            8.25
+          ]
+        },
+        {
+          "start": 9.1,
+          "end": 10.8,
+          "title": "这次机会，预期命中率 42%",
+          "text": "阿努诺比接球出手。官方给这次投篮的预期命中率为 42%，比他本场同类出手均值高 3.0 个百分点。这描述机会质量，不是44号个人创造的增益。",
+          "frameTimes": [
+            9.5
+          ]
+        },
+        {
+          "start": 10.8,
+          "end": 14,
+          "title": "得分记在队友，故事回到44号",
+          "text": "三分命中。记分牌留下了阿努诺比的得分，而回放让我们看见44号此前的接应、推进和分球。",
+          "frameTimes": [
+            11.1
+          ]
+        }
+      ]
+    }
   }
 }

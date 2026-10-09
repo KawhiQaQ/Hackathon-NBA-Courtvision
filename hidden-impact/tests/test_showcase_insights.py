@@ -53,5 +53,14 @@ class InsightTests(unittest.TestCase):
         for a, b in zip(cues, cues[1:]): self.assertEqual(a['end'], b['start'])
         for c in cues: self.assertTrue(c['start'] <= c['seek'] < c['end'])
 
+    def test_opening_has_three_distinct_short_narration_segments(self):
+        narration = build_insights(self.source)['narration']
+        self.assertFalse(narration['modelInvoked'])
+        rows = narration['segments']
+        self.assertEqual(len(rows[:3]), 3)
+        self.assertEqual(len({s['text'] for s in rows[:3]}), 3)
+        for a, b in zip(rows, rows[1:]): self.assertEqual(a['end'], b['start'])
+        for s in rows: self.assertLessEqual(s['end']-s['start'], 3.2)
+
 
 if __name__ == '__main__': unittest.main()

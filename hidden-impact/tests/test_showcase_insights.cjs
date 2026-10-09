@@ -8,6 +8,8 @@ assert.equal(ctx.cueAt(manifest.insights,0).phase,'接应');
 assert.equal(ctx.cueAt(manifest.insights,8.1).phase,'分球');
 assert.equal(ctx.cueAt(manifest.insights,9.5).phase,'出手');
 assert.equal(ctx.cueAt(manifest.insights,13.49).phase,'命中');
+assert.notEqual(ctx.narrationAt(manifest.insights,1).title,ctx.narrationAt(manifest.insights,3).title);
+assert.notEqual(ctx.narrationAt(manifest.insights,3).title,ctx.narrationAt(manifest.insights,6).title);
 const opportunity=ctx.opportunityMarkup(manifest.insights),gravity=ctx.gravityMarkup(manifest.insights);
 assert(opportunity.includes('42%'));assert(opportunity.includes('39%'));assert(opportunity.includes('+3.0'));
 assert(gravity.includes('-16.10'));assert(gravity.includes('+6.47'));
@@ -27,7 +29,9 @@ assert(!ctx.opportunityMarkup({...manifest.insights,shooter:'<script>bad</script
  assert.equal(nodes.get('load-error').hidden,true);
  assert.equal(nodes.get('data-insights').hidden,false);
  assert(nodes.get('frames').innerHTML.includes('42% 预期命中率'));
- const video=nodes.get('replay');video.currentTime=9.5;events.get('timeupdate')();
+ const video=nodes.get('replay');
+ for(const t of [1,3,6]){video.currentTime=t;events.get('timeupdate')();assert.equal(nodes.get('cue-title').textContent,ctx.narrationAt(manifest.insights,t).title);assert.equal(buttons[0]['aria-pressed'],'true');}
+ video.currentTime=9.5;events.get('timeupdate')();
  assert(nodes.get('cue-title').textContent.includes('42%'));
  assert.equal(buttons[2]['aria-pressed'],'true');
  nodes.get('phase-rail').onclick({target:{closest:()=>({dataset:{cue:'3'}})}});

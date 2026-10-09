@@ -31,6 +31,7 @@ def export_payload(result,manifest,root):
  public_manifest=pick(manifest,['schema','teamId','mode','title','matchup','source','duration','renderStyle','width','height','video','original','poster','actor','roles','score','components','evidence','storyOutcome'])
  public_manifest['scoreKind']='presentation'
  if 'insights' in manifest:public_manifest['insights']=manifest['insights']
+ if manifest.get('insights',{}).get('narration'):public['narration']=manifest['insights']['narration']
  out=root/'web/demo'
  (out/'analysis.json').write_text(json.dumps(public,ensure_ascii=False,separators=(',',':')))
  (out/'showcase.json').write_text(json.dumps(public_manifest,ensure_ascii=False,indent=2))

@@ -79,6 +79,24 @@ def build_insights(source):
         {'start': 10.8, 'end': 14, 'seek': 11.1, 'phase': '命中', 'title': '得分记在队友，故事回到44号',
          'text': f'三分命中。记分牌留下了阿努诺比的得分，而回放让我们看见44号此前的接应、推进和分球。', 'evidence': f'官方结果 · +{points}' if shot['success'] == 1 else '官方结果 · 未命中', 'frame': 4},
     ]
+    # Timed narration uses the same segment contract as the VLM runtime. The
+    # prepared showcase keeps its origin; sharing a schema is not an inference.
+    result['narration'] = {
+        'schema': 'hidden-impact/timed-narration-v1',
+        'source': 'prepared-evidence-script', 'modelInvoked': False,
+        'segments': [
+            {'start': 0, 'end': 2.6, 'title': '8号靠向底角，44号绕向外线',
+             'text': '8号阿努诺比向左侧底角附近靠，44号从同侧向右侧外线绕出。两人的站位逐渐分开。',
+             'frameTimes': [0, 1.5]},
+            {'start': 2.6, 'end': 5.4, 'title': '一人在左侧，一人绕到右侧接应',
+             'text': '8号保持左侧接应点；44号继续绕到右侧外线，转身看球，寻找下一次接应的位置。',
+             'frameTimes': [3, 4.5]},
+            {'start': 5.4, 'end': 8.1, 'title': '8号调整站位，44号迎球',
+             'text': '8号向左侧外线调整，44号在右侧迎球。接到球后，44号向左前方推进，防守者也随之靠近。',
+             'frameTimes': [6, 7.5]},
+            *[{k: c[k] for k in ['start', 'end', 'title', 'text']} | {'frameTimes': [c['seek']]} for c in result['cues'][1:]],
+        ],
+    }
     return result
 
 

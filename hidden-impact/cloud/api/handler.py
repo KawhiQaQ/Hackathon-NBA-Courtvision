@@ -78,6 +78,16 @@ def worker(event):
     text_result=invoke_review({'mode':'explain-temporal-candidate','event':current['events'][0],'deepData':current.get('deepData')})
     current['events'][0]['commentary']=text_result['commentary']
     for k in ['inputTokens','outputTokens','totalTokens']:current.setdefault('usage',{})[k]=current.get('usage',{}).get(k,0)+text_result.get('usage',{}).get(k,0)
+   # Timed commentary is generated from the actual frames after role review.
+   # A failed call stays unavailable; it never substitutes prepared demo copy.
+   try:
+    from narration import request_for_result
+    put(prefix+'status.json',{'job':job,'status':'running','stage':'narrate','updatedAt':time.time()})
+    current['narration']=invoke_review(request_for_result(current,original_frames))
+    for k in ['inputTokens','outputTokens','totalTokens']:current.setdefault('usage',{})[k]=current.get('usage',{}).get(k,0)+current['narration'].get('usage',{}).get(k,0)
+   except Exception as exc:
+    current['narration']={'status':'unavailable','segments':[]}
+    print('narration_failed',type(exc).__name__,str(exc)[:300])
    result['result']=current
   result['result']['job']=job;result['result']['createdAt']=datetime.now(timezone.utc).isoformat()
   if result['result'].get('vision'):

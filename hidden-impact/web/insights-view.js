@@ -7,6 +7,10 @@ export function cueAt(insights, time) {
   return insights.cues.find(c => time >= c.start && time < c.end) || insights.cues.at(-1);
 }
 
+export function narrationAt(insights, time) {
+  return insights.narration?.segments?.find(s => time >= s.start && time < s.end) || cueAt(insights, time);
+}
+
 export function phaseMarkup(insights) {
   return insights.cues.map((c, i) => `<button data-cue="${i}" aria-label="回看${escapeHTML(c.phase)}"><small>0${i + 1}</small>${escapeHTML(c.phase)}<i></i></button>`).join('');
 }
