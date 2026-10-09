@@ -7,12 +7,12 @@
   "source": "NBA China · Inside the Game",
   "sourceFile": "original.mp4",
   "duration": 13.466666666666667,
-  "renderStyle": "story44-v8",
+  "renderStyle": "trio-v9",
   "width": 1280,
   "height": 900,
-  "video": "demo/replay.mp4?v=story44v8",
+  "video": "demo/replay.mp4?v=trio9",
   "original": "demo/original.mp4",
-  "poster": "demo/frame-1.jpg?v=story44",
+  "poster": "demo/frame-1.jpg?v=trio9",
   "provenance": "真实视频与历史视觉轨迹；主角由用户指定，得分者按出手帧绑定；展示分数为用户要求的固定值 63，并非重新运行评分器的结果。",
   "actor": {
     "id": "P6",
@@ -26,27 +26,15 @@
       "color": "#f4c45e"
     },
     {
-      "id": "P2",
-      "label": "协同队友",
-      "displayName": "尼克斯 · 协同队友",
-      "color": "#b0a4f4"
-    },
-    {
       "id": "P1",
       "label": "收益队友",
       "displayName": "尼克斯 · 收益队友",
       "color": "#77cfe4"
     },
     {
-      "id": "P21",
-      "label": "追防者",
-      "displayName": "马刺 · 追防者",
-      "color": "#ee927f"
-    },
-    {
       "id": "P30",
-      "label": "协防者",
-      "displayName": "马刺 · 协防者",
+      "label": "防守者",
+      "displayName": "马刺 · 防守者",
       "color": "#ee927f"
     }
   ],
@@ -58,33 +46,33 @@
       "time": 7.5,
       "label": "44号，进入接应位置",
       "chapter": "接应",
-      "text": "44号在弧顶外侧准备接球，右侧协同队友保持宽度；左侧的阿努诺比开始向外线移动。",
+      "text": "44号在弧顶外侧准备接球，左侧的阿努诺比开始向外线移动。",
       "kind": "setup",
-      "image": "demo/frame-1.jpg?v=story44"
+      "image": "demo/frame-1.jpg?v=trio9"
     },
     {
       "time": 8.25,
-      "label": "向内推进，两人靠近",
+      "label": "44号推进，防守靠近",
       "chapter": "牵动防守",
-      "text": "44号接球后向左前方推进。一名防守者迎上来，另一名从侧后方靠近，两人的注意力集中到持球区域。",
+      "text": "44号接球后向左前方推进，标出的防守者向持球区域靠近。左侧的阿努诺比留在外线，准备接球。",
       "kind": "pressure",
-      "image": "demo/frame-2.jpg?v=story44"
+      "image": "demo/frame-2.jpg?v=trio9"
     },
     {
       "time": 8.75,
       "label": "把球送出夹击区域",
       "chapter": "分球",
-      "text": "两名防守者靠近时，44号将球分向左侧的阿努诺比。球转移到防线外侧，收益队友获得接球出手的窗口。",
+      "text": "防守靠近时，44号将球分向左侧的阿努诺比。球转移到防线外侧，收益队友获得接球出手的窗口。",
       "kind": "pass",
-      "image": "demo/frame-3.jpg?v=story44"
+      "image": "demo/frame-3.jpg?v=trio9"
     },
     {
       "time": 9.5,
-      "label": "球已出手，追防晚一步",
+      "label": "接球起跳，完成出手",
       "chapter": "出手",
-      "text": "阿努诺比接球后起跳投篮，追防者正在向他回扑。44号的分球衔接成一次左侧外线出手。",
+      "text": "阿努诺比接球后起跳投篮，44号已经完成分球。球转移到持球区域之外，衔接成一次左侧外线出手。",
       "kind": "shot",
-      "image": "demo/frame-4.jpg?v=story44"
+      "image": "demo/frame-4.jpg?v=trio9"
     },
     {
       "time": 11.1,
@@ -92,7 +80,7 @@
       "chapter": "终结",
       "text": "球穿过篮网，这次进攻以阿努诺比的三分命中结束。回看整段，44号的价值在接应、吸引防守和及时分球。",
       "kind": "made",
-      "image": "demo/frame-5.jpg?v=story44"
+      "image": "demo/frame-5.jpg?v=trio9"
     }
   ],
   "intervals": [
@@ -100,7 +88,7 @@
       "start": 7.5,
       "end": 8.63,
       "title": "44号接应持球，带动防守移动",
-      "text": "44号接球后向左前方推进，两名防守者向持球区域靠近；右侧协同队友保持宽度，左侧收益队友准备接球。"
+      "text": "44号接球后向左前方推进，防守者向持球区域靠近，左侧收益队友准备接球。"
     },
     {
       "start": 8.63,

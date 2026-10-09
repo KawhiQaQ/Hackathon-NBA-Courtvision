@@ -67,10 +67,12 @@ def draw_future_arrow(d,path,color=GOLD,width=7):
 
 class BroadcastRenderer:
  def __init__(self,result):
-  self.names=result.get('displayNames',{});self.frames=result['vision']['frames'];self.event=result['events'][0];e=self.event
-  self.roles=[(e['actorTrackId'],'主角','OFF-BALL',GOLD),*[(pid,'协同队友','SUPPORT',LILAC) for pid in e.get('supportTrackIds',[])],(e['beneficiaryTrackId'],'收益队友','TEAMMATE',BLUE),*[(pid,'追防者' if i==0 else '协防者','DEFENDER',CORAL) for i,pid in enumerate(e.get('defenderTrackIds',[e['defenderTrackId']]))]]
+  self.motion=result.get('presentationMotion');self.names=result.get('displayNames',{});self.frames=result['vision']['frames'];self.event=result['events'][0];e=self.event
+  self.roles=[(e['actorTrackId'],'主角','OFF-BALL',GOLD),*[(pid,'协同队友','SUPPORT',LILAC) for pid in e.get('supportTrackIds',[])],(e['beneficiaryTrackId'],'收益队友','TEAMMATE',BLUE),*[(pid,'防守者','DEFENDER',CORAL) for i,pid in enumerate(e.get('defenderTrackIds',[e['defenderTrackId']]))]]
  def render(self,raw,t):
   e=self.event;im=Image.frombytes('RGB',(W,H),raw).convert('RGBA');people={p['trackId']:p for p in people_at(self.frames,t)}
+  motion=self.motion['frames'][min(len(self.motion['frames'])-1,round(t*self.motion['fps']))] if self.motion else None
+  if motion:people={p['trackId']:p for p in motion['people']}
   current=min(self.frames,key=lambda f:abs(f['time']-t));matrix=(current.get('calibration') or {}).get('courtToImage')
   if matrix is None:
    nearby=[f for f in self.frames if f['scene']==current['scene'] and abs(f['time']-t)<=.2 and f.get('calibration')]
@@ -86,16 +88,12 @@ class BroadcastRenderer:
      md.ellipse((x-10,y-6,x+w+10,y+h+8),fill=0)
    mask=mask.filter(ImageFilter.GaussianBlur(10)).resize((W,H));shade=Image.new('RGBA',(W,H),(4,18,24));shade.putalpha(mask);im=Image.alpha_composite(im,shade)
   ink=Image.new('RGBA',(W,H));d=ImageDraw.Draw(ink)
-  for pid,label,english,color in self.roles:
-   if english=='TEAMMATE':continue
-   person=people.get(pid);guide=future_path(self.frames,current,person,matrix,t,horizon=.8 if english=='DEFENDER' else 1.4)
+  if motion:
+   draw_future_arrow(d,motion['heroArrow']['points'],GOLD,7)
+  else:
+   person=people.get(e['actorTrackId']);guide=future_path(self.frames,current,person,matrix,t)
    if guide:
-    path,span=guide;lift=person['h']*H*.60
-    path=[(x,y-lift) for x,y in path]
-    limit=150 if english=='OFF-BALL' else 110
-    endpoint=next((i for i,pt in enumerate(path) if math.dist(path[0],pt)>limit),len(path)-1)
-    path=path[:endpoint+1]
-    draw_future_arrow(d,path,color,7 if english=='OFF-BALL' else 3)
+    path,_=guide;draw_future_arrow(d,[(x,y-person['h']*H*.6) for x,y in path],GOLD,7)
   # Resolve overlapping labels before drawing; leader lines retain identity in a crowd.
   occupied=[]
   for pid,label,english,color in self.roles:
@@ -106,7 +104,7 @@ class BroadcastRenderer:
    if not occluded(p,people) and pid!=e['actorTrackId']:
     d.line((x-12,y,x+12,y),fill=(*color,200),width=3)
    # Compact detached nameplates keep text out of player silhouettes.
-   px=(p['x']+p['w']/2)*W;py=p['y']*H;title=self.names.get(pid,label);tw=d.textlength(title,font=FONTS[16]);lx=max(12,min(W-tw-36,px-tw/2-14));ly=max(12,py-45)
+   px=(p['x']+p['w']/2)*W;py=p['y']*H;title=self.names.get(pid,label)+(' · 出画 →' if p.get('offscreen') else '');tw=d.textlength(title,font=FONTS[16]);lx=max(12,min(W-tw-36,px-tw/2-14));ly=max(12,py-45)
    while any(lx<right+6 and lx+tw+28>left-6 and ly<bottom+6 and ly+30>top-6 for left,top,right,bottom in occupied) and ly>48:ly-=38
    occupied.append((lx,ly,lx+tw+28,ly+30))
    d.line((px,ly+30,px,py-5),fill=(*color,180),width=1);d.ellipse((px-2,py-7,px+2,py-3),fill=(*color,255))
@@ -119,8 +117,8 @@ class BroadcastRenderer:
   hud.rounded_rectangle((W-315,16,W-26,47),9,fill='#16303a',outline='#31474f');hud.text((W-299,24),'TEAM 14  /  NYK vs SAS',font=FONTS[14],fill='#b9cbd0')
   by=TOP+H;hud.line((0,by,W,by),fill='#34494f',width=1)
   phase=0 if t<e['keyTime'] else 1 if t<e['end'] else 2
-  captions=['44号接应，向防线发起进攻','两人靠近44号，观察分球窗口','分球到左侧，收益队友接球出手']
-  hud.text((28,by+20),captions[phase],font=FONTS[20],fill='#e6eeeb');hud.text((28,by+54),'金色 · 主角    紫色 · 协同    珊瑚色 · 防守方向',font=FONTS[12],fill='#819ba4')
+  captions=['44号接应，向防线发起进攻','防守靠近44号，观察分球窗口','分球到左侧，收益队友接球出手']
+  hud.text((28,by+20),captions[phase],font=FONTS[20],fill='#e6eeeb');hud.text((28,by+54),'金色 · 44号主角与方向    青色 · 收益队友    珊瑚色 · 防守者',font=FONTS[12],fill='#819ba4')
   labels=['接应持球','吸引分球','接球出手'];starts=[e['start'],e['keyTime'],e['end']]
   for i,label in enumerate(labels):
    xx=660+i*180;active=i==phase;color=GOLD if active else (95,120,130)

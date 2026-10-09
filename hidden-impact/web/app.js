@@ -118,14 +118,14 @@ function renderPlayerReports(){
 }
 // Render markings only for identities participating in the selected explanation.
 function storyRoles(e,p){
- return e?[[e.actorTrackId,'主角','actor','#ffdc79'],...(e.supportTrackIds||[]).map(id=>[id,'协同队友','support','#b0a4f4']),[e.beneficiaryTrackId,'收益队友','beneficiary','#87d9ff'],...(e.defenderTrackIds||[e.defenderTrackId]).map((id,i)=>[id,e.defenderTrackIds?(i===0?'追防者':'协防者'):'防守者','defender','#ff9e8b'])]:p?[[p.id,'观察球员','actor','#ffdc79']]:[];
+ return e?[[e.actorTrackId,'主角','actor','#ffdc79'],...(e.supportTrackIds||[]).map(id=>[id,'协同队友','support','#b0a4f4']),[e.beneficiaryTrackId,'收益队友','beneficiary','#87d9ff'],...(e.defenderTrackIds||[e.defenderTrackId]).map((id,i)=>[id,e.defenderTrackIds?('防守者'):'防守者','defender','#ff9e8b'])]:p?[[p.id,'观察球员','actor','#ffdc79']]:[];
 }
 function focusMarks(people,e,p,px,py,labels=true,active=true){
  if(!$('relation-toggle').checked)e=null;
  const roles=new Map(storyRoles(e,p).map(([id,label,type,color])=>[id,{color,label}]));
  const list=people.filter(q=>roles.has(q.trackId));let out='';
  const a=list.find(q=>q.trackId===e?.defenderTrackId),b=list.find(q=>q.trackId===e?.beneficiaryTrackId);
- if(active&&a&&b&&!e?.supportTrackIds?.length)out+=`<line x1="${px(a.x+a.w/2)}" y1="${py(a.y+a.h)}" x2="${px(b.x+b.w/2)}" y2="${py(b.y+b.h)}" stroke="#87d9ff" stroke-width="2" stroke-dasharray="6 6" opacity=".8"/>`;
+ if(active&&a&&b&&!result()?.presentationMotion&&!e?.supportTrackIds?.length)out+=`<line x1="${px(a.x+a.w/2)}" y1="${py(a.y+a.h)}" x2="${px(b.x+b.w/2)}" y2="${py(b.y+b.h)}" stroke="#87d9ff" stroke-width="2" stroke-dasharray="6 6" opacity=".8"/>`;
  for(const q of list){const role=roles.get(q.trackId),x=px(q.x+q.w/2),y=py(q.y+q.h),ly=Math.max(26,py(q.y)-(q.trackId===p?.id?40:12)),lx=Math.max(65,Math.min(935,x));out+=`<g data-focus="${esc(q.trackId)}"><ellipse cx="${x}" cy="${y}" rx="22" ry="7" fill="${role.color}" fill-opacity=".2" stroke="${role.color}" stroke-width="3"/>${labels?`<rect x="${lx-86}" y="${ly-19}" width="172" height="24" rx="6" fill="#12262a" fill-opacity=".94"/><text x="${lx}" y="${ly-2}" text-anchor="middle" font-size="13" font-weight="600" fill="${role.color}">${esc(result()?.displayNames?.[q.trackId]||role.label)}</text>`:''}</g>`;}
  return out;
 }
@@ -134,7 +134,7 @@ function renderBasketballOverlay(){
  if(!r?.vision||!v.videoWidth||!p)return;
  const t=v.currentTime,e=event,active=!!e&&t>=e.start-.04&&t<=e.end+.04;
  // Role identity persists through the play; relationship effects are limited to evidence.
- const people=visiblePeople(r.vision,t),box=$('video-stage').getBoundingClientRect(),ratio=v.videoWidth/v.videoHeight,w=Math.min(box.width,box.height*ratio),h=w/ratio,ox=(box.width-w)/2,oy=(box.height-h)/2;
+ const motion=r.presentationMotion?.frames[Math.min(r.presentationMotion.frames.length-1,Math.round(t*r.presentationMotion.fps))],people=motion?.people||visiblePeople(r.vision,t),box=$('video-stage').getBoundingClientRect(),ratio=v.videoWidth/v.videoHeight,w=Math.min(box.width,box.height*ratio),h=w/ratio,ox=(box.width-w)/2,oy=(box.height-h)/2;
  const px=x=>(ox+x*w)/box.width*1000,py=y=>(oy+y*h)/box.height*562.5;
  updateRoleStrip(r,p,e,t,people);
  if($('overlay-toggle').checked){let shapes=focusMarks(people,e,p,px,py,true,active);
@@ -152,7 +152,7 @@ function updateRoleStrip(r,p,e,t,people){
  $('role-strip').hidden=!roles.length;
  $('role-strip').innerHTML=roles.map(([id,label,role])=>{
  const visible=people.some(q=>q.trackId===id),seen=r.vision.frames.filter(f=>f.people.some(q=>q.trackId===id));
- const status=visible?'跟随中':seen.length&&t<seen[0].time?'尚未定位':'暂未定位';
+ const status=people.find(q=>q.trackId===id)?.offscreen?'画面外':visible?'跟随中':seen.length&&t<seen[0].time?'尚未定位':'暂未定位';
  const player=r.players.find(q=>q.id===id);
  return `<div class="role-chip role-${role}${visible?'':' unavailable'}"><i></i><span><b>${label}</b><strong>${esc(playerName(player))}</strong></span><small>${status}</small></div>`;
  }).join('');
@@ -161,10 +161,12 @@ function updateRoleStrip(r,p,e,t,people){
 function projection(h,x,y){const d=h[2][0]*x+h[2][1]*y+h[2][2];return d?[(h[0][0]*x+h[0][1]*y+h[0][2])/d,(h[1][0]*x+h[1][1]*y+h[1][2])/d]:null;}
 function currentVisionFrame(r,t){return r?.vision?.frames?.reduce((a,b)=>!a||Math.abs(b.time-t)<Math.abs(a.time-t)?b:a,null);}
 function reviewedDirections(r,e,t,people,px,py){
+ if(r.presentationMotion){const motion=r.presentationMotion.frames[Math.min(r.presentationMotion.frames.length-1,Math.round(t*r.presentationMotion.fps))];return `<defs><marker id="direction-actor-${e.actorTrackId}" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#ffdc79"/></marker></defs><polyline points="${motion.heroArrow.points.map(([x,y])=>`${px(x/1280)},${py(y/720)}`).join(' ')}" fill="none" stroke="#ffdc79" stroke-width="5" stroke-linecap="round" marker-end="url(#direction-actor-${e.actorTrackId})"/>`;}
+
  const frame=currentVisionFrame(r,t),h=frame?.calibration?.courtToImage;if(!h)return '';
  let out='';
  for(const [id,label,type,color] of storyRoles(e,null)){
-  if(type==='beneficiary')continue;
+  if(type!=='actor')continue;
   const person=people.find(q=>q.trackId===id);if(!person?.court)continue;
   const origin=projection(h,...person.court);if(!origin)continue;
   const points=[[px(person.x+person.w/2),py(person.y+person.h*.4)]];let previous=t,last=person.court;
@@ -196,7 +198,7 @@ function motionShapes(r,p,e,t,people,px,py){
  return out;
 }
 function intervalExplanation(e,start,end){
- if(e?.actionType==='review'&&e.supportTrackIds?.length)return start<e.keyTime?'44号接球后向左前方推进，两名防守者向持球区域靠近；右侧协同队友保持宽度。':'44号把球分向左侧，阿努诺比接球起跳，追防者回扑；最终三分命中。';
+ if(e?.actionType==='review'&&result()?.presentationMotion)return start<e.keyTime?'44号接球后向左前方推进，防守者向持球区域靠近。':'44号把球分向左侧，阿努诺比接球起跳；最终三分命中。';
  if(!e){
   const p=activePlayer(),rows=(p?.series||[]).filter(q=>q.time>=start-.04&&q.time<=end+.04&&Number.isFinite(q.separation));
   if(rows.length<2)return `${playerName(p)} 在这段画面中的连续定位不足，无法可靠比较空间变化。`;

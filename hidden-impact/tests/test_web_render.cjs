@@ -67,11 +67,13 @@ console.log('PASS: stable trio before the event, explicit missing-identity statu
 context.cooperation=JSON.parse(fs.readFileSync(path.join(root,'web/demo/analysis.json'),'utf8'));
 vm.runInContext('state.offline=true;state.results.set(state.id,cooperation);state.playerId=null;render();',context);
 nodes.get('video').currentTime=8.63;vm.runInContext('renderOverlay()',context);
-for(const id of ['P6','P2','P1','P21','P30'])assert(nodes.get('overlay').innerHTML.includes(`data-focus="${id}"`));
-for(const id of ['actor-P6','support-P2','defender-P21','defender-P30'])assert(nodes.get('overlay').innerHTML.includes(`direction-${id}`),`Expected future direction for ${id}`);
+for(const id of ['P6','P1','P30'])assert(nodes.get('overlay').innerHTML.includes(`data-focus="${id}"`));
+for(const id of ['actor-P6'])assert(nodes.get('overlay').innerHTML.includes(`direction-${id}`),`Expected future direction for ${id}`);
 assert(!nodes.get('overlay').innerHTML.includes('direction-beneficiary-P1'));
 assert(!nodes.get('overlay').innerHTML.includes('stroke-dasharray="6 6"'));
-assert(nodes.get('role-strip').innerHTML.includes('协同队友'));
+assert(!nodes.get('role-strip').innerHTML.includes('协同队友'));
+assert(!nodes.get('overlay').innerHTML.includes('direction-defender'));
+for(const time of [0,3,6.5,8.3,10.5,11.6,13.3]){nodes.get('video').currentTime=time;vm.runInContext('renderOverlay()',context);for(const id of ['P6','P1','P30'])assert(nodes.get('overlay').innerHTML.includes(`data-focus="${id}"`));assert(nodes.get('overlay').innerHTML.includes('direction-actor-P6'));}
 assert(nodes.get('impact-content').innerHTML.includes('63'));
 assert.equal(context.cooperation.events[0].score,null);
-console.log('PASS: five-person collaboration, four movement arrows, and presentation score separate from algorithm output.');
+console.log('PASS: continuous three-person presentation, protagonist-only arrow, and presentation score separate from algorithm output.');

@@ -43,7 +43,7 @@ class LocalShowcaseTest(unittest.TestCase):
  def test_role_change_invalidates_old_score_and_excludes_shooter(self):
   with self.get('/demo/analysis.json') as r:d=json.load(r)
   e=d['events'][0];players={p['id']:p for p in d['players']}
-  self.assertEqual(e['actorTrackId'],'P6');self.assertEqual(e['supportTrackIds'],['P2']);self.assertEqual(e['defenderTrackIds'],['P21','P30']);self.assertEqual(e['beneficiaryTrackId'],'P1')
+  self.assertEqual(e['actorTrackId'],'P6');self.assertEqual(e['supportTrackIds'],[]);self.assertEqual(e['defenderTrackIds'],['P30']);self.assertEqual(e['beneficiaryTrackId'],'P1')
   self.assertEqual(players[e['beneficiaryTrackId']]['status'],'shooter')
   self.assertEqual(len({e[k] for k in ['actorTrackId','beneficiaryTrackId','defenderTrackId']}),3)
   self.assertIsNone(e['score']);self.assertTrue(all(p['score'] is None for p in d['players']))
@@ -51,7 +51,7 @@ class LocalShowcaseTest(unittest.TestCase):
   for value in d['displayNames'].values():
    self.assertNotRegex(value,r'P\d+|浅色|深色')
   with self.get('/demo/showcase.json') as r:showcase=json.load(r)
-  self.assertEqual(showcase['score'],63);self.assertEqual(showcase['scoreSource'],'user-requested-preset');self.assertEqual(len(showcase['roles']),5);self.assertEqual(d['presentationScore']['value'],63);self.assertEqual(showcase['actor']['id'],d['focusPlayerId'])
+  self.assertEqual(showcase['score'],63);self.assertEqual(showcase['scoreSource'],'user-requested-preset');self.assertEqual(len(showcase['roles']),3);self.assertEqual(d['presentationScore']['value'],63);self.assertEqual(showcase['actor']['id'],d['focusPlayerId'])
  def test_story_has_annotated_scenes_and_verified_shot_outcome(self):
   with self.get('/demo/showcase.json') as r:s=json.load(r)
   self.assertEqual(s['actor']['label'],'尼克斯 44号 · 主角')

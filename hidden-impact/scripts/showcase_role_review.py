@@ -5,8 +5,8 @@ from showcase_clip_review import reviewed_tracks
 def reviewed_demo(result):
  if result['video']['id']!='nba-0042500404-197':raise ValueError('This role review belongs to the NYK/SAS demo only')
  result=reviewed_tracks(result)
- actor,beneficiary,defender='P6','P1','P21'
- support='P2';defenders=['P21','P30']
+ actor,beneficiary,defender='P6','P1','P30'
+ defenders=['P30']
  start,key,end=7.5,8.63,9.5
  frames=result['vision']['frames'];series=[];evidence=[]
  for f in frames:
@@ -17,9 +17,9 @@ def reviewed_demo(result):
   series.append({'time':f['time'],'separation':math.dist(b['court'],d['court']),'engagement':math.dist(a['court'],d['court']),'a':a['court'],'b':b['court'],'d':d['court']})
  for t in [start,key,end]:
   f=min(frames,key=lambda f:abs(f['time']-t));people={p['trackId']:p for p in f['people']}
-  evidence.append({'time':t,'text':'人工指定观察对象；收益队友按出手画面绑定。','marks':[{**people[pid],'role':role} for pid,role in [(actor,'actor'),(support,'support'),(beneficiary,'beneficiary'),*[(pid,'defender') for pid in defenders]] if pid in people]})
- result['events']=[{'id':'reviewed-44-drive-and-kick-P6-P1','actorTrackId':actor,'beneficiaryTrackId':beneficiary,'defenderTrackId':defender,'defenderTrackIds':defenders,'supportTrackIds':[support],'start':start,'keyTime':key,'end':end,'score':None,'components':[],'actionType':'review','origin':'user-selected-visual-review','observations':evidence,'measurement':{'score':None,'rawScore':None,'components':[],'series':series,'quality':None,'separationBefore':statistics.median(s['separation'] for s in series[:3]),'separationAfter':statistics.median(s['separation'] for s in series[-3:]),'sustainedSeconds':None,'expectedPointsChange':None,'reason':'角色重新绑定，旧候选评分失效；尚未确认机会创造关系。','units':'参考球场单位'}}]
- result['roleReview']={'source':'user-selection-and-shot-frame-review','status':'hypothesis','actorTrackId':actor,'beneficiaryTrackId':beneficiary,'defenderTrackId':defender,'defenderTrackIds':defenders,'supportTrackIds':[support],'shooterEvidenceTime':9.5,'scoreInvalidated':True,'note':'得分者依据出手帧与官方出手记录绑定；主角为用户指定观察对象；防守者为靠近主角的观察对象，非已确认对位。'}
+  evidence.append({'time':t,'text':'人工指定观察对象；收益队友按出手画面绑定。','marks':[{**people[pid],'role':role} for pid,role in [(actor,'actor'),(beneficiary,'beneficiary'),*[(pid,'defender') for pid in defenders]] if pid in people]})
+ result['events']=[{'id':'reviewed-44-drive-and-kick-P6-P1','actorTrackId':actor,'beneficiaryTrackId':beneficiary,'defenderTrackId':defender,'defenderTrackIds':defenders,'supportTrackIds':[],'start':start,'keyTime':key,'end':end,'score':None,'components':[],'actionType':'review','origin':'user-selected-visual-review','observations':evidence,'measurement':{'score':None,'rawScore':None,'components':[],'series':series,'quality':None,'separationBefore':statistics.median(s['separation'] for s in series[:3]),'separationAfter':statistics.median(s['separation'] for s in series[-3:]),'sustainedSeconds':None,'expectedPointsChange':None,'reason':'角色重新绑定，旧候选评分失效；尚未确认机会创造关系。','units':'参考球场单位'}}]
+ result['roleReview']={'source':'user-selection-and-shot-frame-review','status':'hypothesis','actorTrackId':actor,'beneficiaryTrackId':beneficiary,'defenderTrackId':defender,'defenderTrackIds':defenders,'supportTrackIds':[],'shooterEvidenceTime':9.5,'scoreInvalidated':True,'note':'得分者依据出手帧与官方出手记录绑定；主角为用户指定观察对象；防守者为靠近主角的观察对象，非已确认对位。'}
  for p in result['players']:
   p.update(score=None,components=[],eventIds=[],measurement=None)
   if p['role']=='defense':p['status']='defense'

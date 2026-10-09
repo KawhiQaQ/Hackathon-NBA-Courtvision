@@ -6,7 +6,7 @@ from copy import deepcopy
 import numpy as np
 
 # time, x, y, width, height. 44 is absent in the saved detector before 8.333 s.
-HERO=[(6,245,182,27,54),(6.5,268,182,34,55),(7,310,161,29,68),(7.5,340,164,43,57),(8,331,163,43,59),(8.167,317,178,35,50),(8.333,299,171,42,51)]
+HERO=[(2.667,218,170,30,60),(3,251,168,30,64),(3.5,278,171,30,62),(4,285,172,37,60),(4.5,277,179,32,56),(5,252,180,38,55),(5.5,235,184,32,53),(6,245,182,27,54),(6.5,268,182,34,55),(7,310,161,29,68),(7.5,340,164,43,57),(8,331,163,43,59),(8.167,317,178,35,50),(8.333,299,171,42,51)]
 DEF21=[(7.5,194,135,25,52),(8,259,140,29,55),(8.25,282,145,22,57),(8.5,286,147,21,56),(8.75,275,146,22,56),(9,260,146,27,55),(9.25,229,148,30,52),(9.5,186,135,49,70)]
 DEF30=[(7.5,188,156,31,65),(8,267,152,29,61),(8.25,292,159,32,53),(8.5,301,154,30,63),(8.75,294,149,23,65),(9,291,150,30,65),(9.25,300,150,23,66),(9.5,303,149,21,68)]
 def box_at(rows,t):
@@ -21,8 +21,8 @@ def reviewed_tracks(result):
   updates=[]
   for pid,rows,source,team in [('P6',HERO,'P6','light'),('P21',DEF21,'P7' if t<7.5 else 'P19','dark'),('P30',DEF30,'P5' if t<7.5 else 'P7','dark')]:
    box=box_at(rows,t);prior=original.get(source)
-   if pid=='P6' and t<6:continue
-   if pid!='P6' and not 6<=t<=11.333:continue
+   if pid=='P6' and t<2.667:continue
+   if pid=='P21' and not 6<=t<=11.333:continue
    if not box and not prior:continue
    p=deepcopy(prior or {});p.update(box or {});p.update(trackId=pid,team=team,association=.95,annotationSource='manual-source-video-review')
    matrix=(f.get('calibration') or {}).get('courtToImage')
