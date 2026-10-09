@@ -30,6 +30,7 @@ def export_payload(result,manifest,root):
  public={'schema':'hidden-impact/presentation-v1','demo':True,**pick(result,['video','overview','focusPlayerId','teamNames','tacticalReplay']),'displayNames':{k:v for k,v in result['displayNames'].items() if k in ids},'players':players,'events':[public_event],'vision':vision,'presentationMotion':motion,'presentationScore':{**pick(result['presentationScore'],['value','trackId']),'kind':'presentation'}}
  public_manifest=pick(manifest,['schema','teamId','mode','title','matchup','source','duration','renderStyle','width','height','video','original','poster','actor','roles','score','components','evidence','storyOutcome'])
  public_manifest['scoreKind']='presentation'
+ if 'insights' in manifest:public_manifest['insights']=manifest['insights']
  out=root/'web/demo'
  (out/'analysis.json').write_text(json.dumps(public,ensure_ascii=False,separators=(',',':')))
  (out/'showcase.json').write_text(json.dumps(public_manifest,ensure_ascii=False,indent=2))

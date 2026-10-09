@@ -67,6 +67,7 @@ def draw_future_arrow(d,path,color=GOLD,width=7):
 
 class BroadcastRenderer:
  def __init__(self,result):
+  self.insights=result.get('evidenceInsights')
   self.motion=result.get('presentationMotion');self.names=result.get('displayNames',{});self.frames=result['vision']['frames'];self.event=result['events'][0];e=self.event
   self.roles=[(e['actorTrackId'],'主角','OFF-BALL',GOLD),*[(pid,'协同队友','SUPPORT',LILAC) for pid in e.get('supportTrackIds',[])],(e['beneficiaryTrackId'],'收益队友','TEAMMATE',BLUE),*[(pid,'防守者','DEFENDER',CORAL) for i,pid in enumerate(e.get('defenderTrackIds',[e['defenderTrackId']]))]]
  def render(self,raw,t):
@@ -116,6 +117,9 @@ class BroadcastRenderer:
   hud.rectangle((0,0,5,TOP),fill=GOLD);hud.text((26,19),'HIDDEN IMPACT',font=FONTS[24],fill='#f1f4ed');hud.text((246,25),'幕后主角 · 战术回放',font=FONTS[16],fill='#9aaeb3')
   hud.rounded_rectangle((W-315,16,W-26,47),9,fill='#16303a',outline='#31474f');hud.text((W-299,24),'TEAM 14  /  NYK vs SAS',font=FONTS[14],fill='#b9cbd0')
   by=TOP+H;hud.line((0,by,W,by),fill='#34494f',width=1)
+  if self.insights:
+   self.draw_evidence_footer(hud,by,t)
+   return output
   phase=0 if t<e['keyTime'] else 1 if t<e['end'] else 2
   captions=['44号接应，向防线发起进攻','防守靠近44号，观察分球窗口','分球到左侧，收益队友接球出手']
   hud.text((28,by+20),captions[phase],font=FONTS[20],fill='#e6eeeb');hud.text((28,by+54),'金色 · 44号主角与方向    青色 · 收益队友    珊瑚色 · 防守者',font=FONTS[12],fill='#819ba4')
@@ -127,3 +131,26 @@ class BroadcastRenderer:
    if i<2:hud.line((xx+133,by+32,xx+163,by+32),fill='#3b5159',width=1)
   hud.rectangle((28,by+93,W-28,by+95),fill='#253d45');hud.rectangle((28,by+93,28+(W-56)*min(1,t/13.49),by+95),fill=GOLD)
   return output
+
+ def draw_evidence_footer(self,hud,by,t):
+  data=self.insights;s=data['shot'];cues=data['cues']
+  index=next((i for i,c in enumerate(cues) if c['start']<=t<c['end']),len(cues)-1)
+  cue=cues[index]
+  title='阿努诺比接球，外线机会进入兑现时刻' if index==2 else cue['title']
+  evidence='画面 · 接球起跳与出手' if index==2 else cue['evidence']
+  hud.text((28,by+17),title,font=FONTS[20],fill='#edf3ed')
+  hud.text((28,by+49),evidence,font=FONTS[12],fill='#a7c2b8')
+  # The right-hand fact is always sourced, distinct from the contribution index.
+  if index<2:
+   fact='接应  ·  牵动  ·  分球';detail='画面证据 / 看机会如何衔接'
+  elif index==2:
+   fact=f"{s['probability']*100:.0f}%  /  预期命中率";detail=f"同场同球员 {s['sampleCount']} 次同类出手均值 {s['baseline']*100:.1f}%"
+  else:
+   fact=f"+{s['points']}  /  三分命中" if s['made'] else '未命中'
+   detail=f"官方出手记录 / Q{data['period']} {data['gameClock']}"
+  hud.text((818,by+17),fact,font=FONTS[20],fill=BLUE)
+  hud.text((818,by+49),detail,font=FONTS[12],fill='#819ba4')
+  for i,c in enumerate(cues):
+   x=28+i*310;active=i==index;color=GOLD if active else (89,117,121)
+   hud.line((x,by+89,x+280,by+89),fill=(*color,190),width=2)
+   hud.text((x,by+70),f"0{i+1}  {c['phase']}",font=FONTS[12],fill=(*color,255))
