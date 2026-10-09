@@ -85,7 +85,7 @@ function playerName(p){return result()?.confirmedNames?.[p?.id]||result()?.displ
 function safeCommentary(e){const text=e.commentary||'';return text&&!/导致|致|造成|创造了|使得|因此/.test(text)?text:e.summary;}
 function storyFor(p,e){
  const m=e?.measurement,spacing=e?.actionType==='spacing';
- if(e?.actionType==='review')return {title:'跟随主角，看得分机会如何形成',badge:'接应与分球',summary:e.summary,limit:''};
+ if(['review','presentation'].includes(e?.actionType))return {title:'跟随主角，看得分机会如何形成',badge:'接应与分球',summary:e.summary,limit:''};
  if(!p)return {title:'这段画面，还不足以选出幕后贡献者',summary:'没有确认到可分析的上场球员。可换用人物更清晰、镜头连续的回合。',badge:'证据不足'};
  if(!e||!m)return {title:p.role==='defense'?'查看这位防守人的画面证据':['ballhandler','shooter'].includes(p.status)?'这是进攻执行者，继续寻找无球贡献':p.score===0?'看到了无球参与，尚未测得贡献信号':p.diagnostics?.knownHandlerFrames<3?'持球者未可靠定位，暂时无法评估贡献':'贡献证据不足，先核验这位球员',summary:p.reason||'暂不评分。',badge:p.role==='defense'?'防守观察':p.score===0?'已观察 · 未检出信号':'暂不评分'};
  if(e.origin==='temporal-geometry-v5')return {title:{screen:'他接近防守路径，队友的空间随后变化',decoy:'跟随他的跑位，看防守如何被带动',spacing:'他在无球侧，持续撑开进攻空间'}[e.actionType],badge:{screen:'掩护协同候选',decoy:'跑位响应候选',spacing:'空间支撑候选'}[e.actionType],summary:safeCommentary(e),limit:'连续视频测量 · 观察指数，尚不等于因果贡献'};
@@ -138,7 +138,7 @@ function renderBasketballOverlay(){
  const px=x=>(ox+x*w)/box.width*1000,py=y=>(oy+y*h)/box.height*562.5;
  updateRoleStrip(r,p,e,t,people);
  if($('overlay-toggle').checked){let shapes=focusMarks(people,e,p,px,py,true,active);
-  if($('trail-toggle').checked&&e&&r.scoringVersion!=='temporal-impact-v5'){let points=[];const recent=r.vision.frames.filter(f=>f.time<=t&&f.time>=Math.max(e.start,t-1.2)),scene=recent.at(-1)?.scene;let previous=null;for(const f of recent){const q=f.people.find(q=>q.trackId===p.id);if(f.scene!==scene||!q||(previous!==null&&f.time-previous>.4))points=[];if(q&&f.scene===scene)points.push(`${px(q.x+q.w/2)},${py(q.y+q.h)}`);previous=f.time;}if(points.length>1)shapes=`<polyline points="${points.join(' ')}" fill="none" stroke="#ffdc79" stroke-width="3" opacity=".75"/>`+shapes;}
+  if($('trail-toggle').checked&&e&&!r.presentationMotion&&r.scoringVersion!=='temporal-impact-v5'){let points=[];const recent=r.vision.frames.filter(f=>f.time<=t&&f.time>=Math.max(e.start,t-1.2)),scene=recent.at(-1)?.scene;let previous=null;for(const f of recent){const q=f.people.find(q=>q.trackId===p.id);if(f.scene!==scene||!q||(previous!==null&&f.time-previous>.4))points=[];if(q&&f.scene===scene)points.push(`${px(q.x+q.w/2)},${py(q.y+q.h)}`);previous=f.time;}if(points.length>1)shapes=`<polyline points="${points.join(' ')}" fill="none" stroke="#ffdc79" stroke-width="3" opacity=".75"/>`+shapes;}
   if(r.presentationScore&&e)shapes=reviewedDirections(r,e,t,people,px,py)+shapes;else if(r.scoringVersion==='temporal-impact-v5')shapes=motionShapes(r,p,active?e:null,t,people,px,py)+shapes;
   svg.innerHTML=shapes;$('frame-label').hidden=false;$('frame-label').textContent=e&&$('relation-toggle').checked?(active?'关键动作 · 观察空间变化':'全程跟随 · 角色保持不变'):people.some(q=>q.trackId===p.id)?`${playerName(p)} · 球员观察`:'此刻定位不足 · 点击下方证据时刻';
  }
@@ -198,7 +198,7 @@ function motionShapes(r,p,e,t,people,px,py){
  return out;
 }
 function intervalExplanation(e,start,end){
- if(e?.actionType==='review'&&result()?.presentationMotion)return start<e.keyTime?'44号接球后向左前方推进，防守者向持球区域靠近。':'44号把球分向左侧，阿努诺比接球起跳；最终三分命中。';
+ if(['review','presentation'].includes(e?.actionType)&&result()?.presentationMotion)return start<e.keyTime?'44号接球后向左前方推进，防守者向持球区域靠近。':'44号把球分向左侧，阿努诺比接球起跳；最终三分命中。';
  if(!e){
   const p=activePlayer(),rows=(p?.series||[]).filter(q=>q.time>=start-.04&&q.time<=end+.04&&Number.isFinite(q.separation));
   if(rows.length<2)return `${playerName(p)} 在这段画面中的连续定位不足，无法可靠比较空间变化。`;

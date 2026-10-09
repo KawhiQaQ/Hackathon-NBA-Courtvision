@@ -36,10 +36,15 @@ class LocalShowcaseTest(unittest.TestCase):
   self.assertEqual(c.exception.code,503)
   with self.assertRaises(urllib.error.HTTPError) as c:self.get('/.team-access-code')
   self.assertEqual(c.exception.code,404)
- def test_mock_cannot_claim_production_inference(self):
+ def test_presentation_contract_cannot_claim_production_inference(self):
   with self.get('/demo/analysis.json') as r:d=json.load(r)
-  self.assertTrue(d['demo']);self.assertFalse(d['modelInvoked']);self.assertNotIn('job',d);self.assertEqual(d['verificationVersion'],'demo-unverified')
-  self.assertTrue(all(not e['visualVerified'] for e in d['events']))
+  self.assertTrue(d['demo']);self.assertEqual(d['schema'],'hidden-impact/presentation-v1')
+  for k in ['job','model','modelInvoked','verificationVersion','roleReview','clipAnnotations']:self.assertNotIn(k,d)
+  self.assertTrue(all(e['score'] is None and not e.get('visualVerified') for e in d['events']))
+  audit=json.loads((ROOT/'data/review-archive/showcase-audit.json').read_text())
+  self.assertFalse(audit['analysis']['modelInvoked']);self.assertTrue(audit['analysis']['roleReview']['scoreInvalidated'])
+  with self.assertRaises(urllib.error.HTTPError) as c:self.get('/data/review-archive/showcase-audit.json')
+  self.assertEqual(c.exception.code,404)
  def test_role_change_invalidates_old_score_and_excludes_shooter(self):
   with self.get('/demo/analysis.json') as r:d=json.load(r)
   e=d['events'][0];players={p['id']:p for p in d['players']}
@@ -47,11 +52,10 @@ class LocalShowcaseTest(unittest.TestCase):
   self.assertEqual(players[e['beneficiaryTrackId']]['status'],'shooter')
   self.assertEqual(len({e[k] for k in ['actorTrackId','beneficiaryTrackId','defenderTrackId']}),3)
   self.assertIsNone(e['score']);self.assertTrue(all(p['score'] is None for p in d['players']))
-  self.assertTrue(d['roleReview']['scoreInvalidated'])
   for value in d['displayNames'].values():
    self.assertNotRegex(value,r'P\d+|浅色|深色')
   with self.get('/demo/showcase.json') as r:showcase=json.load(r)
-  self.assertEqual(showcase['score'],63);self.assertEqual(showcase['scoreSource'],'user-requested-preset');self.assertEqual(len(showcase['roles']),3);self.assertEqual(d['presentationScore']['value'],63);self.assertEqual(showcase['actor']['id'],d['focusPlayerId'])
+  self.assertEqual(showcase['score'],63);self.assertEqual(showcase['scoreKind'],'presentation');self.assertEqual(len(showcase['roles']),3);self.assertEqual(d['presentationScore']['value'],63);self.assertEqual(showcase['actor']['id'],d['focusPlayerId'])
  def test_story_has_annotated_scenes_and_verified_shot_outcome(self):
   with self.get('/demo/showcase.json') as r:s=json.load(r)
   self.assertEqual(s['actor']['label'],'尼克斯 44号 · 主角')
