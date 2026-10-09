@@ -1,6 +1,6 @@
 // DOM-stub integration check for real analysis rendering; not a browser visual test.
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert'),path=require('node:path');
-const root=path.join(__dirname,'..'),html=fs.readFileSync(path.join(root,'web/index.html'),'utf8'),nodes=new Map();
+const root=path.join(__dirname,'..'),html=fs.readFileSync(path.join(root,'web/workbench.html'),'utf8'),nodes=new Map();
 for(const match of (html+fs.readFileSync(path.join(root,'web/app.js'),'utf8')).matchAll(/id="([^"]+)"/g))nodes.set(match[1],{innerHTML:'',textContent:'',value:'0',checked:true,hidden:false,dataset:{},classList:{toggle(){},add(){},remove(){}},getBoundingClientRect:()=>({width:960,height:540}),addEventListener(){},removeEventListener(){},pause(){},load(){},removeAttribute(){},setAttribute(k,v){this[k]=v},showModal(){},close(){},videoWidth:960,videoHeight:540,readyState:2,currentTime:2});
 const storage={getItem:()=>null,setItem(){}};
 const context=vm.createContext({console,document:{getElementById:id=>{assert(nodes.has(id),'Unknown DOM id '+id);return nodes.get(id)},querySelectorAll:()=>[]},window:{addEventListener(){}},sessionStorage:storage,localStorage:storage,history:{replaceState(){}},location:{pathname:'/'},fetch:async()=>({ok:true,json:async()=>({})}),AbortSignal,Map,Set,Date,JSON,Math,Number,String,Array,Promise,setTimeout,clearTimeout,cancelAnimationFrame(){},requestAnimationFrame(){}});

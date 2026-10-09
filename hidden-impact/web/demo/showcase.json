@@ -1,0 +1,93 @@
+{
+  "schema": "hidden-impact/showcase-v1",
+  "teamId": "14",
+  "mode": "demo",
+  "title": "让镜头跟随，得分之外的那个人。",
+  "matchup": "尼克斯 × 马刺",
+  "source": "NBA China · Inside the Game",
+  "sourceFile": "nba-0042500404-197.mp4",
+  "duration": 13.458333333333334,
+  "video": "demo/replay.mp4",
+  "original": "demo/original.mp4",
+  "poster": "demo/frame-1.jpg",
+  "provenance": "真实视频与历史视觉轨迹；候选选择、63 分和文字为流程演示预设，未调用 VLM，未核验因果贡献。",
+  "actor": {
+    "id": "P13",
+    "label": "浅色球衣 P13"
+  },
+  "roles": [
+    {
+      "id": "P13",
+      "label": "主角",
+      "color": "#f4c45e"
+    },
+    {
+      "id": "P2",
+      "label": "收益队友",
+      "color": "#77cfe4"
+    },
+    {
+      "id": "P3",
+      "label": "防守者",
+      "color": "#ee927f"
+    }
+  ],
+  "score": 63,
+  "components": [
+    {
+      "key": "release",
+      "label": "队友空间改善",
+      "weight": 35,
+      "points": 26.0
+    },
+    {
+      "key": "interaction",
+      "label": "防守响应",
+      "weight": 25,
+      "points": 23.3
+    },
+    {
+      "key": "persistence",
+      "label": "优势保持",
+      "weight": 20,
+      "points": 14.0
+    },
+    {
+      "key": "spacing",
+      "label": "持续空间支撑",
+      "weight": 20,
+      "points": 0
+    }
+  ],
+  "evidence": [
+    {
+      "time": 8.63,
+      "image": "demo/frame-1.jpg",
+      "label": "跑位开始"
+    },
+    {
+      "time": 9.0,
+      "image": "demo/frame-2.jpg",
+      "label": "防守响应"
+    },
+    {
+      "time": 10.0,
+      "image": "demo/frame-3.jpg",
+      "label": "空间变化"
+    }
+  ],
+  "intervals": [
+    {
+      "start": 8.63,
+      "end": 9.0,
+      "title": "跟着主角，看防守响应",
+      "text": "主角 P13 沿底线移动；同时观察防守者 P3 的位置变化，以及收益队友 P2 一侧的空间。此处展示如何把跑位与防守反应串联起来。"
+    },
+    {
+      "start": 9.0,
+      "end": 10.0,
+      "title": "从防守响应，回看队友空间",
+      "text": "历史轨迹中，P2 与 P3 的投影间距继续增大。回放用于检查这一变化是否与 P13 的跑位有关；最终幕后 MVP 归因仍需正式模型核验。"
+    }
+  ]
+}
