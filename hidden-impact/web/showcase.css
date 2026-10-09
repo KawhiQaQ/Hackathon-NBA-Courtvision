@@ -3,3 +3,5 @@
 .video-wrap{aspect-ratio:1280/900;background:#081a21}.frame img{aspect-ratio:1280/900}.video-toolbar #key-replay{color:#6c824b;font-weight:600}
 
 .transport{display:flex;align-items:center;gap:14px;background:#0c222b;color:#bccfd3;padding:13px 20px;font-size:11px}.transport button{color:#dce7e8;white-space:nowrap}.transport input{flex:1;min-width:30px;accent-color:#eac779;height:4px;cursor:pointer}.transport #elapsed{white-space:nowrap;font-variant-numeric:tabular-nums}.transport #expand-video{font-size:21px}@media(max-width:740px){.transport{padding:10px 12px;gap:9px;font-size:10px}}
+
+.role-legend{flex-wrap:wrap;row-gap:10px}
