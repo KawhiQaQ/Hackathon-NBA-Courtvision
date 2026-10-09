@@ -51,6 +51,8 @@ cd hidden-impact
 
 脚本使用相邻 `aws-preflight/node_modules` 中锁定的 CDK。没有本地团队访问码时自动生成新的私有访问码；部署成功后保存 `infra/cdk-outputs.json`，并自动更新 `.cloud-config.json` 为新的前端地址。无需复制旧 ARN、分发 ID 或 URL。
 
+部署脚本现在会先校验本机模型、AgentCore vendor、Linux ARM64 视觉依赖、FFmpeg 和中文字体，并检查 Lambda 解压包总量（代码＋layer，250 MiB 上限）。CDK 成功后自动向新 MediaBucket 上传三份篮球 ONNX 模型，并按 SHA-256 元数据与文件大小核对；相同文件不重复上传。缺少资产、SSO 或目标账号权限时明确失败，不会将只创建了设施视为模型已可用。
+
 此步骤会实际创建并计费：S3、CloudFront、HTTP API、Lambda（工作实例 8GB / 15分钟）、AgentCore、日志。现在不需要提前执行重建。
 
 ## 4. 恢复私有媒体与模型
@@ -98,3 +100,29 @@ node tests/test_web_render.cjs
 本地通用导出：`python scripts/export_game.py --project project.json --out web/results/my-game`。项目文件结构：`{gameId, team, rounds: [{analysis, video, jersey}]}`，文件路径相对项目 JSON；输出页为 `/?result=results/my-game/game.json`。此入口实际使用通用分析结果、评分和渲染函数，不读取演示球员编号。
 
 本地离线工作台可载入五个现成样例并汇总，`/api/game-summary` 与云端共用聚合函数；新上传视频在未启用云端时只能预览，不会伪造 VLM 结果。静态样例由 `scripts/refine_game_tracks.py` 和 `scripts/build_game_showcase.py` 重建（需要原视频与本机篮球模型）。`cdk deploy` 恢复后再验证真实 AWS 权限与在线模型响应；此次本地测试不代表云端已部署。
+
+
+## 发布前复核（2026-10-10）
+
+本轮修复队列提交失败后卡在排队、过期任务被缓存复用、异常处理依赖 Lambda context、单次摘要解说失败拖垮整个结果，以及上传时长/完整性校验不足。工作台等待窗口与 15 分钟 worker 相适配，渲染阶段有单独状态。API 与 AgentCore 共用的六份算法模块进行了逐字节一致性检查。
+
+离线验证：118 项 Python 测试、4 组 Node 前端测试通过，涵盖真实 MP4 渲染、任务结果签名、分段解说、游戏汇总、失败重试；AWS 客户端在这些测试中使用替身，不能证明云端权限已恢复。CDK `synth --no-lookups` 成功，4 个 IAM 角色均带赛事权限边界；当前 Lambda 代码与 layer 解压总大小约 229 MiB。五回合展示的 39 个页面/媒体资源通过本地 HTTP 检查。
+
+本次 SSO 登录成功，但原团队角色 `NBAHackathonParticipantRole` 的 `sts:AssumeRole` 返回 AccessDenied，故尚未完成重新部署及真实 Bedrock / AgentCore 端到端调用。需以赛事门户重新开放后的 profile 为准。
+
+权限恢复后：
+
+```sh
+.venv/bin/python scripts/deploy.py
+.venv/bin/python scripts/publish_nba.py
+.venv/bin/python scripts/smoke_release.py
+.venv/bin/python scripts/smoke_release.py --request data/frames/nba-public/nba-0042500404-197-request.json
+```
+
+最后一条会创建真实分析任务并产生 AWS 用量；验证分段解说、渲染视频、故事关键帧和 `/api/games`，输出保存在被 Git 忽略的 `verification/cloud-release-smoke.json`。它不改写演示结果。新素材尚未形成有效候选时检查会明确失败，不把“任务完成”冒充完整展示成功。
+
+仅检查本地静态入口可执行：
+
+```sh
+.venv/bin/python scripts/smoke_release.py --url http://127.0.0.1:8765 --public-only
+```

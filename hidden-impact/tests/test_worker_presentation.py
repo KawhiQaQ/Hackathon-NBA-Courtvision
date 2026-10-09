@@ -10,6 +10,12 @@ from perception_cache import cache_key
 
 class WorkerPresentationTests(unittest.TestCase):
  def test_model_narration_to_rendered_job_and_signed_viewer(self):
+  self.run_pipeline()
+
+ def test_commentary_failure_preserves_rendered_job(self):
+  self.run_pipeline(commentary_failure=True)
+
+ def run_pipeline(self,commentary_failure=False):
   import subprocess
   from render_video import ffmpeg
   result=fixture();img=io.BytesIO();Image.new('RGB',(320,180),'gray').save(img,format='JPEG')
@@ -30,7 +36,9 @@ class WorkerPresentationTests(unittest.TestCase):
     if mode=='verify-temporal-candidates':
      value={'checks':[dict(id=c['id'],onBall=True,samePlayer=True,isShooter=False,passObserved=True,beneficiaryIsShooter=True,defenderResponds=True) for c in document['candidates']]}
     elif mode=='narrate-video':value=result['narration']
-    elif mode=='explain-temporal-candidate':value={'commentary':'接应者持球后转移球权。'}
+    elif mode=='explain-temporal-candidate':
+     if commentary_failure:raise RuntimeError('temporary commentary throttling')
+     value={'commentary':'接应者持球后转移球权。'}
     else:value=copy.deepcopy(result)
     return {'response':io.BytesIO(json.dumps({'ok':True,'result':value}).encode())}
    def stop_runtime_session(self,**kw):pass
@@ -49,6 +57,7 @@ class WorkerPresentationTests(unittest.TestCase):
    status=json.loads(store.data[prefix+'status.json']);self.assertEqual(status['status'],'completed',status)
    self.assertIn('narrate-video',calls);self.assertIn('verify-temporal-candidates',calls)
    saved=json.loads(store.data[prefix+'result.json']);self.assertTrue(saved['presentation']['rendered'])
+   if commentary_failure:self.assertEqual(saved['commentaryStatus'],'unavailable')
    self.assertEqual(saved['presentation']['insights']['narration']['segments'],result['narration']['segments'])
    self.assertTrue(store.data[prefix+'tactical.mp4'])
    self.assertTrue(any(k.startswith(prefix+'presentation/frame-') for k in store.data))

@@ -34,7 +34,7 @@ def validate_payload(data):
         raise ValueError('每次分析需要 3–20 张关键帧。')
     previous = -1
     for frame in frames:
-        if not isinstance(frame, dict) or not finite(frame.get('time')) or not previous < frame['time'] <= video['duration']:
+        if not isinstance(frame, dict) or not finite(frame.get('time')) or not (0 <= frame['time'] <= video['duration'] and previous < frame['time']):
             raise ValueError('关键帧必须按视频时间严格递增。')
         previous = frame['time']
         value = frame.get('image', '')

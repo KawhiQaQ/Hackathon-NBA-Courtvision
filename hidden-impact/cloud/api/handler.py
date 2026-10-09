@@ -1,5 +1,5 @@
 """Team-authenticated asynchronous analysis API. No cloud credentials in browser."""
-import base64, hashlib, hmac, json, os, re, time, uuid
+import base64, hashlib, hmac, json, math, os, re, time, uuid
 from datetime import datetime, timezone
 import boto3
 from botocore.config import Config
@@ -17,6 +17,15 @@ def key_id(value):
  if not isinstance(value,str) or not re.fullmatch(r'[a-zA-Z0-9_-]{1,100}',value):raise ValueError('无效标识。')
  return value
 
+def clip_duration(value):
+ if isinstance(value,bool) or not isinstance(value,(int,float)) or not math.isfinite(value) or not .5<=value<=40:
+  raise ValueError('每段视频时长应为 0.5–40 秒，请先分段上传。')
+ return value
+
+def reusable_job(status):
+ age=time.time()-status.get('updatedAt',0)
+ return (status.get('status')=='completed' and age<86400) or (status.get('status') in ['queued','running'] and age<900)
+
 def worker(event):
  job=key_id(event['job']);prefix=f'jobs/{job}/';session=str(uuid.uuid4());arn=os.environ['AGENT_RUNTIME_ARN']
  # Lambda asynchronous delivery is at-least-once: claim a job with a conditional S3 write.
@@ -24,8 +33,8 @@ def worker(event):
  except s3.exceptions.ClientError as exc:
   if exc.response['Error']['Code'] in ['PreconditionFailed','ConditionalRequestConflict']:return
   raise
- payload=get(prefix+'request.json');original_frames=payload.get('frames',[]);put(prefix+'status.json',{'job':job,'status':'running','updatedAt':time.time()})
  try:
+  payload=get(prefix+'request.json');original_frames=payload.get('frames',[]);put(prefix+'status.json',{'job':job,'status':'running','updatedAt':time.time()})
   if payload.get('mode') not in ['snapshot','matched-video']:
    from vision import build_vision,sample_video
    import tempfile
@@ -75,9 +84,13 @@ def worker(event):
      for k in ['inputTokens','outputTokens','totalTokens']:current.setdefault('usage',{})[k]=current.get('usage',{}).get(k,0)+check.get('usage',{}).get(k,0)
    current=finalize(current)
    if current['events']:
-    text_result=invoke_review({'mode':'explain-temporal-candidate','event':current['events'][0],'deepData':current.get('deepData')})
-    current['events'][0]['commentary']=text_result['commentary']
-    for k in ['inputTokens','outputTokens','totalTokens']:current.setdefault('usage',{})[k]=current.get('usage',{}).get(k,0)+text_result.get('usage',{}).get(k,0)
+    try:
+     text_result=invoke_review({'mode':'explain-temporal-candidate','event':current['events'][0],'deepData':current.get('deepData')})
+     current['events'][0]['commentary']=text_result['commentary']
+     for k in ['inputTokens','outputTokens','totalTokens']:current.setdefault('usage',{})[k]=current.get('usage',{}).get(k,0)+text_result.get('usage',{}).get(k,0)
+    except Exception as exc:
+     current['commentaryStatus']='unavailable'
+     print('commentary_failed',type(exc).__name__,str(exc)[:300])
    # Timed commentary is generated from the actual frames after role review.
    # A failed call stays unavailable; it never substitutes prepared demo copy.
    try:
@@ -154,7 +167,7 @@ def handler(event,context):
     if replay and replay.get('key')==f'jobs/{job}/tactical.mp4':replay['url']=s3.generate_presigned_url('get_object',Params={'Bucket':BUCKET,'Key':replay['key']},ExpiresIn=3600)
     presentation=status['result'].get('presentation',{})
     if presentation.get('rendered'):
-     if presentation.get('videoKey')!=f'jobs/{job}/tactical.mp4':raise ValueError('Invalid replay asset')
+     if presentation.get('videoKey')!=f'jobs/{job}/tactical.mp4' or not replay or not replay.get('url'):raise ValueError('Invalid replay asset')
      presentation['video']=replay['url']
      item=get(f"library/{key_id(status['result']['video']['id'])}.json")
      presentation['original']=s3.generate_presigned_url('get_object',Params={'Bucket':BUCKET,'Key':item['key']},ExpiresIn=3600)
@@ -184,18 +197,21 @@ def handler(event,context):
    return reply(200,{'id':gid,'summary':summary})
   if path=='/api/upload' and method=='POST':
    size=body.get('size')
-   if not isinstance(size,int) or not 1<=size<=300*1024*1024:raise ValueError('视频大小上限为 300 MB。')
+   if isinstance(size,bool) or not isinstance(size,int) or not 1<=size<=300*1024*1024:raise ValueError('视频大小上限为 300 MB。')
    title=body.get('title','')
    if not isinstance(title,str) or not 1<=len(title)<=200:raise ValueError('需要视频标题。')
    mime=body.get('type')
    if mime not in ['video/mp4','video/webm','video/quicktime']:raise ValueError('支持 MP4、WebM、MOV。')
    id='upload-'+str(uuid.uuid4());key=f'videos/{id}'
-   item={'id':id,'title':title,'key':key,'duration':body.get('duration'),'source':'团队上传','pending':True}
+   item={'id':id,'title':title,'key':key,'duration':clip_duration(body.get('duration')),'size':size,'type':mime,'source':'团队上传','pending':True}
    put(f'pending/{id}.json',item)
    post=s3.generate_presigned_post(Bucket=BUCKET,Key=key,Fields={'Content-Type':mime},Conditions=[{'Content-Type':mime},['content-length-range',1,size]],ExpiresIn=900)
    return reply(200,{'id':id,'upload':post})
   if path=='/api/upload/complete' and method=='POST':
-   id=key_id(body.get('id'));item=get(f'pending/{id}.json');s3.head_object(Bucket=BUCKET,Key=item['key']);item.pop('pending',None);put(f'library/{id}.json',item)
+   id=key_id(body.get('id'));item=get(f'pending/{id}.json');meta=s3.head_object(Bucket=BUCKET,Key=item['key'])
+   if item.get('size') and meta.get('ContentLength')!=item['size']:raise ValueError('视频上传不完整，请重新上传。')
+   if item.get('type') and meta.get('ContentType')!=item['type']:raise ValueError('上传视频类型不匹配。')
+   item.pop('pending',None);put(f'library/{id}.json',item)
    return reply(200,item)
   if path=='/api/analyze' and method=='POST':
    from analysis import analyze_document
@@ -215,6 +231,7 @@ def handler(event,context):
     body['snapshot']={'game':dataset['game'],'shot':{k:v for k,v in shot.items() if k!='analysis'},'candidate':candidate,'quality':shot['analysis']['qualityLabel'],'evidenceSources':ids}
    else:
     validate_payload(body)
+    clip_duration(body['video']['duration'])
     key_id(body['video']['id']);video_item=get(f"library/{body['video']['id']}.json")
     body['deepData']=video_item.get('deepData') or {'videoId':body['video']['id']}
     body.pop('vision',None)
@@ -231,18 +248,23 @@ def handler(event,context):
    if not body.get('force'):
     try:
      status=get(f'jobs/{digest}/status.json')
-     if status['status']!='failed' and time.time()-status.get('updatedAt',0)<86400:return reply(200,{'job':digest,'cached':True})
+     if reusable_job(status):return reply(200,{'job':digest,'cached':True})
     except s3.exceptions.ClientError as exc:
      if exc.response['Error']['Code']!='NoSuchKey':raise
    job=digest if status is None and not body.get('force') else str(uuid.uuid4())
    put(f'jobs/{job}/request.json',body);put(f'jobs/{job}/status.json',{'job':job,'status':'queued','updatedAt':time.time()})
-   functions.invoke(FunctionName=os.environ['WORKER_NAME'],InvocationType='Event',Payload=json.dumps({'internal':'analyze','job':job}).encode())
+   try:
+    dispatch=functions.invoke(FunctionName=os.environ['WORKER_NAME'],InvocationType='Event',Payload=json.dumps({'internal':'analyze','job':job}).encode())
+    if dispatch.get('StatusCode')!=202:raise RuntimeError('Worker did not accept the job')
+   except Exception:
+    put(f'jobs/{job}/status.json',{'job':job,'status':'failed','error':'任务提交失败，请重新分析。','updatedAt':time.time()})
+    raise
    return reply(202,{'job':job})
   return reply(404,{'error':'接口不存在。'})
  except (ValueError,TypeError,KeyError) as exc:return reply(400,{'error':str(exc)[:300]})
  except Exception as exc:
   print('api_error',type(exc).__name__,str(exc)[:500])
-  return reply(502,{'error':'云端请求失败，请稍后重试。','requestId':context.aws_request_id})
+  return reply(502,{'error':'云端请求失败，请稍后重试。','requestId':getattr(context,'aws_request_id',None)})
 
 
 def game_result(config,token):
