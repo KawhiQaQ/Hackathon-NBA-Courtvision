@@ -126,7 +126,18 @@ def composite(image,result,t):
   if arrow:
    points=[(x/motion['width']*w,y/motion['height']*h+44) for x,y in arrow['points']]
    direction_ribbon(im,[(x*pixel_scale,y*pixel_scale) for x,y in points],tuple(bytes.fromhex(manifest['roles'][idx]['color'][1:])),pixel_scale)
- occupied=[]
+ # The same source-linked numbers now travel with the MP4, not only the web page.
+ from broadcast import card_at,actor_card
+ card=card_at(manifest['insights'],t,result['video']['duration'])
+ phase=phase_at(direction,t)
+ if phase==0 and direction.get('focusWindow') and manifest['insights'].get('actorProfile'):
+  card=actor_card(manifest['insights']['actorProfile'],t,direction['focusWindow'][0]) or card
+ from panel_layout import nameplates,card_position
+ card_xy=card_position(motion,manifest,card['kind'],result['video']['duration'],h,lambda text:draw.textlength(text,font=font(18))) if card and phase!=1 else None
+ obstacle=None
+ if card_xy:
+  cx,cy=card_xy;obstacle=(cx,cy,cx+(296 if card['kind']=='shot' else 312),cy+(160 if card['kind']=='shot' else 202))
+ layouts={p['trackId']:(text,x,box) for p,text,x,box in nameplates(frame['people'],colors,w,h,lambda text:draw.textlength(text,font=font(18)),obstacle)}
  for i,p in enumerate(frame['people']):
   role=colors[p['trackId']];color=tuple(bytes.fromhex(role['color'][1:]))
   # The identity rail remains in the same order throughout occlusions and cuts.
@@ -135,22 +146,11 @@ def composite(image,result,t):
   draw.ellipse((rx,ry+4,rx+6,ry+10),fill=(*color,255))
   draw.text((rx+13,ry-2),role['displayName']+status,font=font(13),fill=(*color,255))
   if p.get('offscreen'):continue
-  x=(p['x']+p['w']/2)*w
-  top=max(48,p['y']*h+44-35);text=role['displayName'].replace('尼克斯 ','').replace('马刺 ','');length=draw.textlength(text,font=font(18))+28
-  lx=max(8,min(w-length-8,x-length/2))
-  # Prefer stacked labels above the action, with a leader to the observed body.
-  while any(lx<rr+8 and lx+length>ll-8 and top<bb+7 and top+29>tt-7 for ll,tt,rr,bb in occupied) and top>83:top-=35
-  occupied.append((lx,top,lx+length,top+29))
+  text,x,(lx,top,right,bottom)=layouts[p['trackId']];length=right-lx
   draw.line((x,p['y']*h+44,lx+length/2,top+29),fill=(*color,180),width=1)
   draw.rounded_rectangle((lx,top,lx+length,top+29),radius=7,fill=(9,30,30,235),outline=(*color,110),width=1)
   draw.ellipse((lx+8,top+12,lx+12,top+16),fill=(*color,255))
   draw.text((lx+18,top+2),text,font=font(18),fill=(*color,255))
- # The same source-linked numbers now travel with the MP4, not only the web page.
- from broadcast import card_at,actor_card
- card=card_at(manifest['insights'],t,result['video']['duration'])
- phase=phase_at(direction,t)
- if phase==0 and direction.get('focusWindow') and manifest['insights'].get('actorProfile'):
-  card=actor_card(manifest['insights']['actorProfile'],t,direction['focusWindow'][0]) or card
  focus_drawn=False
  if phase==1:
   # Keep the detail lens on the quiet side throughout the verified action window.
@@ -158,21 +158,17 @@ def composite(image,result,t):
   cx=16 if sum(p['x']+p['w']/2>.5 for p in rows)>len(rows)/2 else w-328
   focus_drawn=draw_focus(im,original_image,draw,font,frame,manifest,(cx,56,312,202),pixel_scale)
  if card and not focus_drawn:
-  cw=312;ch=202
-  # Choose one side per data chapter, avoiding the action over that entire
-  # interval. Never chase players or jump between corners frame by frame.
-  phase_frames=[f for i,f in enumerate(motion['frames'][::max(1,motion['fps'])])
-                if (card_at(manifest['insights'],i,result['video']['duration']) or {}).get('kind')==card['kind']]
-  all_people=[p for f in phase_frames for p in f['people'] if not p.get('offscreen')]
-  right=sum(p['x']+p['w']/2>.5 for p in all_people)
-  cx=16 if right>len(all_people)/2 else w-cw-16;cy=56
+  compact=card['kind']=='shot'
+  cw=296 if compact else 312;ch=160 if compact else 202
+  # Use real body/nameplate overlap, including the start of the chapter.
+  cx,cy=card_xy or card_position(motion,manifest,card['kind'],result['video']['duration'],h,lambda text:draw.textlength(text,font=font(18)))
   draw.rounded_rectangle((cx,cy,cx+cw,cy+ch),radius=12,fill=(6,24,33,238),outline=(119,207,228,120))
   draw.text((cx+16,cy+10),card['title'],font=font(19),fill='#eef4ec')
   draw.text((cx+16,cy+37),card['subject'],font=font(12),fill='#b6c8cc')
-  lo,hi=card['domain'];bx=cx+91;bw=139
+  lo,hi=card['domain'];bx=cx+91;bw=cw-173
   zero=bx+(0-lo)/(hi-lo)*bw
   for j,row in enumerate(card['rows']):
-   y=cy+65+j*34;color='#8ca1aa' if row['baseline'] else card.get('accent','#77cfe4')
+   y=cy+(55 if compact else 65)+j*(28 if compact else 34);color='#8ca1aa' if row['baseline'] else card.get('accent','#77cfe4')
    draw.text((cx+16,y-1),row['label'],font=font(13),fill=color)
    draw.rounded_rectangle((bx,y+3,bx+bw,y+19),radius=4,fill='#253d48')
    end=bx+(row['value']-lo)/(hi-lo)*bw
@@ -181,18 +177,20 @@ def composite(image,result,t):
    if lo<0:draw.line((zero,y+1,zero,y+21),fill='#c7d3d6',width=1)
    value=f"{row['value']:.1f}%" if card['kind'] in ('shot','actor-finishing') else f"{row['value']:+.2f}"
    draw.text((bx+bw+8,y-2),value,font=font(16),fill=color)
+  value_y=108 if compact else 135;unit_y=120 if compact else 150
+  value_font=23 if compact else 29
   delta=card['delta']
   if card.get('headline'):
-   draw.text((cx+16,cy+135),card['headline'],font=font(29),fill='#f5d68e')
-   offset=draw.textlength(card['headline'],font=font(29))
-   draw.text((cx+23+offset,cy+150),card['headlineUnit'],font=font(12),fill='#f5d68e')
+   draw.text((cx+16,cy+value_y),card['headline'],font=font(value_font),fill='#f5d68e')
+   offset=draw.textlength(card['headline'],font=font(value_font))
+   draw.text((cx+23+offset,cy+unit_y),card['headlineUnit'],font=font(12),fill='#f5d68e')
   elif delta is not None:
    precision=1 if card['kind']=='shot' else 2
    number=f'{delta:+.{precision}f}'
-   draw.text((cx+16,cy+135),number,font=font(29),fill='#f5d68e')
-   offset=draw.textlength(number,font=font(29))
-   draw.text((cx+23+offset,cy+150),card['unit'],font=font(12),fill='#f5d68e')
-  else:draw.text((cx+16,cy+144),'基准暂无',font=font(16),fill='#b6c8cc')
+   draw.text((cx+16,cy+value_y),number,font=font(value_font),fill='#f5d68e')
+   offset=draw.textlength(number,font=font(value_font))
+   draw.text((cx+23+offset,cy+unit_y),card['unit'],font=font(12),fill='#f5d68e')
+  else:draw.text((cx+16,cy+value_y+9),'基准暂无',font=font(16),fill='#b6c8cc')
   history=card.get('history',[])
   if 1<=len(history)<=10:
    for j,shot in enumerate(history):
@@ -200,8 +198,8 @@ def composite(image,result,t):
     draw.ellipse((x-3,y-3,x+3,y+3),fill='#f4c45e' if shot['made'] else '#0b2029',outline='#f4c45e')
   if card['outcome']:
    text=card['outcome'];tw=draw.textlength(text,font=font(12))
-   draw.text((cx+cw-16-tw,cy+150),text,font=font(12),fill='#eef4ec')
-  draw.text((cx+16,cy+180),card['context'],font=font(11),fill='#a4bcc3')
+   draw.text((cx+cw-16-tw,cy+unit_y),text,font=font(12),fill='#eef4ec')
+  draw.text((cx+16,cy+(140 if compact else 180)),card['context'],font=font(11),fill='#a4bcc3')
  segments=manifest['insights'].get('narration',{}).get('segments',[])
  seg=next((s for s in segments if s['start']<=t<s['end']),None)
  if seg:title,text=seg['title'],seg['text']
@@ -218,7 +216,7 @@ def render(source,result,output,story_dir=None):
  if result['presentation'].get('status')!='ready':return None
  manifest=result['presentation'];start=0;end=result['video']['duration']
  width,height,band,original=output_dimensions(source);fps=result['presentationMotion']['fps']
- manifest.update(width=width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='impact-lens-hd-v9',encoding={'codec':'h264','crf':17,'preset':'fast'})
+ manifest.update(width=width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='impact-lens-hd-v10',encoding={'codec':'h264','crf':17,'preset':'fast'})
  target=Path(output);target.parent.mkdir(parents=True,exist_ok=True)
  story_dir=Path(story_dir) if story_dir else target.parent;story_dir.mkdir(parents=True,exist_ok=True)
  decode=subprocess.Popen([ffmpeg(),'-v','error','-i',str(source),'-t',str(end),'-vf',f'fps={fps},scale={width}:{height}:flags=lanczos','-f','rawvideo','-pix_fmt','rgb24','pipe:1'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
@@ -241,4 +239,4 @@ def render(source,result,output,story_dir=None):
    if process.poll() is None:process.kill();process.wait()
    for stream in [process.stdin,process.stdout,process.stderr]:
     if stream and not stream.closed:stream.close()
- return {'start':0,'end':end,'fps':fps,'frameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':'impact-lens-hd-v9','width':width,'height':height+band,'pictureWidth':width,'pictureHeight':height}
+ return {'start':0,'end':end,'fps':fps,'frameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':'impact-lens-hd-v10','width':width,'height':height+band,'pictureWidth':width,'pictureHeight':height}
