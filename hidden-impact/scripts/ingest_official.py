@@ -20,6 +20,7 @@ def main():
     ap.add_argument('--source',required=True);ap.add_argument('--shot-time',type=float);ap.add_argument('--out',type=Path,required=True)
     ap.add_argument('--season',default='2025-26');ap.add_argument('--season-type',default='Regular Season')
     ap.add_argument('--teams',default='DAL,HOU',help='Team abbreviations for gravity comparison')
+    ap.add_argument('--prepare-only',action='store_true',help='Prepare request and source metadata without uploading')
     args=ap.parse_args()
     import re
     if not re.fullmatch('[a-zA-Z0-9_-]{1,100}',args.id):raise ValueError('Invalid clip ID')
@@ -50,6 +51,9 @@ def main():
         frames.append(dict(time=t,image=base64.b64encode(raw).decode()))
     args.out.parent.mkdir(parents=True,exist_ok=True)
     args.out.write_text(json.dumps(dict(mode='video',video=video,frames=frames),ensure_ascii=False))
+    args.out.with_suffix('.metadata.json').write_text(json.dumps(dict(video=video,deepData=deep),ensure_ascii=False,indent=2))
+    if args.prepare_only:
+        print('Prepared',args.id,'request',args.out);return
     config=json.loads((ROOT/'infra/cdk-outputs.json').read_text())['HiddenImpactTeam14']
     s3=boto3.Session(profile_name='nba',region_name='us-east-1').client('s3');key='videos/'+args.id+'.mp4'
     s3.upload_file(str(args.video),config['MediaBucket'],key,ExtraArgs={'ContentType':'video/mp4'})

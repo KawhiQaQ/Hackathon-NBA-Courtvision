@@ -19,7 +19,7 @@ def main():
     token.chmod(0o600)
     env = {**os.environ, 'CDK_DEFAULT_ACCOUNT': account, 'CDK_DEFAULT_REGION': 'us-east-1', 'AWS_REGION': 'us-east-1'}
     cmd = [str(ROOT.parent/'aws-preflight/node_modules/.bin/cdk'), 'deploy', '--profile', 'nba',
-           '--require-approval', 'never', '--parameters', 'TeamKey='+token.read_text().strip(),
+           '--require-approval', 'never', '--progress', 'events', '--parameters', 'TeamKey='+token.read_text().strip(),
            '--outputs-file', str(ROOT/'infra/cdk-outputs.json')]
     subprocess.run(cmd, cwd=ROOT/'infra', env=env, check=True)
     outputs = json.loads((ROOT/'infra/cdk-outputs.json').read_text())['HiddenImpactTeam14']

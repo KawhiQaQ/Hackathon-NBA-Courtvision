@@ -52,6 +52,19 @@ class NarrationTests(unittest.TestCase):
         for client in [Client({'segments': []}), Client(self.raw, 'max_tokens')]:
             with self.assertRaises(ValueError): analyze(self.payload, client)
 
+    def test_early_outcome_is_repaired_by_model_not_rewritten_locally(self):
+        self.payload['deepData']={'videoId':'test','alignment':{'shotVideoTime':5}}
+        bad=copy.deepcopy(self.raw);bad['segments'][0]['text']='球员突破挑篮命中。'
+        good=copy.deepcopy(self.raw)
+        class RepairClient(Client):
+            def converse(self,**kwargs):
+                self.value=bad if not self.calls else good
+                return super().converse(**kwargs)
+        client=RepairClient(bad);result=analyze(self.payload,client)
+        self.assertEqual(len(client.calls),2);self.assertEqual(result['validationRepairs'],1)
+        self.assertEqual(result['segments'],good['segments']);self.assertEqual(result['usage']['inputTokens'],20)
+        self.assertIn('校验失败',client.calls[1]['system'][0]['text'])
+
     def test_only_final_verified_roles_go_to_narrator(self):
         result = {'video': self.payload['video'], 'players': [], 'events': [
             {'actorTrackId': 'rejected', 'visualVerified': False},

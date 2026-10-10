@@ -243,7 +243,7 @@ def handler(event,context):
       body['deepData']['official']=context
       body['deepData']['opportunitySource']=body['deepData']['companion']['source']
       body['deepData']['videoId']=body['video']['id']
-   digest=hashlib.sha256((VERSION+'temporal-impact-v5-game-r9'+json.dumps(body,sort_keys=True)).encode()).hexdigest()[:32]
+   digest=hashlib.sha256((VERSION+'temporal-impact-v5-broadcast-r10'+json.dumps(body,sort_keys=True)).encode()).hexdigest()[:32]
    status=None
    if not body.get('force'):
     try:
