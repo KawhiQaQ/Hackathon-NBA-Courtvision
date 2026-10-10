@@ -40,6 +40,7 @@ def font(size):
 def wrap(draw,text,size,width):
  rows=[];row=''
  for c in text:
+  if c=='\n':rows.append(row);row='';continue
   if draw.textlength(row+c,font=font(size))>width and row:rows.append(row);row=''
   row+=c
  if row:rows.append(row)
@@ -230,8 +231,8 @@ def paint_commentary(im,result,t,beat=None,progress=1):
  typed=text[:math.ceil(len(text)*max(0,min(1,progress)))]
  ai=manifest['insights'].get('narration',{}).get('modelInvoked')
  draw.text((20,h+76),('AI 解说 · ' if ai else '')+title,font=font(17),fill='white')
- for i,line in enumerate(wrap(draw,typed+('▏' if progress<1 else ''),14,920)[:2]):
-  draw.text((20,h+101+i*20),line,font=font(14),fill='#d7e2d9')
+ for i,line in enumerate(wrap(draw,typed+('▏' if progress<1 else ''),17,920)[:2]):
+  draw.text((20,h+101+i*21),line,font=font(17),fill='#d7e2d9')
  return im
 
 
