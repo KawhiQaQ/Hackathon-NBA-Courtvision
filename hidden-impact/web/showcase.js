@@ -36,7 +36,7 @@ $('speed').onchange=()=>video.playbackRate=Number($('speed').value);
 $('expand-video').onclick=()=>{video.controls=true;if(video.webkitEnterFullscreen)video.webkitEnterFullscreen();else video.requestFullscreen?.().catch(()=>video.controls=false);};
 document.addEventListener('fullscreenchange',()=>video.controls=document.fullscreenElement===video);
 video.addEventListener('webkitendfullscreen',()=>video.controls=false);
-$('key-replay').onclick=async()=>{if(!data?.evidence.length)return;video.currentTime=seekTime(data.evidence[0].time);stopAt=seekTime(data.evidence.at(-1).time);$('speed').value='0.5';video.playbackRate=.5;try{await video.play();}catch{stopAt=null;}};
+$('key-replay').onclick=async()=>{if(!data?.evidence.length)return;video.currentTime=seekTime(data.evidence[0].time);const last=data.evidence.at(-1).time;stopAt=originalMode?last:(data.playback?.beats.find(b=>Math.abs(b.sourceTime-last)<.05)?.end??seekTime(last));$('speed').value='0.5';video.playbackRate=.5;try{await video.play();}catch{stopAt=null;}};
 for(const [id,original] of [['original',true],['annotated',false]])$(id).onclick=()=>{if(!data)return;const t=sourceNow(),playing=!video.paused;originalMode=original;loadVideo(original?data.original:data.video,seekTime(t),playing);for(const which of ['original','annotated']){$(which).classList.toggle('selected',(which==='original')===original);$(which).setAttribute('aria-pressed',String((which==='original')===original));}};
 function selectRound(n){
  if(!game?.rounds[n])return;index=n;data=game.rounds[n];currentCue=null;document.querySelector('.layout').hidden=false;$('data-insights').hidden=false;
