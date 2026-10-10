@@ -134,9 +134,8 @@ def build(result,fps=24):
         pid=e[key];name=result.get('confirmedNames',{}).get(pid) or players.get(pid,{}).get('label',pid)
         roles.append({'id':pid,'label':label,'displayName':name+' · '+label,'name':name,'color':color})
     info=insights(result); segments=info['narration'].get('segments',[])
-    from actor_profile import build_profile
-    actor_mapping=next((p for p in ((result.get('deepData') or {}).get('companion') or {}).get('players',[]) if p.get('trackId')==e['actorTrackId']),{})
-    info['actorProfile']=build_profile(result,actor_mapping.get('playerId'))
+    from actor_profile import mapped_profile
+    info['actorProfile']=mapped_profile(result)
     evidence=[]
     for seg in segments:
         refs=[t for t in seg.get('frameTimes',[]) if finite(t) and seg['start']-.5<=t<=seg['end']+.5 and 0<=t<result['video']['duration']]
@@ -173,6 +172,8 @@ def build(result,fps=24):
     mapping=next((p for p in ((result.get('deepData') or {}).get('companion') or {}).get('players',[]) if p.get('trackId')==e['actorTrackId']),{})
     if mapping.get('jersey') is not None:
         manifest['identity']={'jersey':str(mapping['jersey']),'confirmed':True,'source':'supplied-companion'}
+    from story_direction import build_direction
+    manifest['direction']=build_direction(manifest,result['video']['duration'],e)
     result['presentation']=manifest
     result['presentationMotion']=motion(result,e,fps=fps)
     result['focusPlayerId']=e['actorTrackId']

@@ -31,9 +31,9 @@ def actor_card(profile, time, switch_time):
         c.update(delta=None,headline=f'{creation:+.2f}',headlineUnit='创造机会影响力',accent='#f4c45e')
         return c
     if finishing:
-        c=comparison('actor-finishing','主角的终结威胁',profile['name'],finishing['actual']*100,finishing['expected']*100,
-                     ('官方预期','实际命中'),'个百分点','本回合前 · 同场两分出手')
-        c.update(delta=None,headline=f"{finishing['made']} / {finishing['sampleCount']}",headlineUnit='两分命中',accent='#f4c45e')
+        c=comparison('actor-finishing','主角的终结威胁',profile['name'],finishing['actual']*100,finishing['expected']*100 if finite(finishing.get('expected')) else None,
+                     ('官方预期','实际命中'),'个百分点','本回合前 · 同场'+('三分' if finishing.get('shotType')=='3分投篮' else '两分')+'出手')
+        c.update(delta=None,headline=f"{finishing['made']} / {finishing['sampleCount']}",headlineUnit='三分命中' if finishing.get('shotType')=='3分投篮' else '两分命中',history=finishing.get('history',[]),accent='#f4c45e')
         return c
     return None
 

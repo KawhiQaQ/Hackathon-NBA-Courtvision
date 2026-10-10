@@ -78,6 +78,8 @@ def build(source,review,sha256,source_job,fps=24,profiles=None):
         score=None,components=[],roles=roles,evidence=evidence,insights=info,matchup=official.get('matchup','回合分析'),
         actionTitle=review.get('title','从掩护到终结'),summary=review.get('summary',''),storyTitle='沿着这次配合，看到机会如何出现。',
         generation={'analysisModel':result.get('model'),'modelInvoked':result.get('modelInvoked',False),'sourceJob':source_job,'presentationSource':'human-reviewed-video','narration':{'status':'reviewed','modelInvoked':False,'source':'human-reviewed-video'}})
+    from story_direction import build_direction
+    result['presentation']['direction']=build_direction(result['presentation'],result['video']['duration'])
     result['presentationMotion']=build_motion(review,result['video']['duration'],fps)
     return result
 

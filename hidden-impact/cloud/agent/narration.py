@@ -10,6 +10,7 @@ PROMPT = '''你是篮球转播解说员。根据按时间排序的视频帧、�
 开头也要讲具体动作：谁向哪里移动、队友如何调整站位、随后出现什么机会。避免长时间只说“先看机会出现之前”。每段通常2到4秒，标题不超过24字，正文25到70字。分段应覆盖已有证据的时间范围，画面看不清时不要补造动作。可说“寻找接应位置”，不可把意图或相关变化断言成因果。
 区分持球推进与无球跑动。只把实际可见或官方确认的投篮写成命中。阶段汇总Gravity只作球员特点，不能作本回合的实时引力。出手质量与平均值的差异不是任何球员的个人增益。
 若 deepData.alignment.shotVideoTime 已提供，它是已对齐的本回合唯一出手时刻；此前不得把本回合的命中、篮板或攻防转换说成已经发生；对手当前退防或持球方推进可以据实描述。正文和标题只解说动作，不包含任何比分、倒计时或视频秒数；忽略画面记分牌。时间数字只放在 start、end、frameTimes 字段。严格按每张帧旁边的绝对秒数判断动作，切勿把后面的出手提前到前面的段落。
+若 actorEvidence 已提供，可用其此前两分/三分表现或阶段创造机会指标解释为何主角值得防守注意。明确此前表现与当前动作，不能把背景威胁直接说成成功牵制；只有画面显示防守响应才描述响应。roleDetections 提供已确认角色在当前帧的定位，用位置与图片核对人物。
 只返回JSON：{"segments":[{"start":视频绝对秒,"end":视频绝对秒,"title":"当前动作标题","text":"中文解说","frameTimes":[支持该描述的输入帧准确时间]}]}。
 段落按时间排序、互不重叠，均在片段内，每段不超过4.5秒，每段至少引用一张在该段附近的输入帧。移动描述要比较至少两帧。不要把任何输出称为已验证的归因。'''
 
@@ -66,7 +67,11 @@ def narrate_window(payload, client, model_id):
     window=payload.get('narrationWindow');shot_time=(deep.get('alignment') or {}).get('shotVideoTime')
     if not window or number(shot_time) and window['end']>=shot_time:
         facts['official']={k:official[k] for k in ['shooter','team','shot'] if k in official}
-    content = [{'text': json.dumps({'video': payload['video'], 'deepData': facts,
+    ctx=payload.get('narrationContext') or {}
+    evidence=ctx.get('actorEvidence')
+    role_ids={evidence.get('trackId')} if evidence else set()
+    role_detections=[{'time':f['time'],'people':[p for p in f.get('people',[]) if p.get('trackId') in role_ids]} for f in ctx.get('detections',[])]
+    content = [{'text': json.dumps({'video': payload['video'], 'deepData': facts, 'actorEvidence':evidence, 'roleDetections':role_detections,
                                   'narrationWindow':window}, ensure_ascii=False)}]
     for frame in payload['frames']:
         content.extend([{'text': f"视频绝对时间 {frame['time']:.3f} 秒"},
@@ -125,6 +130,8 @@ def narrate(payload,client,model_id):
 
 def request_for_result(result, frames):
     """Keep the narrator grounded in final roles, after candidate review."""
+    from actor_profile import mapped_profile
+    actor_evidence=mapped_profile(result)
     tracks = result.get('vision', {}).get('frames', [])
     detections = []
     for frame in frames:
@@ -135,6 +142,7 @@ def request_for_result(result, frames):
                 for p in nearest.get('people', [])]})
     return {'mode': 'narrate-video', 'video': result['video'], 'frames': frames,
             'deepData': result.get('deepData'), 'narrationContext': {
+                'actorEvidence':actor_evidence,
                 'players': [{k: p[k] for k in ['id','label','team','role'] if k in p} for p in result.get('players', [])],
                 'events': [{k: e[k] for k in ['actorTrackId','beneficiaryTrackId','defenderTrackId','start','end','summary'] if k in e}
                            for e in result.get('events', []) if e.get('visualVerified')],

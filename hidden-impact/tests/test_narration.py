@@ -38,6 +38,13 @@ class NarrationTests(unittest.TestCase):
         self.assertEqual(result['usage']['outputTokens'], 20)
         self.assertEqual(sum('image' in c for c in client.calls[0]['messages'][0]['content']), 5)
 
+    def test_actor_evidence_reaches_actual_vlm_request(self):
+        self.payload['narrationContext']={'actorEvidence':{'trackId':'hero','creation':.33,'finishing':{'made':7,'sampleCount':8}},'detections':[{'time':0,'people':[{'trackId':'hero','x':.2,'y':.3},{'trackId':'other'}]}]}
+        client=Client(self.raw);analyze(self.payload,client)
+        sent=json.loads(client.calls[0]['messages'][0]['content'][0]['text'])
+        self.assertEqual(sent['actorEvidence']['finishing']['made'],7)
+        self.assertEqual(sent['roleDetections'][0]['people'],[{'trackId':'hero','x':.2,'y':.3}])
+
     def test_invalid_timing_references_and_text_are_rejected(self):
         variants = [
             {'start': -1}, {'end': 5}, {'start': float('nan')}, {'title': ''},

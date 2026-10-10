@@ -101,6 +101,7 @@ def direction_ribbon(image,points,color,pixel_scale=1):
 
 def composite(image,result,t):
  """Single compositor for the replay and story frames, driven by measured data."""
+ original_image=image
  manifest=result['presentation'];motion=result['presentationMotion'];w,h=image.size;pixel_scale=w/960
  frame=motion['frames'][min(len(motion['frames'])-1,max(0,round(t*motion['fps'])))];colors={r['id']:r for r in manifest['roles']}
  # One broadcast language for every clip: fixed identities, soft focus, nameplates
@@ -117,7 +118,9 @@ def composite(image,result,t):
  w,h=960,h/pixel_scale
  draw=ScaledDraw(im,pixel_scale)
  draw.text((20,10),'HIDDEN IMPACT  /  '+manifest['actor']['label'],font=font(19),fill='#f5d68e')
- draw.text((w-130,11),'TEAM 14',font=font(17),fill='#aac1b3')
+ from story_direction import build_direction,phase_at,draw_chapters,draw_focus
+ direction=manifest.get('direction') or build_direction(manifest,result['video']['duration'])
+ draw_chapters(draw,font,direction,t,result['video']['duration'])
  for key,idx in [('defenderArrow',2),('heroArrow',0)]:
   arrow=frame.get(key)
   if arrow:
@@ -143,9 +146,18 @@ def composite(image,result,t):
   draw.ellipse((lx+8,top+12,lx+12,top+16),fill=(*color,255))
   draw.text((lx+18,top+2),text,font=font(18),fill=(*color,255))
  # The same source-linked numbers now travel with the MP4, not only the web page.
- from broadcast import card_at
+ from broadcast import card_at,actor_card
  card=card_at(manifest['insights'],t,result['video']['duration'])
- if card:
+ phase=phase_at(direction,t)
+ if phase==0 and direction.get('focusWindow') and manifest['insights'].get('actorProfile'):
+  card=actor_card(manifest['insights']['actorProfile'],t,direction['focusWindow'][0]) or card
+ focus_drawn=False
+ if phase==1:
+  # Keep the detail lens on the quiet side throughout the verified action window.
+  rows=[p for i,f in enumerate(motion['frames'][::max(1,motion['fps'])]) if phase_at(direction,i)==1 for p in f['people'] if not p.get('offscreen')]
+  cx=16 if sum(p['x']+p['w']/2>.5 for p in rows)>len(rows)/2 else w-328
+  focus_drawn=draw_focus(im,original_image,draw,font,frame,manifest,(cx,56,312,202),pixel_scale)
+ if card and not focus_drawn:
   cw=312;ch=202
   # Choose one side per data chapter, avoiding the action over that entire
   # interval. Never chase players or jump between corners frame by frame.
@@ -181,6 +193,11 @@ def composite(image,result,t):
    offset=draw.textlength(number,font=font(29))
    draw.text((cx+23+offset,cy+150),card['unit'],font=font(12),fill='#f5d68e')
   else:draw.text((cx+16,cy+144),'基准暂无',font=font(16),fill='#b6c8cc')
+  history=card.get('history',[])
+  if 1<=len(history)<=10:
+   for j,shot in enumerate(history):
+    x=cx+184+j*11;y=cy+157
+    draw.ellipse((x-3,y-3,x+3,y+3),fill='#f4c45e' if shot['made'] else '#0b2029',outline='#f4c45e')
   if card['outcome']:
    text=card['outcome'];tw=draw.textlength(text,font=font(12))
    draw.text((cx+cw-16-tw,cy+150),text,font=font(12),fill='#eef4ec')
@@ -201,7 +218,7 @@ def render(source,result,output,story_dir=None):
  if result['presentation'].get('status')!='ready':return None
  manifest=result['presentation'];start=0;end=result['video']['duration']
  width,height,band,original=output_dimensions(source);fps=result['presentationMotion']['fps']
- manifest.update(width=width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='actor-evidence-hd-v8',encoding={'codec':'h264','crf':17,'preset':'fast'})
+ manifest.update(width=width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='impact-lens-hd-v9',encoding={'codec':'h264','crf':17,'preset':'fast'})
  target=Path(output);target.parent.mkdir(parents=True,exist_ok=True)
  story_dir=Path(story_dir) if story_dir else target.parent;story_dir.mkdir(parents=True,exist_ok=True)
  decode=subprocess.Popen([ffmpeg(),'-v','error','-i',str(source),'-t',str(end),'-vf',f'fps={fps},scale={width}:{height}:flags=lanczos','-f','rawvideo','-pix_fmt','rgb24','pipe:1'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
@@ -224,4 +241,4 @@ def render(source,result,output,story_dir=None):
    if process.poll() is None:process.kill();process.wait()
    for stream in [process.stdin,process.stdout,process.stderr]:
     if stream and not stream.closed:stream.close()
- return {'start':0,'end':end,'fps':fps,'frameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':'actor-evidence-hd-v8','width':width,'height':height+band,'pictureWidth':width,'pictureHeight':height}
+ return {'start':0,'end':end,'fps':fps,'frameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':'impact-lens-hd-v9','width':width,'height':height+band,'pictureWidth':width,'pictureHeight':height}

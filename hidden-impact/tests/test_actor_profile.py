@@ -25,4 +25,11 @@ class ActorProfileTests(unittest.TestCase):
  def test_bad_row_ids_are_excluded(self):
   self.profile['leverage']['PLAYERID']='wrong';self.profile['shots']['shotList'][0]['playerId']='wrong'
   p=build_profile(self.r,'1629655');self.assertIsNone(p['creation']);self.assertEqual(p['finishing']['sampleCount'],7)
+ def test_three_point_threat_and_missing_expected_values(self):
+  self.profile['shots']['shotList']=[dict(playerId='1629655',gameId='0022500701',eventId=i,shotType='3分投篮',success=1,value=None) for i in [1,2,3]]
+  self.profile['shots']['shotList'].append(dict(self.profile['shots']['shotList'][0]))
+  p=build_profile(self.r,'1629655');f=p['shooting']['three']
+  self.assertEqual(f['sampleCount'],3);self.assertEqual(f['made'],3);self.assertIsNone(f['expected'])
+  c=card_at({'actorProfile':p,'shotVideoTime':17},9,20)
+  self.assertEqual(c['headlineUnit'],'三分命中');self.assertEqual(len(c['rows']),1)
 if __name__=='__main__':unittest.main()

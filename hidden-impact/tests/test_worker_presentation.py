@@ -15,10 +15,17 @@ class WorkerPresentationTests(unittest.TestCase):
  def test_commentary_failure_preserves_rendered_job(self):
   self.run_pipeline(commentary_failure=True)
 
- def run_pipeline(self,commentary_failure=False):
+ def test_normal_job_renders_actor_evidence_and_focus_without_review(self):
+  self.run_pipeline(with_profile=True)
+
+ def run_pipeline(self,commentary_failure=False,with_profile=False):
   import subprocess
   from render_video import ffmpeg
-  result=fixture();img=io.BytesIO();Image.new('RGB',(320,180),'gray').save(img,format='JPEG')
+  result=fixture()
+  if with_profile:
+   profile=json.loads((ROOT/'data/reference/dallas-practice-actor-profile.json').read_text())
+   result['deepData']={'videoId':result['video']['id'],'official':{'gameId':'0022500701','eventId':666},'playerProfiles':[profile],'companion':{'players':[{'trackId':'lead-x','sourcePlayerId':'1629655'}]}}
+  img=io.BytesIO();Image.new('RGB',(320,180),'gray').save(img,format='JPEG')
   frames=[dict(time=t,image=base64.b64encode(img.getvalue()).decode()) for t in [0,.4,.8,1.2,1.6,2.1]]
   request={'mode':'video','video':result['video'],'frames':frames}
   job='parity-job';prefix=f'jobs/{job}/';calls=[]
@@ -35,7 +42,9 @@ class WorkerPresentationTests(unittest.TestCase):
     document=json.loads(payload);mode=document.get('mode');calls.append(mode)
     if mode=='verify-temporal-candidates':
      value={'checks':[dict(id=c['id'],onBall=True,samePlayer=True,isShooter=False,passObserved=True,beneficiaryIsShooter=True,defenderResponds=True) for c in document['candidates']]}
-    elif mode=='narrate-video':value=result['narration']
+    elif mode=='narrate-video':
+     if with_profile:assert document['narrationContext']['actorEvidence']['finishing']['made']==7
+     value=result['narration']
     elif mode=='explain-temporal-candidate':
      if commentary_failure:raise RuntimeError('temporary commentary throttling')
      value={'commentary':'接应者持球后转移球权。'}
@@ -57,6 +66,10 @@ class WorkerPresentationTests(unittest.TestCase):
    status=json.loads(store.data[prefix+'status.json']);self.assertEqual(status['status'],'completed',status)
    self.assertIn('narrate-video',calls);self.assertIn('verify-temporal-candidates',calls)
    saved=json.loads(store.data[prefix+'result.json']);self.assertTrue(saved['presentation']['rendered'])
+   if with_profile:
+    self.assertEqual(saved['presentation']['insights']['actorProfile']['playerId'],'1629655')
+    self.assertEqual(saved['presentation']['direction']['source'],'verified-event')
+    self.assertNotIn('presentationReview',saved)
    if commentary_failure:self.assertEqual(saved['commentaryStatus'],'unavailable')
    self.assertEqual(saved['presentation']['insights']['narration']['segments'],result['narration']['segments'])
    self.assertTrue(store.data[prefix+'tactical.mp4'])
@@ -68,7 +81,7 @@ class WorkerPresentationTests(unittest.TestCase):
    denied=handler.handler({'rawPath':'/api/jobs/'+job,'headers':{}},None);self.assertEqual(denied['statusCode'],401)
 
    # Real API endpoints aggregate signed job presentations and persist only job references.
-   event={'rawPath':'/api/games','requestContext':{'http':{'method':'POST'}},'headers':{'x-team-key':'test-key'},'body':json.dumps({'jobIds':[job,job],'gameId':'match-a','team':'尼克斯','identities':{job:'44'}})}
+   event={'rawPath':'/api/games','requestContext':{'http':{'method':'POST'}},'headers':{'x-team-key':'test-key'},'body':json.dumps({'jobIds':[job,job],'gameId':'0022500701' if with_profile else 'match-a','team':'尼克斯','identities':{job:'44'}})}
    response=handler.handler(event,None);self.assertEqual(response['statusCode'],200,response)
    collection=json.loads(response['body']);self.assertEqual(collection['summary']['creditedRounds'],1);self.assertEqual(collection['summary']['winner']['jersey'],'44')
    response=handler.handler({'rawPath':'/api/games/'+collection['id'],'headers':{'x-team-key':'test-key'}},None)
