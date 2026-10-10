@@ -52,6 +52,22 @@ class NarrationTests(unittest.TestCase):
         self.assertEqual(sent['verifiedRoles'],[{'幕后MVP':'a','受益队友':'b','主要防守人':'d'}])
         self.assertEqual([p['trackId'] for p in sent['roleDetections'][0]['people']],['a','b','d'])
 
+    def test_statistical_evidence_reaches_vlm_and_citations_are_checked(self):
+        from test_narration_facts import NarrationFactsTests
+        facts=NarrationFactsTests().payload()
+        self.payload.update(deepData=facts['deepData'],narrationContext=facts['narrationContext'])
+        self.payload['deepData']['videoId']='test'
+        self.raw['segments'][0].update(text='此前两分8投7中，接应球员向内线移动。',factRefs=['actor-prior-finishing'])
+        client=Client(self.raw);result=analyze(self.payload,client)
+        sent=json.loads(client.calls[0]['messages'][0]['content'][0]['text'])
+        self.assertIn('actor-prior-finishing',[f['id'] for f in sent['statFacts']])
+        self.assertEqual(result['segments'][0]['factRefs'],['actor-prior-finishing'])
+        self.raw['segments'][0]['factRefs']=['invented-increase']
+        with self.assertRaises(ValueError):normalize_segments(self.raw,self.payload)
+        self.raw['segments'][0]['factRefs']=['shot-opportunity']
+        self.payload['narrationWindow']={'start':0,'end':6}
+        with self.assertRaisesRegex(ValueError,'未提供的数据'):normalize_segments(self.raw,self.payload)
+
     def test_invalid_timing_references_and_text_are_rejected(self):
         variants = [
             {'start': -1}, {'end': 5}, {'start': float('nan')}, {'title': ''},
