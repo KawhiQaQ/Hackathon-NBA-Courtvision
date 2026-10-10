@@ -1,6 +1,7 @@
 """Evidence-grounded video analysis. VLM observations, deterministic ranking, no tracking."""
 import base64
 import json
+from model_json import parse_model_json
 import math
 import time
 
@@ -133,7 +134,7 @@ def analyze(payload, client):
         raise ValueError('模型输出被截断，请缩短分析片段后重试。')
     if text.startswith('```'):
         text = text.split('\n',1)[-1].rsplit('```',1)[0]
-    raw = json.loads(text)
+    raw = parse_model_json(text,client,MODEL_ID)
     result = normalize_result(raw, payload)
     result['usage'] = response.get('usage', {})
     result['elapsedSeconds'] = round(time.monotonic()-started, 2)
@@ -174,7 +175,7 @@ def analyze_snapshot(payload,client):
     response=client.converse(modelId=MODEL_ID,system=[{'text':prompt}],messages=[{'role':'user','content':content}],inferenceConfig={'maxTokens':3500 if matched else 2200,'temperature':0.1})
     raw='\n'.join(block.get('text','') for block in response['output']['message']['content']).strip()
     if raw.startswith('```'):raw=raw.split('\n',1)[-1].rsplit('```',1)[0]
-    data=json.loads(raw)
+    data=parse_model_json(raw,client,MODEL_ID)
     if not isinstance(data,dict) or not isinstance(data.get('summary'),str):raise ValueError('模型未返回有效解读。')
     allowed=set(context['evidenceSources']);evidence=[]
     if matched:allowed.update(f"frame@{f['time']:.2f}" for f in payload['frames'])
@@ -262,7 +263,7 @@ def analyze(payload,client):
     text='\n'.join(b.get('text','') for b in response['output']['message']['content']).strip()
     if response.get('stopReason')=='max_tokens':raise ValueError('模型响应被截断，请缩短片段重试。')
     if text.startswith('```'):text=text.split('\n',1)[-1].rsplit('```',1)[0]
-    result=normalize_hybrid(json.loads(text),payload);result.update(usage=response.get('usage',{}),elapsedSeconds=round(time.monotonic()-started,2),modelInvoked=True)
+    result=normalize_hybrid(parse_model_json(text,client,MODEL_ID),payload);result.update(usage=response.get('usage',{}),elapsedSeconds=round(time.monotonic()-started,2),modelInvoked=True)
     return result
 
 # v3: roster-first analysis. A lack of a screen event no longer erases player reports.
@@ -286,7 +287,7 @@ def analyze(payload,client):
     raw='\n'.join(b.get('text','') for b in response['output']['message']['content']).strip()
     if response.get('stopReason')=='max_tokens':raise ValueError('逐人分析响应被截断，请缩短视频重试。')
     if raw.startswith('```'):raw=raw.split('\n',1)[-1].rsplit('```',1)[0]
-    data=json.loads(raw)
+    data=parse_model_json(raw,client,MODEL_ID)
     if classification is not None:
         for player in data.get('players',[]):
             player['observations']=[o for o in player.get('observations',[]) if (o.get('time'),o.get('trackId')) in classification]
@@ -309,7 +310,7 @@ def classify_crops(payload,client):
     raw='\n'.join(b.get('text','') for b in response['output']['message']['content']).strip()
     if raw.startswith('```'):raw=raw.split('\n',1)[-1].rsplit('```',1)[0]
     payload['_cropUsage']=response.get('usage',{})
-    data=json.loads(raw);allowed=set()
+    data=parse_model_json(raw,client,MODEL_ID);allowed=set()
     for row in data.get('frames',[]):
         if not finite(row.get('time')):continue
         f=min(frames,key=lambda f:abs(f['time']-row['time']))
@@ -332,7 +333,7 @@ def analyze(payload,client):
     response=client.converse(modelId=MODEL_ID,system=[{'text':TEMPORAL_PROMPT}],messages=[{'role':'user','content':content}],inferenceConfig={'maxTokens':6000,'temperature':0.0})
     raw='\n'.join(b.get('text','') for b in response['output']['message']['content']).strip()
     if raw.startswith('```'):raw=raw.split('\n',1)[-1].rsplit('```',1)[0]
-    payload['_temporalUsage']=dict(response.get('usage',{}));context=json.loads(raw);context['identities']=classify_identity_sheets(payload,client);alignment=align_shot_clock(payload,client)
+    payload['_temporalUsage']=dict(response.get('usage',{}));context=parse_model_json(raw,client,MODEL_ID);context['identities']=classify_identity_sheets(payload,client);alignment=align_shot_clock(payload,client)
     if alignment:context['attackEnd']=min(context['attackEnd'],alignment['shotTime']) if finite(context.get('attackEnd')) else alignment['shotTime'];context['timeAlignment']=alignment
     companion=(payload.get('deepData') or {}).get('companion');roster,vision=ground(payload['vision'],context,companion);players,events=reports(roster,vision,companion)
     if events:
@@ -349,7 +350,7 @@ def classify_identity_sheets(payload,client):
     raw=''.join(b.get('text','') for b in response['output']['message']['content']).strip()
     if raw.startswith('```'):raw=raw.split('\n',1)[-1].rsplit('```',1)[0]
     add_temporal_usage(payload,response)
-    return json.loads(raw).get('identities',[])
+    return parse_model_json(raw,client,MODEL_ID).get('identities',[])
 
 def explain_temporal(event,payload,client):
     measured={k:event[k] for k in ['actionType','actorTrackId','beneficiaryTrackId','defenderTrackId','start','end','score']}
@@ -373,7 +374,7 @@ def align_shot_clock(payload,client):
     raw=''.join(b.get('text','') for b in response['output']['message']['content']).strip()
     if raw.startswith('```'):raw=raw.split('\n',1)[-1].rsplit('```',1)[0]
     add_temporal_usage(payload,response)
-    clocks=json.loads(raw).get('clocks',[]);offsets=[];observations=[]
+    clocks=parse_model_json(raw,client,MODEL_ID).get('clocks',[]);offsets=[];observations=[]
     for f in frames:
         q=next((q for q in clocks if isinstance(q,dict) and q.get('time')==f['time']),None);value=seconds(q.get('clock')) if q else None
         if value is not None and value>=target:offsets.append(f['time']+value);observations.append({'time':f['time'],'clock':q['clock']})
@@ -408,7 +409,7 @@ def analyze(payload,client):
             response=client.converse(modelId=MODEL_ID,system=[{'text':'你是篮球视频核验员，不猜人名。黄色框A是待核验幕后贡献者，蓝框B是队友，红框D是待核验相关防守者。action帧核验A是否持球及B是否持球；outcome帧检查A是否是本回合最后投篮者（即使action阶段无球也必须排除最终出手者）。同时比较A的球衣、号码、位置和连续动作核验身份，不把背景观众的球或地板标志当作篮球。返回完整JSON，对所有候选都必须检查是否看到A向B传球(passObserved)、B是否最终出手者(beneficiaryIsShooter)、红框D是否向A响应(defenderResponds)；看不清填null。无论哪种动作，都要核对真实出手时刻，已提供出手对齐时不得将更早传球说成投篮。A在outcome帧可能未检出，不要把无框人物自动认作A。字段必须全部填写：{"observedShotTime":出手绝对秒或null,"passObserved":true/false/null,"beneficiaryIsShooter":true/false/null,"defenderResponds":true/false/null,"onBall":true/false/null,"samePlayer":true/false/null,"beneficiaryOnBall":true/false/null,"isShooter":true/false/null,"evidence":"按时间说明球、A动作和最终投篮者的位置"}。onBall仅判断action阶段，任一action帧A控球即true；isShooter判断整个提供序列，A接球起跳投篮或投篮随挥即true。明确看到其他人完成最终投篮才可isShooter=false；没有看到出手或身份不清必须null。'}],messages=[{'role':'user','content':content}],inferenceConfig={'maxTokens':1400,'temperature':0})
             raw=''.join(b.get('text','') for b in response['output']['message']['content']).strip()
             if raw.startswith('```'):raw=raw.split('\n',1)[-1].rsplit('```',1)[0]
-            check=json.loads(raw);checks.append({'id':candidate['id'],'observedShotTime':check.get('observedShotTime'),'passObserved':check.get('passObserved'),'beneficiaryIsShooter':check.get('beneficiaryIsShooter'),'defenderResponds':check.get('defenderResponds'),'onBall':check.get('onBall'),'samePlayer':check.get('samePlayer'),'beneficiaryOnBall':check.get('beneficiaryOnBall'),'isShooter':check.get('isShooter'),'evidence':clean_text(check.get('evidence'),800),'usage':response.get('usage',{})})
+            check=parse_model_json(raw,client,MODEL_ID);checks.append({'id':candidate['id'],'observedShotTime':check.get('observedShotTime'),'passObserved':check.get('passObserved'),'beneficiaryIsShooter':check.get('beneficiaryIsShooter'),'defenderResponds':check.get('defenderResponds'),'onBall':check.get('onBall'),'samePlayer':check.get('samePlayer'),'beneficiaryOnBall':check.get('beneficiaryOnBall'),'isShooter':check.get('isShooter'),'evidence':clean_text(check.get('evidence'),800),'usage':response.get('usage',{})})
         return {'checks':checks}
     if payload.get('mode')=='explain-temporal-candidate':
         commentary=explain_temporal(payload['event'],payload,client)
