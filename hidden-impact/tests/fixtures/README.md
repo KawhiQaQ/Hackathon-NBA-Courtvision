@@ -1,9 +1,7 @@
 # Regression fixtures
 
-These are historical real-run analysis records from the public NBA example clips,
-retained to test known failures and rendering. They are **not validated basketball
-labels** and must not be presented as ground truth or current product results.
+Saved analysis records for testing parsing, candidate filtering and rendering.
+They are test inputs, not validated basketball ground truth.
 
-Embedded images, media URLs, presigned downloads and tactical replay objects were
-removed. Keep full raw records in the private local snapshot, outside Git. Fixture
-filenames retain historical run identifiers so failures can be reproduced.
+Embedded media and expiring URLs are omitted. Fixtures remain independent of AWS
+credentials and are exercised by `python -m unittest discover -s tests`.
