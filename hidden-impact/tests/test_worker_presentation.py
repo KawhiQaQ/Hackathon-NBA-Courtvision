@@ -15,7 +15,7 @@ class WorkerPresentationTests(unittest.TestCase):
  def test_commentary_failure_preserves_rendered_job(self):
   self.run_pipeline(commentary_failure=True)
 
- def test_normal_job_renders_actor_evidence_and_focus_without_review(self):
+ def test_normal_job_renders_actor_evidence_and_board_without_review(self):
   self.run_pipeline(with_profile=True)
 
  def run_pipeline(self,commentary_failure=False,with_profile=False):
@@ -69,6 +69,8 @@ class WorkerPresentationTests(unittest.TestCase):
    if with_profile:
     self.assertEqual(saved['presentation']['insights']['actorProfile']['playerId'],'1629655')
     self.assertEqual(saved['presentation']['direction']['source'],'verified-event')
+    self.assertEqual(saved['presentation']['direction']['board']['coordinateSystem'],'image-relative')
+    self.assertEqual(len(saved['presentation']['direction']['board']['trackIds']),3)
     self.assertNotIn('presentationReview',saved)
    if commentary_failure:self.assertEqual(saved['commentaryStatus'],'unavailable')
    self.assertEqual(saved['presentation']['insights']['narration']['segments'],result['narration']['segments'])

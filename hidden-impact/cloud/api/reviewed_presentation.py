@@ -8,7 +8,7 @@ import bisect
 import copy
 import math
 import re
-from presentation import insights, finite, FIELDS
+from presentation import insights, finite, FIELDS, arrow_anchor
 
 ROLE_STYLE=[('actor','主角','#f4c45e'),('beneficiary','受益队友','#77cfe4'),('defender','防守者','#ee927f')]
 
@@ -111,9 +111,7 @@ def build_motion(review,duration,fps=24):
                     lengths[idx]=.8*lengths.get(idx,80)+.2*max(64,min(112,math.hypot(dx,dy)))
                 if idx in headings:
                     angle=headings[idx];u=(math.cos(angle),math.sin(angle));length=lengths[idx]
-                    # Keep direction cues on the floor, away from jerseys and nameplates.
-                    c=((p['x']+p['w']/2)*width,(p['y']+p['h'])*height+6);gap=p['w']*width*.6+8
-                    start=[c[k]+u[k]*gap for k in (0,1)]
+                    start=arrow_anchor(p,u,width,height)
                     points=[[start[k]+u[k]*length*v/16 for k in (0,1)] for v in range(17)]
                     arrow=dict(trackId=p['trackId'],points=points,mode='reviewed-image-direction')
             else:headings.pop(idx,None);lengths.pop(idx,None)

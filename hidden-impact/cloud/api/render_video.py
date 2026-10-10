@@ -101,7 +101,6 @@ def direction_ribbon(image,points,color,pixel_scale=1):
 
 def composite(image,result,t):
  """Single compositor for the replay and story frames, driven by measured data."""
- original_image=image
  manifest=result['presentation'];motion=result['presentationMotion'];w,h=image.size;pixel_scale=w/960
  frame=motion['frames'][min(len(motion['frames'])-1,max(0,round(t*motion['fps'])))];colors={r['id']:r for r in manifest['roles']}
  # One broadcast language for every clip: fixed identities, soft focus, nameplates
@@ -118,8 +117,11 @@ def composite(image,result,t):
  w,h=960,h/pixel_scale
  draw=ScaledDraw(im,pixel_scale)
  draw.text((20,10),'HIDDEN IMPACT  /  '+manifest['actor']['label'],font=font(19),fill='#f5d68e')
- from story_direction import build_direction,phase_at,draw_chapters,draw_focus
+ from story_direction import build_direction,phase_at,draw_chapters
  direction=manifest.get('direction') or build_direction(manifest,result['video']['duration'])
+ manifest['direction']=direction
+ from tactical_board import build_board,draw_board
+ if 'board' not in direction:direction['board']=build_board(motion,manifest)
  draw_chapters(draw,font,direction,t,result['video']['duration'])
  for key,idx in [('defenderArrow',2),('heroArrow',0)]:
   arrow=frame.get(key)
@@ -151,13 +153,13 @@ def composite(image,result,t):
   draw.rounded_rectangle((lx,top,lx+length,top+29),radius=7,fill=(9,30,30,235),outline=(*color,110),width=1)
   draw.ellipse((lx+8,top+12,lx+12,top+16),fill=(*color,255))
   draw.text((lx+18,top+2),text,font=font(18),fill=(*color,255))
- focus_drawn=False
+ board_drawn=False
  if phase==1:
-  # Keep the detail lens on the quiet side throughout the verified action window.
+  # Keep the tactics board fixed on the quiet side throughout the action.
   rows=[p for i,f in enumerate(motion['frames'][::max(1,motion['fps'])]) if phase_at(direction,i)==1 for p in f['people'] if not p.get('offscreen')]
   cx=16 if sum(p['x']+p['w']/2>.5 for p in rows)>len(rows)/2 else w-328
-  focus_drawn=draw_focus(im,original_image,draw,font,frame,manifest,(cx,56,312,202),pixel_scale)
- if card and not focus_drawn:
+  board_drawn=draw_board(draw,font,motion,manifest,t,(cx,56,312,202))
+ if card and not board_drawn:
   compact=card['kind']=='shot'
   cw=296 if compact else 312;ch=160 if compact else 202
   # Use real body/nameplate overlap, including the start of the chapter.
@@ -216,7 +218,7 @@ def render(source,result,output,story_dir=None):
  if result['presentation'].get('status')!='ready':return None
  manifest=result['presentation'];start=0;end=result['video']['duration']
  width,height,band,original=output_dimensions(source);fps=result['presentationMotion']['fps']
- manifest.update(width=width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='impact-lens-hd-v10',encoding={'codec':'h264','crf':17,'preset':'fast'})
+ manifest.update(width=width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='tactical-board-hd-v11',encoding={'codec':'h264','crf':17,'preset':'fast'})
  target=Path(output);target.parent.mkdir(parents=True,exist_ok=True)
  story_dir=Path(story_dir) if story_dir else target.parent;story_dir.mkdir(parents=True,exist_ok=True)
  decode=subprocess.Popen([ffmpeg(),'-v','error','-i',str(source),'-t',str(end),'-vf',f'fps={fps},scale={width}:{height}:flags=lanczos','-f','rawvideo','-pix_fmt','rgb24','pipe:1'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
@@ -239,4 +241,4 @@ def render(source,result,output,story_dir=None):
    if process.poll() is None:process.kill();process.wait()
    for stream in [process.stdin,process.stdout,process.stderr]:
     if stream and not stream.closed:stream.close()
- return {'start':0,'end':end,'fps':fps,'frameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':'impact-lens-hd-v10','width':width,'height':height+band,'pictureWidth':width,'pictureHeight':height}
+ return {'start':0,'end':end,'fps':fps,'frameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':'tactical-board-hd-v11','width':width,'height':height+band,'pictureWidth':width,'pictureHeight':height}

@@ -47,6 +47,12 @@ def insights(result):
     return out
 
 
+def arrow_anchor(person, unit, width, height):
+    center=((person['x']+person['w']/2)*width,(person['y']+person['h'])*height)
+    gap=width*.003
+    return [center[0]+unit[0]*gap,center[1]+unit[1]*gap+height*.003]
+
+
 def motion(result,event,fps=24,width=1280,height=720):
     """Bracket only short gaps in the same shot; missing tracks keep a HUD identity.
     The arrow previews measured later movement, not a model's prediction. Long
@@ -106,10 +112,8 @@ def motion(result,event,fps=24,width=1280,height=720):
                     state['bend']=state['bend']*.8+max(-width*.015,min(width*.015,bend))*.2
                 if state['heading'] is not None and t-state['last']<=1.2:
                     angle=state['heading'];u=(math.cos(angle),math.sin(angle));n=(-u[1],u[0])
-                    # Start just outside the body; the cue no longer crosses the jersey.
-                    center=((p['x']+p['w']/2)*width,(p['y']+p['h']*.64)*height)
-                    gap=max(width*.009,min(width*.025,p['w']*width*.52))
-                    a=[center[k]+u[k]*gap for k in (0,1)]
+                    # A small, resolution-independent gap keeps the route attached to the feet.
+                    a=arrow_anchor(p,u,width,height)
                     b=[a[k]+u[k]*state['length'] for k in (0,1)]
                     c=[(a[k]+b[k])/2+n[k]*state['bend'] for k in (0,1)]
                     points=[[(1-v)**2*a[k]+2*(1-v)*v*c[k]+v*v*b[k] for k in (0,1)] for v in [j/16 for j in range(17)]]
