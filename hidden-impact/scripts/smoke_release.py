@@ -2,9 +2,11 @@
 Never rewrites showcase data. A real job is billed by AWS and explicitly requested.
 """
 import argparse
+import http.client
 import json
 import time
 import urllib.request
+import urllib.error
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
 
@@ -16,6 +18,7 @@ def main():
     parser.add_argument('--request', type=Path, help='Submit this keyframe request to the real pipeline')
     parser.add_argument('--public-only', action='store_true')
     parser.add_argument('--api-only', action='store_true',help='Validate API before the first public result is published')
+    parser.add_argument('--job', help='Resume checking an existing job without submitting again')
     args=parser.parse_args()
     base=(args.url or json.loads((ROOT/'.cloud-config.json').read_text())['url']).rstrip('/')+'/'
     origin=urlparse(base).netloc
@@ -29,11 +32,17 @@ def main():
         if authenticated:headers['X-Team-Key']=token
         if asset:headers['Range']='bytes=0-1023'
         req=urllib.request.Request(url, data=json.dumps(body).encode() if body is not None else None,headers=headers)
-        with urllib.request.urlopen(req,timeout=50) as response:
-            raw=response.read(1024) if asset else response.read()
-            if not raw:raise RuntimeError('Empty response: '+path)
-            if asset and path.split('?')[0].endswith('.mp4') and b'ftyp' not in raw[:40]:raise RuntimeError('Invalid MP4 response')
-            return raw
+        for attempt in range(4):
+            try:
+                with urllib.request.urlopen(req,timeout=50) as response:
+                    raw=response.read(1024) if asset else response.read()
+                    if not raw:raise RuntimeError('Empty response: '+path)
+                    if asset and path.split('?')[0].endswith('.mp4') and b'ftyp' not in raw[:40]:raise RuntimeError('Invalid MP4 response')
+                    return raw
+            except (urllib.error.URLError,TimeoutError,http.client.RemoteDisconnected) as exc:
+                # GET retries are safe; an uncertain POST must never enqueue twice.
+                if body is not None or attempt==3 or isinstance(exc,urllib.error.HTTPError) and exc.code not in [429,502,503,504]:raise
+                time.sleep(.5*2**attempt)
     def data(path, body=None):return json.loads(fetch(path,body,authenticated=not args.public_only))
     for path in ['','workbench.html','showcase.js','app.js','game-view.js']:
         fetch(path);checked.add(path)
@@ -53,9 +62,11 @@ def main():
     assert data('api/session')['ok']
     library=data('api/library')['videos']
     print('Authenticated API OK; library items:',len(library),flush=True)
-    if not args.request:return
-    payload=json.loads(args.request.read_text());payload.pop('deepData',None);payload['force']=True
-    job=data('api/jobs',payload)['job'];print('Job submitted:',job,flush=True)
+    if not args.request and not args.job:return
+    if args.job:job=args.job;print('Resuming job:',job,flush=True)
+    else:
+        payload=json.loads(args.request.read_text());payload.pop('deepData',None);payload['force']=True
+        job=data('api/jobs',payload)['job'];print('Job submitted:',job,flush=True)
     started=time.monotonic();last=None
     while time.monotonic()-started<1020:
         response=data('api/jobs/'+job);stage=(response['status'],response.get('stage'))

@@ -65,6 +65,11 @@ class NarrationTests(unittest.TestCase):
         self.assertEqual(result['segments'],good['segments']);self.assertEqual(result['usage']['inputTokens'],20)
         self.assertIn('校验失败',client.calls[1]['system'][0]['text'])
 
+    def test_opponents_retreat_before_shot_is_not_an_early_shot_outcome(self):
+        self.payload['deepData']={'alignment':{'shotVideoTime':5}}
+        raw=copy.deepcopy(self.raw);raw['segments'][0]['text']='持球人推进，对手回防落位。'
+        self.assertEqual(normalize_segments(raw,self.payload)['segments'][0]['text'],raw['segments'][0]['text'])
+
     def test_only_final_verified_roles_go_to_narrator(self):
         result = {'video': self.payload['video'], 'players': [], 'events': [
             {'actorTrackId': 'rejected', 'visualVerified': False},

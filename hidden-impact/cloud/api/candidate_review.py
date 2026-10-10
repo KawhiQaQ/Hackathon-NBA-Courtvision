@@ -1,5 +1,5 @@
 """Focused visual check feeds possession corrections back into temporal scoring."""
-import base64,io,copy
+import base64,io,copy,math
 from PIL import Image,ImageDraw,ImageFont
 from temporal import reports
 
@@ -25,13 +25,18 @@ def prepare(result,original_frames,events):
  for e in events:
   frames=[]
   action_times=[e['start'],(e['start']+e['end'])/2,e['end']]
+  shot_time=((result.get('deepData') or {}).get('alignment') or {}).get('shotVideoTime')
   later=[f['time'] for f in original_frames if f['time']>e['end']+.05]
+  if isinstance(shot_time,(int,float)):
+   later=[f['time'] for f in original_frames if shot_time-1.5<=f['time']<=shot_time+2.5]
   if len(later)>8:later=[later[round(i*(len(later)-1)/7)] for i in range(8)]
   for t,phase in [(t,'action') for t in action_times]+[(t,'outcome') for t in later]:
    original=min(original_frames,key=lambda f:abs(f['time']-t));f=min(result['vision']['frames'],key=lambda f:abs(f['time']-original['time']));a=next((p for p in f['people'] if p['trackId']==e['actorTrackId']),None)
-   if not a:continue
-   im=Image.open(io.BytesIO(base64.b64decode(original['image']))).convert('RGB');draw=ImageDraw.Draw(im);x,y,w,h=a['x']*im.width,a['y']*im.height,a['w']*im.width,a['h']*im.height
-   draw.rectangle((x,y,x+w,y+h),outline='#ffdc44',width=4);draw.text((x,max(0,y-22)),'A',fill='#ffdc44',font=ImageFont.load_default(size=22));buf=io.BytesIO();im.save(buf,format='JPEG',quality=87)
+   if not a and phase=='action':continue
+   im=Image.open(io.BytesIO(base64.b64decode(original['image']))).convert('RGB');draw=ImageDraw.Draw(im)
+   if a:
+    x,y,w,h=a['x']*im.width,a['y']*im.height,a['w']*im.width,a['h']*im.height
+    draw.rectangle((x,y,x+w,y+h),outline='#ffdc44',width=4);draw.text((x,max(0,y-22)),'A',fill='#ffdc44',font=ImageFont.load_default(size=22))
    beneficiary=next((p for p in f['people'] if p['trackId']==e['beneficiaryTrackId']),None)
    if beneficiary:
     x,y,w,h=beneficiary['x']*im.width,beneficiary['y']*im.height,beneficiary['w']*im.width,beneficiary['h']*im.height;draw.rectangle((x,y,x+w,y+h),outline='#45e4ff',width=4);draw.text((x,max(0,y-22)),'B',fill='#45e4ff',font=ImageFont.load_default(size=22))
@@ -41,7 +46,7 @@ def prepare(result,original_frames,events):
     draw.rectangle((x,y,x+w,y+h),outline='#ff927f',width=4);draw.text((x,max(0,y-22)),'D',fill='#ff927f',font=ImageFont.load_default(size=22))
    buf=io.BytesIO();im.save(buf,format='JPEG',quality=87)
    frames.append({'time':original['time'],'phase':phase,'image':base64.b64encode(buf.getvalue()).decode()})
-  if len({f['time'] for f in frames if f['phase']=='action'})>=3:candidates.append({'id':e['id'],'actionType':e['actionType'],'frames':frames})
+  if len({f['time'] for f in frames if f['phase']=='action'})>=3:candidates.append({'id':e['id'],'actionType':e['actionType'],'shotVideoTime':shot_time,'frames':frames})
  return {'mode':'verify-temporal-candidates','candidates':candidates}
 
 def apply(result,checks):
@@ -68,6 +73,12 @@ def apply(result,checks):
   if e['actionType']=='draw-kick':
    ok=any(c.get('onBall') is True and c.get('isShooter') is False and c.get('samePlayer') is True and c.get('passObserved') is True and c.get('beneficiaryIsShooter') is True and c.get('defenderResponds') is True and c['actorTrackId']==e['actorTrackId'] and c['beneficiaryTrackId']==e['beneficiaryTrackId'] and c.get('defenderTrackId')==e['defenderTrackId'] and c['start']<=e['start']+.02 and c['end']>=e['end']-.02 for c in reviewed)
   if e['actionType']=='spacing':ok=ok and any(c.get('beneficiaryOnBall') is True and c['actorTrackId']==e['actorTrackId'] and c['beneficiaryTrackId']==e['beneficiaryTrackId'] and c.get('defenderTrackId')==e['defenderTrackId'] and c['start']<=e['start']+.02 and c['end']>=e['end']-.02 for c in reviewed)
+  matching=[c for c in reviewed if c['actorTrackId']==e['actorTrackId'] and c['beneficiaryTrackId']==e['beneficiaryTrackId'] and c.get('defenderTrackId')==e['defenderTrackId'] and c['start']<=e['start']+.02 and c['end']>=e['end']-.02]
+  # An explicit visual contradiction overrides a geometric correlation.
+  if any(c.get('defenderResponds') is False or c.get('beneficiaryIsShooter') is False for c in matching):ok=False
+  shot_time=((result.get('deepData') or {}).get('alignment') or {}).get('shotVideoTime')
+  if isinstance(shot_time,(int,float)):
+   ok=ok and any(c.get('defenderResponds') is True and c.get('beneficiaryIsShooter') is True and isinstance(c.get('observedShotTime'),(int,float)) and not isinstance(c['observedShotTime'],bool) and math.isfinite(c['observedShotTime']) and abs(c['observedShotTime']-shot_time)<=1.5 for c in matching)
   # An explicit pass-to-shot check disambiguates the generic ball-rise veto;
   # an explicit shooter verdict still excludes the actor in every branch.
   veto={c['actorTrackId'] for c in reviewed if c.get('isShooter') is True} if e['actionType']=='draw-kick' else shooters

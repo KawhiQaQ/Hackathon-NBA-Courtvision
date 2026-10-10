@@ -48,6 +48,17 @@ class PlaymakingTests(unittest.TestCase):
         for field in ['onBall','samePlayer','passObserved','beneficiaryIsShooter','defenderResponds']:
             r=fixture();c=dict(id=r['events'][0]['id'],onBall=True,samePlayer=True,isShooter=False,passObserved=True,beneficiaryIsShooter=True,defenderResponds=True);c[field]=None
             self.assertFalse(finalize(apply(r,[c]))['events'],field)
+    def test_visual_contradiction_vetoes_high_geometric_offball_score(self):
+        for key in ['defenderResponds','beneficiaryIsShooter']:
+            r=fixture();r['events'][0]['actionType']='decoy'
+            c=dict(id=r['events'][0]['id'],onBall=False,samePlayer=True,isShooter=False)
+            c[key]=False
+            self.assertFalse(finalize(apply(r,[c]))['events'])
+    def test_aligned_shot_requires_matching_outcome_not_an_earlier_pass(self):
+        for observed in [None, .1, 2.3]:
+            r=fixture();r['deepData']={'alignment':{'shotVideoTime':2.3}}
+            c=dict(id=r['events'][0]['id'],onBall=True,samePlayer=True,isShooter=False,passObserved=True,beneficiaryIsShooter=True,defenderResponds=True,observedShotTime=observed)
+            self.assertEqual(bool(finalize(apply(r,[c]))['events']),observed==2.3)
     def test_explicit_shooter_never_becomes_hidden_mvp(self):
         r=fixture();c=dict(id=r['events'][0]['id'],onBall=True,samePlayer=True,isShooter=True,passObserved=True,beneficiaryIsShooter=True,defenderResponds=True)
         self.assertFalse(finalize(apply(r,[c]))['events'])

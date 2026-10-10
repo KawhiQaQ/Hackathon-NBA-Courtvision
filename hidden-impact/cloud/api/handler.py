@@ -99,7 +99,7 @@ def worker(event):
     current['narration']=invoke_review(request_for_result(current,original_frames))
     for k in ['inputTokens','outputTokens','totalTokens']:current.setdefault('usage',{})[k]=current.get('usage',{}).get(k,0)+current['narration'].get('usage',{}).get(k,0)
    except Exception as exc:
-    current['narration']={'status':'unavailable','segments':[]}
+    current['narration']={'status':'unavailable','segments':[],'error':str(exc)[:300]}
     print('narration_failed',type(exc).__name__,str(exc)[:300])
    result['result']=current
   result['result']['job']=job;result['result']['createdAt']=datetime.now(timezone.utc).isoformat()
@@ -243,7 +243,7 @@ def handler(event,context):
       body['deepData']['official']=context
       body['deepData']['opportunitySource']=body['deepData']['companion']['source']
       body['deepData']['videoId']=body['video']['id']
-   digest=hashlib.sha256((VERSION+'temporal-impact-v5-broadcast-r10'+json.dumps(body,sort_keys=True)).encode()).hexdigest()[:32]
+   digest=hashlib.sha256((VERSION+'temporal-impact-v5-broadcast-r11'+json.dumps(body,sort_keys=True)).encode()).hexdigest()[:32]
    status=None
    if not body.get('force'):
     try:

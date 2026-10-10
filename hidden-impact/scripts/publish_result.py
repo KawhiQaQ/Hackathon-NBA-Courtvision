@@ -46,7 +46,7 @@ def main():
     for file in (ROOT/'web').iterdir():
         if file.is_file() and file.suffix in ['.html','.css','.js']:
             s3.upload_file(str(file),site,file.name,ExtraArgs={'ContentType':mimetypes.guess_type(file.name)[0] or 'text/plain','CacheControl':'no-cache'})
-    page=(ROOT/'web/readme.html').read_text().replace('{{VIDEO_SOURCE}}',html.escape(rights['source'])).replace('{{JOB_ID}}',html.escape(args.job))
+    page=(ROOT/'web/readme.html').read_text().replace('见各回合的素材来源记录',html.escape(rights['source'])).replace('见结果摘要中的任务 ID',html.escape(args.job))
     for key in ['readme','readme.html']:
         s3.put_object(Bucket=site,Key=key,Body=page.encode(),ContentType='text/html; charset=utf-8',CacheControl='no-cache')
     s3.put_object(Bucket=site,Key='demo/game.json',Body=body,ContentType='application/json',CacheControl='no-cache')

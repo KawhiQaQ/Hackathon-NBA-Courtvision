@@ -53,6 +53,7 @@ class Handler(SimpleHTTPRequestHandler):
     outputfile.write(block);remaining-=len(block)
   except (BrokenPipeError,ConnectionResetError):pass
  def do_GET(self):
+  if self.path=='/readme':self.path='/readme.html'
   if self.path=='/api/session' and not getattr(self.server,'cloud_enabled',False):return self.json_reply(200,{'mode':'offline','teamId':'14'})
   if self.path.startswith('/api/'):return self.proxy()
   return super().do_GET()
