@@ -12,7 +12,7 @@ def build_profile(result, player_id):
     if not profile:return None
     leverage=profile.get('leverage') or {};shots=profile.get('shots') or {}
     valid_leverage=str(leverage.get('PLAYERID'))==str(player_id)
-    out=dict(playerId=str(player_id),name=profile.get('name','主角'),scope=profile.get('scope','阶段汇总'),sources=profile.get('sources',[]),finishing=None)
+    out=dict(playerId=str(player_id),name=profile.get('name','幕后MVP'),scope=profile.get('scope','阶段汇总'),sources=profile.get('sources',[]),finishing=None)
     for dest,key in [('creation','CREATION_LVG'),('scoring','SHOT_LVG')]:
         value=leverage.get(key);out[dest]=value if valid_leverage and finite(value) else None
     out['games']=leverage.get('GP') if valid_leverage else None

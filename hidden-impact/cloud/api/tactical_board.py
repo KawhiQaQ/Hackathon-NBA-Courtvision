@@ -136,6 +136,6 @@ def draw_board(draw, font, motion, manifest, time, bounds):
             draw.text((x-tw/2,y-8),label,font=font(11),fill='#102028')
         x=cx+15+index*97
         draw.ellipse((x,cy+184,x+5,cy+189),fill=role['color'] if point else '#56636a')
-        label=['主角','受益队友','防守者'][index] + (' · 画外' if not point else '')
+        label=['幕后MVP','受益队友','防守者'][index] + (' · 画外' if not point else '')
         draw.text((x+10,cy+178),label,font=font(11),fill=role['color'] if point else '#879598')
     return True

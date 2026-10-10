@@ -34,7 +34,7 @@ function selectRound(n){
  $('matchup').textContent=data.actionTitle||data.matchup||'回合分析';$('play-label').textContent=`回合 ${String(n+1).padStart(2,'0')}${data.identity?.jersey?' · '+data.identity.jersey+'号':''}`;
  $('actor-name').textContent=data.identity?.jersey?`${data.team||game.team} ${data.identity.jersey}号`:data.actor.label;
  if($('narration-kind'))$('narration-kind').textContent=data.insights?.narration?.modelInvoked?'AI 解说':'回合解读';
- if($('contribution-kind'))$('contribution-kind').textContent=data.analysisStatus==='unconfirmed-mvp'?'本回合数据解读':data.analysisStatus==='reviewed-story'?'本回合故事主角':'本回合幕后 MVP';
+ if($('contribution-kind'))$('contribution-kind').textContent=data.analysisStatus==='unconfirmed-mvp'?'本回合数据解读':data.analysisStatus==='reviewed-story'?'本回合幕后MVP':'本回合幕后 MVP';
  $('action-title').textContent=data.actionTitle||'配合观察';$('score').textContent=Number.isFinite(data.impact?.score)?data.impact.score: Number.isFinite(data.score)?data.score:'—';
  if($('value-number'))$('value-number').hidden=!Number.isFinite(data.score);if($('score-method'))$('score-method').hidden=!Number.isFinite(data.score);
  $('impact-thesis').textContent=data.summary||data.insights?.interpretation||'';$('components').innerHTML=scoreMarkup(data.impact);$('score-formula').textContent=data.impact?.formula||(data.analysisStatus==='unconfirmed-mvp'?'角色证据不足，本回合暂不计入幕后 MVP 排名。':'此回合仅有动作观察分，未提供完整机会对照。');
@@ -69,7 +69,7 @@ try{
  game.rounds.forEach(r=>resolveAssets(r,base));if(!game.rounds.length)throw Error('尚无可展示回合。');
  $('round-browser').hidden=false;$('game-scope').textContent=`${game.team||'比赛'} · ${game.rounds.length} 个同场回合`;
  $('round-select').innerHTML=game.rounds.map((r,i)=>`<option value="${i}">回合 ${String(i+1).padStart(2,'0')} · ${esc(r.actionTitle||r.matchup||'配合观察')}</option>`).join('');
- $('round-tabs').innerHTML=game.rounds.map((r,i)=>`<button data-round="${i}" aria-pressed="false"><span>${String(i+1).padStart(2,'0')}</span><div><b>${esc(r.identity?.jersey?`${r.identity.jersey}号 · 幕后主角`:r.actor.label)}</b><small>${esc(r.actionTitle||r.matchup)}</small></div></button>`).join('');
+ $('round-tabs').innerHTML=game.rounds.map((r,i)=>`<button data-round="${i}" aria-pressed="false"><span>${String(i+1).padStart(2,'0')}</span><div><b>${esc(r.identity?.jersey?`${r.identity.jersey}号 · 幕后MVP`:r.actor.label)}</b><small>${esc(r.actionTitle||r.matchup)}</small></div></button>`).join('');
  $('awards').hidden=game.schema!=='hidden-impact/game-showcase-v1';if(!$('awards').hidden){$('award-scope').textContent=`${game.team} · ${game.gameId} · 已上传 ${game.roundCount} 回合，${game.creditedRounds} 回合计入身份汇总`;$('award-hero').innerHTML=awardMarkup(game);$('leaderboard').innerHTML=rankingMarkup(game);$('game-formula').textContent=game.formula;}
  selectRound(0);
 }catch(error){$('load-error').hidden=false;$('load-error').textContent=error.message;document.querySelector('.layout').hidden=true;document.querySelector('.story-section').hidden=true;$('data-insights').hidden=true;$('awards').hidden=true;video.pause();video.removeAttribute('src');video.load();}

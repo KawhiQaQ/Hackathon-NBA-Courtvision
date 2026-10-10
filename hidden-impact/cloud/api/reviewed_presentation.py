@@ -10,7 +10,7 @@ import math
 import re
 from presentation import insights, finite, FIELDS, arrow_anchor
 
-ROLE_STYLE=[('actor','主角','#f4c45e'),('beneficiary','受益队友','#77cfe4'),('defender','防守者','#ee927f')]
+ROLE_STYLE=[('actor','幕后MVP','#f4c45e'),('beneficiary','受益队友','#77cfe4'),('defender','防守者','#ee927f')]
 
 
 def validate(review,result,sha256):

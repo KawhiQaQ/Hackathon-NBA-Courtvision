@@ -87,7 +87,7 @@ function playerName(p){return result()?.confirmedNames?.[p?.id]||result()?.displ
 function safeCommentary(e){const text=e.commentary||'';return text&&!/导致|致|造成|创造了|使得|因此/.test(text)?text:e.summary;}
 function storyFor(p,e){
  const m=e?.measurement,spacing=e?.actionType==='spacing';
- if(['review','presentation'].includes(e?.actionType))return {title:'跟随主角，看得分机会如何形成',badge:'接应与分球',summary:e.summary,limit:''};
+ if(['review','presentation'].includes(e?.actionType))return {title:'跟随幕后MVP，看得分机会如何形成',badge:'接应与分球',summary:e.summary,limit:''};
  if(!p)return {title:'这段画面，还不足以选出幕后贡献者',summary:'没有确认到可分析的上场球员。可换用人物更清晰、镜头连续的回合。',badge:'证据不足'};
  if(!e||!m)return {title:p.role==='defense'?'查看这位防守人的画面证据':['ballhandler','shooter'].includes(p.status)?'这是进攻执行者，继续寻找无球贡献':p.score===0?'看到了无球参与，尚未测得贡献信号':p.diagnostics?.knownHandlerFrames<3?'持球者未可靠定位，暂时无法评估贡献':'贡献证据不足，先核验这位球员',summary:p.reason||'暂不评分。',badge:p.role==='defense'?'防守观察':p.score===0?'已观察 · 未检出信号':'暂不评分'};
  if(e.actionType==='draw-kick')return {title:'从持球牵动，到队友的出手',badge:'牵动后分球',summary:safeCommentary(e),limit:'持球转移与防守响应的观察指数'};
@@ -106,7 +106,7 @@ function renderPlayerReports(){
  $('player-roster').innerHTML=`<div class="strip-heading"><h2>${featured?'幕后 MVP 候选':'暂未选出幕后 MVP'}</h2><span>本片段</span></div><div class="roster-grid">${featured?person(featured,0):'<p class="roster-note">没有足够可靠的正向贡献证据。可展开逐人报告查看缺少的环节。</p>'}</div>${comparisons.length?`<details class="other-players" ${p&&p.id!==featured?.id?'open':''}><summary>${featured?'比较其他球员':'查看逐人观察'} · ${comparisons.length}</summary><div class="roster-grid">${[...ranked,...other].filter(x=>x.id!==featured?.id).map(x=>person(x,ranked.includes(x)?ranked.indexOf(x):undefined)).join('')}</div></details>`:''}<p class="roster-note">${featured?'点击球员切换观察视角':'证据不足不计零分 · 不按名单顺序选 MVP'}</p>`;
  $('story-hero').innerHTML=`<div class="story-kicker"><span>${e?'HIDDEN IMPACT / 幕后 MVP':'球员观察'}</span><span class="story-badge">${esc(story.badge)}</span></div><h2>${esc(story.title)}</h2><div class="story-subline">${p?`<strong>${esc(playerName(p))}</strong><span>${e?`${num(e.start,2)} – ${num(e.end,2)} 秒`:`可见 ${num(p.visibleSeconds)} 秒`}</span>`:''}<span>${p&&r.confirmedNames?.[p.id]?'姓名已人工确认':e?'连续动作回放':'逐人观察'}</span></div>`;
  if(!p){$('impact-content').innerHTML='<div class="empty-next"><b>暂无可归因对象</b>未确认的场边人物不会进入候选榜。</div>';$('impact-details').innerHTML='';$('frame-list').innerHTML='';$('evidence-intervals').innerHTML='';$('role-strip').innerHTML='';$('narrative').textContent=story.summary;$('insight-meta').textContent='';return;}
- updateRoleStrip(r,p,e,$('video').currentTime,visiblePeople(r.vision,$('video').currentTime));$('video-title').textContent=(e?'主角 · ':'球员观察 · ')+playerName(p);$('return-mvp').hidden=!featured||p.id===featured.id;$('return-mvp').onclick=()=>{state.playerId=featured.id;state.eventId=null;render();};
+ updateRoleStrip(r,p,e,$('video').currentTime,visiblePeople(r.vision,$('video').currentTime));$('video-title').textContent=(e?'幕后MVP · ':'球员观察 · ')+playerName(p);$('return-mvp').hidden=!featured||p.id===featured.id;$('return-mvp').onclick=()=>{state.playerId=featured.id;state.eventId=null;render();};
  const m=e?.measurement||p.measurement,d=p.diagnostics;const diagnostic=d?`<div class="score-diagnostics"><strong>这次计算缺什么</strong><div><span>可见位置</span><b>${p.observationCount||0} 帧</b></div><div><span>无球且有持球者定位</span><b>${d.knownHandlerFrames} / ${d.offBallFrames} 帧</b></div><div><span>完成几何测量的窗口</span><b>${d.evaluatedWindows}</b></div><small>帧数含短时身份关联，不等于人工标注量。</small></div>`:'';
  $('impact-content').innerHTML=`<div class="score-block"><span class="score-label">HIDDEN IMPACT · 观察指数</span><div class="score-value"><strong>${num(r.presentationScore?.trackId===p.id?r.presentationScore.value:p.score,0)}</strong><span>${Number.isFinite(p.score)||r.presentationScore?.trackId===p.id?'/ 100':'—'}</span></div><h3 class="actor-name">${esc(playerName(p))}</h3><button id="confirm-name" class="text-button">${r.confirmedNames?.[p.id]?'修改已确认姓名':'确认球员姓名'} ↗</button><div class="result-quality">${Number.isFinite(m?.quality)?`证据质量 ${num(m.quality*100,0)}% · `:''}可见 ${num(p.visibleSeconds)} 秒</div></div>`;
  $('impact-details').innerHTML=`${m?`<details class="score-breakdown"><summary>分数如何组成</summary><div class="contribution-bars">${(p.components||[]).map(c=>`<div class="bar-row"><div class="bar-label"><span>${esc(c.label)}</span><b>${num(c.points)} / ${c.weight}</b></div><div class="bar-track"><i style="width:${Math.min(100,c.points/c.weight*100)}%"></i></div></div>`).join('')}</div><p>${r.scoringVersion==='temporal-impact-v5'?'分数描述信号强度；证据质量单列，不重复扣分。':'原始分 × 证据质量。'}工程权重尚未校准。</p></details>`:''}<p class="score-warning">${esc(story.limit||p.reason)}</p>${!e?diagnostic:''}`;if(r.presentationScore)$('impact-details').innerHTML='';
@@ -121,7 +121,7 @@ function renderPlayerReports(){
 }
 // Render markings only for identities participating in the selected explanation.
 function storyRoles(e,p){
- return e?[[e.actorTrackId,'主角','actor','#ffdc79'],...(e.supportTrackIds||[]).map(id=>[id,'协同队友','support','#b0a4f4']),[e.beneficiaryTrackId,'收益队友','beneficiary','#87d9ff'],...(e.defenderTrackIds||[e.defenderTrackId]).map((id,i)=>[id,e.defenderTrackIds?('防守者'):'防守者','defender','#ff9e8b'])]:p?[[p.id,'观察球员','actor','#ffdc79']]:[];
+ return e?[[e.actorTrackId,'幕后MVP','actor','#ffdc79'],...(e.supportTrackIds||[]).map(id=>[id,'协同队友','support','#b0a4f4']),[e.beneficiaryTrackId,'收益队友','beneficiary','#87d9ff'],...(e.defenderTrackIds||[e.defenderTrackId]).map((id,i)=>[id,e.defenderTrackIds?('防守者'):'防守者','defender','#ff9e8b'])]:p?[[p.id,'观察球员','actor','#ffdc79']]:[];
 }
 function focusMarks(people,e,p,px,py,labels=true,active=true){
  if(!$('relation-toggle').checked)e=null;
@@ -226,7 +226,7 @@ function intervalExplanation(e,start,end){
  const action=e.actionType==='draw-kick'?'持球牵动后转移球权':e.actionType==='screen'&&rows.some(q=>q.pathBlock)?'接近防守路径':movement===null?'参与无球动作':movement>.35?'进行无球跑位':'保持无球站位';
  const reaction=response!==null&&response>.3?`${defender} 同时移动`:`${defender} 保持相邻防守位置`;
  const change=delta>.2?'拉大':delta<-.2?'缩小':'基本稳定';
- let text=`主角 ${actor} ${action}，${reaction}；与收益队友 ${mate} 的间距${change}（${num(a.separation)} → ${num(b.separation)}）。`;
+ let text=`幕后MVP ${actor} ${action}，${reaction}；与收益队友 ${mate} 的间距${change}（${num(a.separation)} → ${num(b.separation)}）。`;
  if(Number.isFinite(a.openness)&&Number.isFinite(b.openness))text+=b.openness-a.openness>.25?'队友与最近防守人的距离也增大，出现更多接球或处理球空间。':b.openness-a.openness<-.25?'但其他防守者更靠近队友，整体空间并未同步改善。':'最近防守距离变化不大，尚不能认定形成了新的出手机会。';
  return text;
 }
@@ -252,7 +252,7 @@ function renderEvidenceCards(rows,e){
   const view=zoom?`${cropX} ${cropY} ${cropWidth} ${cropHeight}`:'0 0 1000 562.5';
   const row=e?.measurement?.series?.reduce((best,x)=>!best||Math.abs(x.time-o.time)<Math.abs(best.time-o.time)?x:best,null);
   const caption=row?`防守者距${e.actionType==='spacing'?'持球者':'队友'} ${num(row.separation)} ${e?.measurement?.units||'倍人物高度'}`:(p.role==='defense'?'查看防守位置与人物身份':'查看无球状态与人物身份');
-  return `<button class="frame-card" data-time="${o.time}" aria-label="${['观察起点','关键时刻','后续状态'][i]} ${num(o.time,2)}秒"><div class="evidence-step"><b>0${i+1}</b><span>${['观察起点','关键时刻','后续状态'][i]}</span><time>${num(o.time,2)}s ↗</time></div><div class="frame-image">${src?`<svg viewBox="${view}" role="img" aria-label="${precise?'证据':'邻近预览'}画面 ${num(sourceTime,2)}秒${zoom?' · 主角局部放大':''}"><image href="${esc(src)}" width="1000" height="562.5" preserveAspectRatio="none"/>${marks}</svg><span class="crop-label">${zoom?'聚焦 '+esc(p.id):'全景关系'}</span>`:'<span>载入原片后生成画面</span>'}</div><p>${esc(caption)}</p><small>${precise?'精确时刻 · 点击回放':src?`预览 ${num(sourceTime,2)}s · 点击跳至 ${num(o.time,2)}s`:'点击跳转视频证据'}</small></button>`;
+  return `<button class="frame-card" data-time="${o.time}" aria-label="${['观察起点','关键时刻','后续状态'][i]} ${num(o.time,2)}秒"><div class="evidence-step"><b>0${i+1}</b><span>${['观察起点','关键时刻','后续状态'][i]}</span><time>${num(o.time,2)}s ↗</time></div><div class="frame-image">${src?`<svg viewBox="${view}" role="img" aria-label="${precise?'证据':'邻近预览'}画面 ${num(sourceTime,2)}秒${zoom?' · 幕后MVP局部放大':''}"><image href="${esc(src)}" width="1000" height="562.5" preserveAspectRatio="none"/>${marks}</svg><span class="crop-label">${zoom?'聚焦 '+esc(p.id):'全景关系'}</span>`:'<span>载入原片后生成画面</span>'}</div><p>${esc(caption)}</p><small>${precise?'精确时刻 · 点击回放':src?`预览 ${num(sourceTime,2)}s · 点击跳至 ${num(o.time,2)}s`:'点击跳转视频证据'}</small></button>`;
  }).join('')||'<p class="inline-empty">当前没有可定位的画面证据。</p>';
  renderEvidenceIntervals(rows,e);
 }

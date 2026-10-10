@@ -189,9 +189,18 @@ def composite(image,result,t):
   elif delta is not None:
    precision=1 if card['kind']=='shot' else 2
    number=f'{delta:+.{precision}f}'
-   draw.text((cx+16,cy+value_y),number,font=font(value_font),fill='#f5d68e')
+   gain=card['kind']=='shot' and delta>0.00001
+   ink='#6cdea0' if gain else '#f5d68e'
+   start=cx+16
+   if gain:
+    # A compact rising arrow accompanies the percentage-point difference.
+    ax=start+2;ay=cy+value_y+19
+    draw.line([(ax,ay),(ax+7,ay-7),(ax+12,ay-3),(ax+22,ay-16)],fill=ink,width=3)
+    draw.line([(ax+12,ay-16),(ax+22,ay-16),(ax+22,ay-6)],fill=ink,width=3)
+    start+=32
+   draw.text((start,cy+value_y),number,font=font(value_font),fill=ink)
    offset=draw.textlength(number,font=font(value_font))
-   draw.text((cx+23+offset,cy+unit_y),card['unit'],font=font(12),fill='#f5d68e')
+   draw.text((start+7+offset,cy+unit_y),card['unit'],font=font(12),fill=ink)
   else:draw.text((cx+16,cy+value_y+9),'基准暂无',font=font(16),fill='#b6c8cc')
   history=card.get('history',[])
   if 1<=len(history)<=10:

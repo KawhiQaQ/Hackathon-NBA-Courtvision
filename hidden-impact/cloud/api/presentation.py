@@ -4,7 +4,7 @@ import copy
 import math
 from statistics import median, mean
 
-ROLES=[('actorTrackId','主角','#f4c45e'),('beneficiaryTrackId','收益队友','#77cfe4'),('defenderTrackId','防守者','#ee927f')]
+ROLES=[('actorTrackId','幕后MVP','#f4c45e'),('beneficiaryTrackId','收益队友','#77cfe4'),('defenderTrackId','防守者','#ee927f')]
 FIELDS=[('OVERALL_GRAV','总体引力'),('ON_BALL_PERIM_GRAV','持球 · 外线'),('ON_BALL_INTERIOR_GRAV','持球 · 内线'),('OFF_BALL_PERIM_GRAV','无球 · 外线'),('OFF_BALL_INTERIOR_GRAV','无球 · 内线')]
 
 def finite(x):return isinstance(x,(int,float)) and not isinstance(x,bool) and math.isfinite(x)
