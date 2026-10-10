@@ -26,6 +26,43 @@ def reusable_job(status):
  age=time.time()-status.get('updatedAt',0)
  return (status.get('status')=='completed' and age<86400) or (status.get('status') in ['queued','running'] and age<900)
 
+def review_source(payload):
+ from model_reviewer import validate_source
+ if bool(payload.get('sourceJob'))==bool(payload.get('sourceAnalysis')):raise ValueError('Choose sourceJob or sourceAnalysis')
+ if payload.get('sourceJob'):
+  id=key_id(payload['sourceJob']);key=f'jobs/{id}/result.json'
+  if get(f'jobs/{id}/status.json').get('status')!='completed':raise ValueError('Source analysis is not complete')
+ else:
+  id=key_id(payload['sourceAnalysis']);key=f'analyses/{id}/result.json'
+ return validate_source(get(key)),key,id
+
+def model_review_worker(payload,job,arn):
+ from model_reviewer import run
+ from reviewed_presentation import build
+ from vision import sample_video
+ import tempfile
+ source,source_key,source_id=review_source(payload);prefix=f'jobs/{job}/'
+ item=get(f"library/{key_id(source['video']['id'])}.json")
+ def invoke(document):
+  from reviewer_runtime import invoke as invoke_runtime
+  return invoke_runtime(agent,arn,document)
+ def progress(done,total):put(prefix+'status.json',dict(job=job,status='running',stage='model-review',done=done,total=total,updatedAt=time.time()))
+ progress(0,1)
+ with tempfile.TemporaryDirectory() as directory:
+  path=directory+'/source.mp4';s3.download_file(BUCKET,item['key'],path)
+  with open(path,'rb') as f:sha=hashlib.file_digest(f,'sha256').hexdigest()
+  if sha!=item.get('sha256'):raise ValueError('Source video hash mismatch')
+  dense=sample_video(path,source['video']['duration'])
+ plan,report,refs=run(source,dense,invoke,sha,source_key,progress)
+ for name,document in [('review.json',plan),('references.json',refs),('review-report.json',report)]:put(prefix+name,document)
+ reviewed=build(source,plan,sha,source_id,profiles=(item.get('deepData') or {}).get('playerProfiles',[]),model_review=report)
+ reviewed.update(job=job,createdAt=datetime.now(timezone.utc).isoformat(),executionOrigin='aws',mode='model-reviewed-presentation')
+ reviewed['presentationReview']['sourceArtifact']=source_key
+ render_result(reviewed,item,prefix)
+ if not reviewed['presentation'].get('rendered'):raise RuntimeError('Reviewer replay rendering failed')
+ reviewed['reviewArtifacts']={name:prefix+name for name in ['review.json','references.json','review-report.json','presentation-plan.json']}
+ put(prefix+'result.json',reviewed);put(prefix+'status.json',dict(job=job,status='completed',updatedAt=time.time()))
+
 def render_result(result,video_item,prefix):
  job=prefix.split('/')[1]
  if result.get('presentation',{}).get('status')=='ready':
@@ -65,6 +102,9 @@ def worker(event):
   raise
  try:
   payload=get(prefix+'request.json');original_frames=payload.get('frames',[]);dense_frames=None;put(prefix+'status.json',{'job':job,'status':'running','updatedAt':time.time()})
+  if payload.get('mode')=='model-reviewed-presentation':
+   model_review_worker(payload,job,arn)
+   return
   if payload.get('mode')=='reviewed-presentation':
    from reviewed_presentation import build
    source_job=key_id(payload['sourceJob']);source=get(f'jobs/{source_job}/result.json')
@@ -216,6 +256,8 @@ def handler(event,context):
    if status['status']=='completed':
     from review import reviewed_result
     status['result']=reviewed_result(get(f'jobs/{job}/result.json'))
+    artifacts=status['result'].get('reviewArtifacts',{})
+    status['result']['reviewArtifactUrls']={name:s3.generate_presigned_url('get_object',Params={'Bucket':BUCKET,'Key':key},ExpiresIn=3600) for name,key in artifacts.items() if name in ['review.json','references.json','review-report.json','presentation-plan.json'] and key==f'jobs/{job}/'+name}
     replay=status['result'].get('tacticalReplay')
     if replay and replay.get('key')==f'jobs/{job}/tactical.mp4':replay['url']=s3.generate_presigned_url('get_object',Params={'Bucket':BUCKET,'Key':replay['key']},ExpiresIn=3600)
     presentation=status['result'].get('presentation',{})
@@ -241,6 +283,21 @@ def handler(event,context):
   if len(raw)>5*1024*1024:return reply(413,{'error':'关键帧请求过大。'})
   body=json.loads(raw)
   if not isinstance(body,dict):raise ValueError('请求应为对象。')
+  if path=='/api/reviews' and method=='POST':
+   source,_,_=review_source(body)
+   item=get(f"library/{key_id(source['video']['id'])}.json")
+   if not item.get('sha256'):raise ValueError('Source video hash is missing')
+   job=str(uuid.uuid4());prefix=f'jobs/{job}/'
+   payload={k:body[k] for k in ['sourceJob','sourceAnalysis'] if body.get(k)}
+   payload['mode']='model-reviewed-presentation'
+   put(prefix+'request.json',payload);put(prefix+'status.json',dict(job=job,status='queued',updatedAt=time.time()))
+   try:
+    response=functions.invoke(FunctionName=os.environ['WORKER_NAME'],InvocationType='Event',Payload=json.dumps({'internal':'analyze','job':job}).encode())
+    if response.get('StatusCode')!=202:raise RuntimeError('Reviewer dispatch failed')
+   except Exception:
+    put(prefix+'status.json',dict(job=job,status='failed',error='Reviewer dispatch failed',updatedAt=time.time()))
+    raise
+   return reply(202,{'job':job})
   if path=='/api/presentations' and method=='POST':
    from reviewed_presentation import validate
    source_job=key_id(body.get('sourceJob'));source=get(f'jobs/{source_job}/result.json')

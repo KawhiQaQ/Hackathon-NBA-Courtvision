@@ -13,13 +13,13 @@ from presentation import insights, finite, FIELDS, arrow_anchor
 ROLE_STYLE=[('actor','幕后MVP','#f4c45e'),('beneficiary','受益队友','#77cfe4'),('defender','防守者','#ee927f')]
 
 
-def validate(review,result,sha256):
+def validate(review,result,sha256,allow_model=False):
     if not isinstance(review,dict) or review.get('schema') not in ['hidden-impact/presentation-review-v1','hidden-impact/presentation-plan-v1']:raise ValueError('Unsupported presentation plan')
     if review['schema']=='hidden-impact/presentation-plan-v1':
         from presentation_plan import validate as validate_plan
         validate_plan(review,result['video']['duration'])
     if review.get('videoId')!=result['video']['id'] or review.get('videoSha256')!=sha256 or not re.fullmatch('[a-f0-9]{64}',sha256 or ''):raise ValueError('Review belongs to a different video')
-    if review.get('source')!='human-reviewed-video':raise ValueError('Review source must be explicit')
+    if review.get('source') not in (['human-reviewed-video','bedrock-vlm-review'] if allow_model else ['human-reviewed-video']):raise ValueError('Review source must be explicit')
     duration=result['video']['duration'];roles=review.get('roles')
     if not isinstance(roles,list) or [r.get('role') for r in roles]!=[r[0] for r in ROLE_STYLE]:raise ValueError('Exactly three fixed roles are required')
     if len({(r.get('team'),r.get('jersey')) for r in roles})!=3:raise ValueError('Roles must refer to distinct players')
@@ -53,16 +53,24 @@ def validate(review,result,sha256):
     return review
 
 
-def build(source,review,sha256,source_job,fps=24,profiles=None):
-    validate(review,source,sha256)
+def build(source,review,sha256,source_job,fps=24,profiles=None,model_review=None):
+    if model_review is not None:
+        import hashlib,json
+        digest=hashlib.sha256(json.dumps(review,sort_keys=True,ensure_ascii=False).encode()).hexdigest()
+        if review.get('source')!='bedrock-vlm-review' or model_review.get('modelInvoked') is not True or not model_review.get('calls') or model_review.get('planSha256')!=digest:
+            raise ValueError('Model review receipt does not match this plan')
+    validate(review,source,sha256,allow_model=model_review is not None)
+    origin=review['source'];generated=model_review is not None
     result=copy.deepcopy(source)
     if profiles is not None and result.get('deepData'):
         result['deepData']['playerProfiles']=copy.deepcopy(profiles)
     # Immutable source job remains the authoritative automatic analysis.
     result['presentationReview']={**copy.deepcopy(review),'sourceJob':source_job}
     result['originalNarration']=copy.deepcopy(source.get('narration'))
+    if generated:result['modelReview']=copy.deepcopy(model_review)
     segments=[{**s,'frameTimes':[s['seek']]} for s in review['segments']]
-    result['narration']={'status':'reviewed','source':'human-reviewed-video','modelInvoked':False,'segments':segments}
+    result['narration']={'status':'reviewed','source':origin,'modelInvoked':generated,'segments':segments}
+    if generated:result['narration'].update(model=model_review['model'],usage=model_review.get('usage',{}))
     for key in ['tacticalReplay','renderError','thumbnails']:result.pop(key,None)
     roles=[]
     for r,(_,label,color) in zip(review['roles'],ROLE_STYLE):
@@ -73,14 +81,14 @@ def build(source,review,sha256,source_job,fps=24,profiles=None):
     from actor_profile import build_profile
     info['actorProfile']=build_profile(result,review['roles'][0].get('playerId'))
     info['cues']=[{**s,'phase':s['title'],'evidence':f"画面 · {s['seek']:.2f}s"} for s in segments]
-    evidence=[dict(time=s['seek'],label=s['title'],chapter=s['title'],text=s['text'],kind='analysis',source='human-reviewed-video',image=f'frame-{i+1}.jpg') for i,s in enumerate(segments)]
+    evidence=[dict(time=s['seek'],label=s['title'],chapter=s['title'],text=s['text'],kind='analysis',source=origin,image=f'frame-{i+1}.jpg') for i,s in enumerate(segments)]
     official=(result.get('deepData') or {}).get('official') or {}
     result['presentation']=dict(schema='hidden-impact/showcase-v1',mode='analysis',status='ready',analysisStatus='reviewed-story',
         eventId=str(official.get('eventId','')),video='replay.mp4',original='original.mp4',videoId=result['video']['id'],gameId=official.get('gameId'),team=review['roles'][0]['team'],
-        actor={'id':roles[0]['id'],'label':roles[0]['name']},identity={'jersey':str(review['roles'][0]['jersey']),'confirmed':True,'source':'human-reviewed-video'},
+        actor={'id':roles[0]['id'],'label':roles[0]['name']},identity={'jersey':str(review['roles'][0]['jersey']),'confirmed':True,'source':origin},
         score=None,components=[],roles=roles,evidence=evidence,insights=info,matchup=official.get('matchup','回合分析'),
         actionTitle=review.get('title','从掩护到终结'),summary=review.get('summary',''),storyTitle='沿着这次配合，看到机会如何出现。',
-        generation={'analysisModel':result.get('model'),'modelInvoked':result.get('modelInvoked',False),'sourceJob':source_job,'presentationSource':'human-reviewed-video','narration':{'status':'reviewed','modelInvoked':False,'source':'human-reviewed-video'}})
+        generation={'analysisModel':result.get('model'),'modelInvoked':result.get('modelInvoked',False),'sourceJob':source_job,'presentationSource':origin,'narration':{'status':'reviewed','modelInvoked':generated,'source':origin}})
     from story_direction import build_direction
     result['presentation']['direction']=build_direction(result['presentation'],result['video']['duration'])
     result['presentationMotion']=build_motion(review,result['video']['duration'],fps)
@@ -122,4 +130,4 @@ def build_motion(review,duration,fps=24):
             else:headings.pop(idx,None);lengths.pop(idx,None)
             arrows[key]=arrow
         frames.append(dict(time=round(t,5),people=people,**arrows))
-    return dict(schema='hidden-impact/presentation-motion-v2',source='human-reviewed-video',fps=fps,width=width,height=height,frames=frames)
+    return dict(schema='hidden-impact/presentation-motion-v2',source=review['source'],fps=fps,width=width,height=height,frames=frames)

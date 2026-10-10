@@ -78,3 +78,13 @@ node tests/test_studio_flow.cjs
 ## 私有快照
 
 `scripts/cloud_snapshot.py` 支持备份校验与恢复，格式见 [snapshot-schema](snapshot-schema.md)。恢复时显式指定新桶，不复用旧部署 ID；备份及私有配置保持在 Git 之外。
+
+### 模型 Reviewer
+
+对原始分析创建独立复核任务：`POST /api/reviews`，请求体为 `{"sourceJob":"已完成的原始任务ID"}`，使用现有 `X-Team-Key`。也支持 `sourceAnalysis` 指向已保存的原始分析记录。通过 `GET /api/jobs/{id}` 查询状态、播放结果和下载地址；复核不会自动替换首页作品。
+
+```sh
+.venv/bin/python scripts/review_result.py --source-job <任务ID> --wait --out verification/reviewer
+```
+
+Reviewer 重新抽取原视频、调用 Bedrock VLM 核对检测框中的固定角色，并结合画面和深度数据复核解说草稿。输出 `review.json`（标准角色锚点与故事计划）、`references.json`（角色参考框）、`review-report.json`（模型调用、覆盖率及来源）和 `presentation-plan.json`，随后使用共用渲染器生成视频与故事帧。原始评分保持不变；无法定位的位置留空。人工编辑与模型复核使用相同结构，各自保留实际来源。

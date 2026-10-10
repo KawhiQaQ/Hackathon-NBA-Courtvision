@@ -87,6 +87,9 @@ def narrate_window(payload, client, model_id):
     role_detections=[{'time':f['time'],'people':[p for p in f.get('people',[]) if p.get('trackId') in role_ids]} for f in ctx.get('detections',[])]
     content = [{'text': json.dumps({'video': payload['video'], 'deepData': facts, 'actorEvidence':evidence, 'verifiedRoles':verified_roles, 'roleDetections':role_detections,
                                   'statFacts':facts_for(payload), 'narrationWindow':window}, ensure_ascii=False)}]
+    if payload.get('reviewDraft'):
+        draft=[s for s in payload['reviewDraft'] if not window or s.get('end',0)>window['start'] and s.get('start',0)<window['end']]
+        content.append({'text':'你现在是独立解说 Reviewer。下面是待复核草稿，不是事实。逐项对照当前画面、固定角色和官方数据，纠正错人、动作时序、统计口径与过度归因；重新输出本窗口解说。不得仅复述草稿。草稿：'+json.dumps(draft,ensure_ascii=False)})
     for frame in payload['frames']:
         content.extend([{'text': f"视频绝对时间 {frame['time']:.3f} 秒"},
                         {'image': {'format': 'jpeg', 'source': {'bytes': base64.b64decode(frame['image'])}}}])

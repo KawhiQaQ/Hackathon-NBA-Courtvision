@@ -1,6 +1,16 @@
 """Visual identity checks over bounded windows with fixed image references."""
 import base64,json
 
+def parse_response(text):
+    """Accept a fenced JSON object or prefixed explanation, never executable text."""
+    decoder=json.JSONDecoder()
+    for i,char in enumerate(text):
+        if char!='{':continue
+        try:value,_=decoder.raw_decode(text[i:])
+        except ValueError:continue
+        if isinstance(value,dict) and ('roles' in value or 'frames' in value):return value
+    raise ValueError('No valid role JSON in model response')
+
 DISCOVER='''你核对篮球回放中的三个固定人物，不计算贡献分。输入最先给出未经本轮确认的幕后MVP候选裁剪。此候选可能串人或实际上就是最后投篮者！若无候选图则独立找贡献者；先独立核对实际投篮动作，再选三个不同的人。若候选就是得分者，绝不能同时选为actor与beneficiary；根据实际掩护、牵制、传球或抢回进攻篮板选帮助他获得机会的另一位队友，找不到则actor=null。不要按临时编号跨帧跟人。
 若给出officialRoleHints，这是同一进攻中的官方事件名单，优先根据这些真实球衣号码找到对应角色；actor为offensive-rebound时寻找实际抢回进攻篮板的球员，不能改成旁边队友的虚构掩护。参考裁剪必须确实是该号码本人，无法找到就null。
 先从最后投篮的连续画面确认真正的最终出手者。受益队友必须是这个人，不能是中间接球者。若官方给了出手者资料，将资料与可见球衣/动作核对，但不要猜不可见号码。防守者选择配合发生时主要跟防这个出手者、受到候选动作影响的同一位防守人。得分后的持球、发球和回防不能算投篮。
@@ -37,9 +47,10 @@ def analyze_roles(payload,client,model):
     if response.get('stopReason')=='max_tokens':raise ValueError('Identity response truncated')
     text=''.join(b.get('text','') for b in response['output']['message']['content']).strip()
     if text.startswith('```'):text=text.split('\n',1)[-1].rsplit('```',1)[0]
-    value=json.loads(text)
+    value=parse_response(text)
     if not isinstance(value,dict):raise ValueError('Invalid role response')
-    return {**value,'usage':response.get('usage',{})}
+    return {**value,'usage':response.get('usage',{}),'model':model,'modelInvoked':True,
+            'requestId':response.get('ResponseMetadata',{}).get('RequestId')}
 
 import math
 

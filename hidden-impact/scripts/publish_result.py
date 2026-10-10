@@ -26,8 +26,13 @@ def main():
     narration=result.get('narration',{})
     if p.get('analysisStatus')=='reviewed-story':
         review=result.get('presentationReview',{})
-        if review.get('source')!='human-reviewed-video' or not review.get('sourceJob') or narration.get('modelInvoked') is not False:
+        if review.get('source')=='bedrock-vlm-review':
+            receipt=result.get('modelReview',{})
+            if not receipt.get('calls') or receipt.get('modelInvoked') is not True or narration.get('modelInvoked') is not True:
+                raise ValueError('Model Reviewer publication requires model call receipts')
+        elif review.get('source')!='human-reviewed-video' or narration.get('modelInvoked') is not False:
             raise ValueError('Reviewed presentation must retain explicit provenance')
+        if not review.get('sourceJob'):raise ValueError('Missing original analysis reference')
     elif not narration.get('modelInvoked'):
         raise ValueError('The published AI commentary requires an actual generated narration result')
     if not narration.get('segments'):raise ValueError('No timed commentary')
