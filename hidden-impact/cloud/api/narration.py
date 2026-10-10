@@ -40,6 +40,11 @@ def normalize_segments(raw, payload):
         shot_time=((payload.get('deepData') or {}).get('alignment') or {}).get('shotVideoTime')
         if number(shot_time) and end<shot_time-.3 and re.search(r'命中(?!率|机会)|投进|打板入网|上篮得手|防守篮板|快攻|回防',row['title']+row['text']):
             raise ValueError(f'本回合出手在 {shot_time} 秒，{start}–{end} 秒的解说提前描述了出手后结果。')
+        if re.search(r'\d+\s*[比:]\s*\d+|还剩\s*\d|剩余\s*\d',row['text']):
+            raise ValueError('不要播报未经结构化核对的比分或比赛剩余时间。')
+        window=payload.get('narrationWindow')
+        if window and (start<window['start']-.04 or end>window['end']+.04):
+            raise ValueError('只描述当前窗口内的画面，时间段不得超出 narrationWindow。')
         grounded = []
         for t in refs:
             if not number(t): raise ValueError('无效引用时间。')
@@ -53,15 +58,15 @@ def normalize_segments(raw, payload):
     return {'schema': SCHEMA, 'segments': segments}
 
 
-def narrate(payload, client, model_id):
+def narrate_window(payload, client, model_id):
     content = [{'text': json.dumps({'video': payload['video'], 'deepData': payload.get('deepData'),
-                                  'context': payload.get('narrationContext', {})}, ensure_ascii=False)}]
+                                  'context': payload.get('narrationContext', {}),'narrationWindow':payload.get('narrationWindow')}, ensure_ascii=False)}]
     for frame in payload['frames']:
         content.extend([{'text': f"视频绝对时间 {frame['time']:.3f} 秒"},
                         {'image': {'format': 'jpeg', 'source': {'bytes': base64.b64decode(frame['image'])}}}])
     usage={};error=None
     for attempt in range(2):
-        instruction=PROMPT+(f'\n上次输出校验失败：{error}。请重新对照证据，修复这个矛盾。' if error else '')
+        instruction=PROMPT+'\n如果有 narrationWindow，只输出这一小段的解说，不能描述其他时间发生的动作。'+(f'\n上次输出校验失败：{error}。请重新对照证据，修复这个矛盾。' if error else '')
         response = client.converse(modelId=model_id, system=[{'text': instruction}],
                                    messages=[{'role': 'user', 'content': content}],
                                    inferenceConfig={'maxTokens': 4500, 'temperature': .1})
@@ -78,6 +83,30 @@ def narrate(payload, client, model_id):
             error=str(exc)[:300]
     result.update(model=model_id, modelInvoked=True, source='Amazon Bedrock VLM',
                   usage=usage, status='generated',validationRepairs=attempt)
+    return result
+
+
+def narrate(payload,client,model_id):
+    # Short, overlapping visual contexts prevent a long clip's final outcome
+    # leaking into its opening commentary. Every window still invokes the VLM.
+    if payload['video']['duration']<=8 or len(payload['frames'])<6:
+        return narrate_window(payload,client,model_id)
+    frames=sorted(payload['frames'],key=lambda f:f['time'])
+    groups=[frames[i:i+3] for i in range(0,len(frames),3)]
+    if len(groups[-1])==1:groups[-2].extend(groups.pop())
+    segments=[];usage={};repairs=0
+    for i,group in enumerate(groups):
+        start=group[0]['time'];end=groups[i+1][0]['time'] if i+1<len(groups) else payload['video']['duration']
+        context=dict(payload.get('narrationContext') or {})
+        context['detections']=[f for f in context.get('detections',[]) if start-.5<=f['time']<=end+.5]
+        # One look-ahead frame supplies the movement boundary, while the explicit
+        # interval prohibits shifting the entire segment forward or backward.
+        window_frames=group+(groups[i+1][:1] if i+1<len(groups) else [])
+        value=narrate_window({**payload,'frames':window_frames,'narrationContext':context,'narrationWindow':dict(start=start,end=end)},client,model_id)
+        segments.extend(value['segments']);repairs+=value['validationRepairs']
+        for key,v in value['usage'].items():usage[key]=usage.get(key,0)+v
+    result=normalize_segments({'segments':segments},payload)
+    result.update(model=model_id,modelInvoked=True,source='Amazon Bedrock VLM',usage=usage,status='generated',validationRepairs=repairs,visualWindows=len(groups))
     return result
 
 

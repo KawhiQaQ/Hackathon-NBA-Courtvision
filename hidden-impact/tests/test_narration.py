@@ -73,6 +73,18 @@ class NarrationTests(unittest.TestCase):
         self.assertEqual(request['narrationContext']['events'], [{'actorTrackId': 'accepted'}])
         self.assertEqual(request['frames'], self.payload['frames'])
 
+    def test_long_video_is_narrated_in_separate_visual_windows(self):
+        p=copy.deepcopy(self.payload);p['video']['duration']=10
+        p['frames']=[{'time':t,'image':p['frames'][0]['image']} for t in [0,1.5,3,4.5,6,7.5,9]]
+        class WindowClient(Client):
+            def converse(self,**kwargs):
+                document=json.loads(kwargs['messages'][0]['content'][0]['text']);w=document['narrationWindow']
+                self.value={'segments':[{'start':w['start'],'end':min(w['start']+3,w['end']),'title':'接应','text':'球员向外线移动。','frameTimes':[w['start']]}]}
+                return super().converse(**kwargs)
+        client=WindowClient({});value=analyze(p,client)
+        self.assertEqual(value['visualWindows'],2);self.assertEqual(len(client.calls),2)
+        self.assertEqual(value['usage']['inputTokens'],20)
+
     def test_api_and_agent_contracts_match(self):
         for file in ['logic.py', 'narration.py', 'temporal.py', 'playmaking.py']:
             self.assertEqual((ROOT/'cloud/api'/file).read_bytes(), (ROOT/'cloud/agent'/file).read_bytes())

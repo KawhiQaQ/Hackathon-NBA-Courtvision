@@ -37,6 +37,10 @@ def main():
     def data(path, body=None):return json.loads(fetch(path,body,authenticated=not args.public_only))
     for path in ['','workbench.html','showcase.js','app.js','game-view.js']:
         fetch(path);checked.add(path)
+    if not args.api_only:
+        note=fetch('readme').decode('utf-8')
+        if '{{JOB_ID}}' in note or '{{VIDEO_SOURCE}}' in note:raise RuntimeError('Unfilled public project notes')
+        checked.add('readme')
     game=data('demo/game.json') if not args.api_only else {'rounds':[]}
     rounds=game.get('rounds',[game])
     if not args.api_only and not rounds:raise RuntimeError('No published result')

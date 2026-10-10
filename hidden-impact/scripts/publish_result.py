@@ -23,6 +23,8 @@ def main():
     result=get(f'jobs/{args.job}/result.json');p=copy.deepcopy(result.get('presentation',{}))
     if not p.get('rendered') or not p.get('evidence'):raise ValueError('No complete rendered result')
     if not result.get('modelInvoked'):raise ValueError('No model invocation recorded')
+    if not result.get('narration',{}).get('modelInvoked') or not result.get('narration',{}).get('segments'):
+        raise ValueError('The published AI commentary requires an actual generated narration result')
     item=get('library/'+result['video']['id']+'.json');rights=item.get('publication',{})
     if rights.get('basis') not in ['organizer-provided','licensed'] or not rights.get('source'):
         raise ValueError('Public result requires documented organizer-provided/licensed media')
