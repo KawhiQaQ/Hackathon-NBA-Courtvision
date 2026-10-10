@@ -62,6 +62,27 @@ class ScaledDraw:
   self.draw.rounded_rectangle(self.coords(xy),radius=radius*self.scale,width=max(1,round(width*self.scale)),**kwargs)
 
 
+@lru_cache(maxsize=4)
+def broadcast_shell(width,height):
+ """A quiet forest-black frame with warm editorial paper for the commentary."""
+ scale=width/960;band=round(144*scale/2)*2
+ im=Image.new('RGB',(width,height+band),'#0b1712')
+ d=ImageDraw.Draw(im)
+ for y in range(round(44*scale)):
+  k=y/max(1,44*scale)
+  d.line((0,y,width,y),fill=(round(19-8*k),round(35-12*k),round(27-9*k)))
+ return im
+
+
+def instrument_panel(draw,bounds):
+ """Shared fine-rule enclosure for statistics and the tactical inset."""
+ x,y,w,h=bounds
+ draw.rounded_rectangle((x+2,y+4,x+w+2,y+h+4),radius=5,fill=(0,0,0,65))
+ draw.rounded_rectangle((x,y,x+w,y+h),radius=4,fill=(10,24,18,246),outline=(202,190,153,115))
+ draw.line((x+14,y+1,x+54,y+1),fill='#d9bf82',width=2)
+ draw.line((x+14,y+48,x+w-14,y+48),fill='#354237',width=1)
+
+
 def source_dimensions(source):
  """Decode one frame to respect display rotation and real media dimensions.
  No dependency on untrusted client aspect-ratio metadata or a separate ffprobe.
@@ -108,16 +129,20 @@ def composite(image,result,t):
  # and two measured direction cues. No foot effects when grounding is uncertain.
  visible=[p for p in frame['people'] if not p.get('offscreen')]
  if visible:
-  mask=Image.new('L',(w//4,h//4),48);md=ImageDraw.Draw(mask)
+  mask=Image.new('L',(w//4,h//4),30);md=ImageDraw.Draw(mask)
   for p in visible:
    x,y,bw,bh=p['x']*w/4,p['y']*h/4,p['w']*w/4,p['h']*h/4
    md.ellipse((x-8*pixel_scale,y-5*pixel_scale,x+bw+8*pixel_scale,y+bh+5*pixel_scale),fill=0)
   mask=mask.filter(ImageFilter.GaussianBlur(6*pixel_scale)).resize((w,h))
-  shade=Image.new('RGB',(w,h),'#061823');image=Image.composite(shade,image,mask)
- im=Image.new('RGB',(w,h+round(144*pixel_scale/2)*2),'#0b2029');im.paste(image,(0,round(44*pixel_scale)))
+  shade=Image.new('RGB',(w,h),'#08150e');image=Image.composite(shade,image,mask)
+ im=broadcast_shell(w,h).copy();im.paste(image,(0,round(44*pixel_scale)))
  w,h=960,h/pixel_scale
  draw=ScaledDraw(im,pixel_scale)
- draw.text((20,10),'HIDDEN IMPACT  /  '+manifest['actor']['label'],font=font(19),fill='#f5d68e')
+ draw.line((20,13,20,30),fill='#d9bf82',width=3)
+ draw.line((26,13,26,24),fill='#d9bf82',width=2)
+ draw.text((38,11),'HIDDEN IMPACT',font=font(17),fill='#e9dfc7')
+ draw.line((195,13,195,31),fill='#475043',width=1)
+ draw.text((211,12),manifest['actor']['label'],font=font(16),fill='#c8d3c5')
  from story_direction import build_direction,phase_at,draw_chapters
  direction=manifest.get('direction') or build_direction(manifest,result['video']['duration'])
  manifest['direction']=direction
@@ -146,14 +171,17 @@ def composite(image,result,t):
   # The identity rail remains in the same order throughout occlusions and cuts.
   status=' · 画外' if p.get('offscreen') else ''
   rx=18+i*w/3;ry=h+51
-  draw.ellipse((rx,ry+4,rx+6,ry+10),fill=(*color,255))
-  draw.text((rx+13,ry-2),role['displayName']+status,font=font(13),fill=(*color,255))
+  draw.line((rx,ry+2,rx,ry+16),fill=(*color,255),width=2)
+  draw.text((rx+10,ry-2),role['displayName']+status,font=font(13),fill='#dce1d4')
   if p.get('offscreen'):continue
   text,x,(lx,top,right,bottom)=layouts[p['trackId']];length=right-lx
-  draw.line((x,p['y']*h+44,lx+length/2,top+29),fill=(*color,180),width=1)
-  draw.rounded_rectangle((lx,top,lx+length,top+29),radius=7,fill=(9,30,30,235),outline=(*color,110),width=1)
-  draw.ellipse((lx+8,top+12,lx+12,top+16),fill=(*color,255))
-  draw.text((lx+18,top+2),text,font=font(18),fill=(*color,255))
+  anchor=p['y']*h+44
+  draw.line((x,anchor,lx+length/2,top+29),fill=(*color,210),width=1)
+  draw.ellipse((x-2,anchor-2,x+2,anchor+2),fill=(*color,255))
+  draw.rounded_rectangle((lx+1,top+2,lx+length+1,top+31),radius=3,fill=(0,0,0,65))
+  draw.rounded_rectangle((lx,top,lx+length,top+29),radius=3,fill=(10,23,18,242),outline=(*color,110),width=1)
+  draw.line((lx+1,top+6,lx+1,top+23),fill=(*color,255),width=3)
+  draw.text((lx+13,top+2),text,font=font(18),fill=(*color,255))
  board_drawn=False
  if phase==1:
   # Keep the tactics board fixed on the quiet side throughout the action.
@@ -165,18 +193,19 @@ def composite(image,result,t):
   cw=296 if compact else 312;ch=160 if compact else 202
   # Use real body/nameplate overlap, including the start of the chapter.
   cx,cy=card_xy or card_position(motion,manifest,card['kind'],result['video']['duration'],h,lambda text:draw.textlength(text,font=font(18)))
-  draw.rounded_rectangle((cx,cy,cx+cw,cy+ch),radius=12,fill=(6,24,33,238),outline=(119,207,228,120))
-  draw.text((cx+16,cy+10),card['title'],font=font(19),fill='#eef4ec')
-  draw.text((cx+16,cy+37),card['subject'],font=font(12),fill='#b6c8cc')
+  instrument_panel(draw,(cx,cy,cw,ch))
+  draw.text((cx+16,cy+7),card['title'],font=font(19),fill='#eee8d9')
+  draw.text((cx+16,cy+31),card['subject'],font=font(12),fill='#a8b3a4')
   lo,hi=card['domain'];bx=cx+91;bw=cw-173
   zero=bx+(0-lo)/(hi-lo)*bw
   for j,row in enumerate(card['rows']):
-   y=cy+(55 if compact else 65)+j*(28 if compact else 34);color='#8ca1aa' if row['baseline'] else card.get('accent','#77cfe4')
+   y=cy+(55 if compact else 65)+j*(28 if compact else 34);color='#8f9e90' if row['baseline'] else ('#9bddb8' if compact else '#dcc28a')
    draw.text((cx+16,y-1),row['label'],font=font(13),fill=color)
-   draw.rounded_rectangle((bx,y+3,bx+bw,y+19),radius=4,fill='#253d48')
+   draw.rounded_rectangle((bx,y+6,bx+bw,y+16),radius=1,fill='#2a392e')
    end=bx+(row['value']-lo)/(hi-lo)*bw
    if abs(end-zero)>.1:
-    draw.rounded_rectangle((min(zero,end),y+3,max(zero,end),y+19),radius=min(4,abs(end-zero)/2),fill=color)
+    draw.rounded_rectangle((min(zero,end),y+6,max(zero,end),y+16),radius=min(1,abs(end-zero)/2),fill=color)
+    draw.line((end,y+4,end,y+18),fill=color,width=1)
    if lo<0:draw.line((zero,y+1,zero,y+21),fill='#c7d3d6',width=1)
    value=f"{row['value']:.1f}%" if card['kind'] in ('shot','actor-finishing') else f"{row['value']:+.2f}"
    draw.text((bx+bw+8,y-2),value,font=font(16),fill=color)
@@ -184,14 +213,14 @@ def composite(image,result,t):
   value_font=23 if compact else 29
   delta=card['delta']
   if card.get('headline'):
-   draw.text((cx+16,cy+value_y),card['headline'],font=font(value_font),fill='#f5d68e')
+   draw.text((cx+16,cy+value_y),card['headline'],font=font(value_font),fill='#e3c991')
    offset=draw.textlength(card['headline'],font=font(value_font))
    draw.text((cx+23+offset,cy+unit_y),card['headlineUnit'],font=font(12),fill='#f5d68e')
   elif delta is not None:
    precision=1 if card['kind']=='shot' else 2
    number=f'{delta:+.{precision}f}'
    gain=card['kind']=='shot' and delta>0.00001
-   ink='#6cdea0' if gain else '#f5d68e'
+   ink='#9bddb8' if gain else '#e3c991'
    start=cx+16
    if gain:
     # A compact rising arrow accompanies the percentage-point difference.
@@ -211,7 +240,7 @@ def composite(image,result,t):
   if card['outcome']:
    text=card['outcome'];tw=draw.textlength(text,font=font(12))
    draw.text((cx+cw-16-tw,cy+unit_y),text,font=font(12),fill='#eef4ec')
-  draw.text((cx+16,cy+(140 if compact else 180)),card['context'],font=font(11),fill='#a4bcc3')
+  draw.text((cx+16,cy+(140 if compact else 180)),card['context'],font=font(11),fill='#9aaa99')
  return paint_commentary(im,result,t)
 
 
@@ -219,7 +248,9 @@ def paint_commentary(im,result,t,beat=None,progress=1):
  """Only redraw the caption strip during holds; all visual evidence stays still."""
  manifest=result['presentation'];scale=im.width/960;h=im.height/scale-144
  draw=ScaledDraw(im,scale)
- draw.rounded_rectangle((0,h+73,960,h+144),radius=0,fill='#0b2029')
+ draw.rounded_rectangle((0,h+73,960,h+144),radius=0,fill='#e8e5d9')
+ draw.line((0,h+73,960,h+73),fill='#c4b487',width=1)
+ draw.line((78,h+85,78,h+132),fill='#c8c7b7',width=1)
  if beat is None:
   segments=manifest['insights'].get('narration',{}).get('segments',[])
   beat=next((s for s in segments if s['start']<=t<s['end']),{})
@@ -229,10 +260,13 @@ def paint_commentary(im,result,t,beat=None,progress=1):
    beat=previous[-1] if previous else {'title':manifest['actionTitle'],'text':''}
  title=beat.get('title') or manifest['actionTitle'];text=beat.get('text','')
  typed=text[:math.ceil(len(text)*max(0,min(1,progress)))]
- ai=manifest['insights'].get('narration',{}).get('modelInvoked')
- draw.text((20,h+76),('AI 解说 · ' if ai else '')+title,font=font(17),fill='white')
- for i,line in enumerate(wrap(draw,typed+('▏' if progress<1 else ''),17,920)[:2]):
-  draw.text((20,h+101+i*21),line,font=font(17),fill='#d7e2d9')
+ beats=(manifest.get('playback') or {}).get('beats',[]) or manifest['insights'].get('narration',{}).get('segments',[])
+ index=max(1,sum(b.get('sourceTime',b.get('start',0))<=t for b in beats))
+ draw.text((23,h+78),f'{index:02}',font=font(24),fill='#334a3a')
+ draw.text((23,h+113),'解读',font=font(11),fill='#63705c')
+ draw.text((94,h+76),title,font=font(17),fill='#263d2e')
+ for i,line in enumerate(wrap(draw,typed+('▏' if progress<1 else ''),17,844)[:2]):
+  draw.text((94,h+101+i*21),line,font=font(17),fill='#263d2e')
  return im
 
 
@@ -245,7 +279,7 @@ def render(source,result,output,story_dir=None):
  from story_playback import plan,audio_filter
  timeline=plan(manifest,end,fps);manifest['playback']=timeline
  holds={b['sourceFrame']:b for b in timeline['beats']}
- manifest.update(width=width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='story-freeze-hd-v12',encoding={'codec':'h264','crf':17,'preset':'fast'})
+ manifest.update(width=width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='editorial-forest-hd-v13',encoding={'codec':'h264','crf':17,'preset':'fast'})
  target=Path(output);target.parent.mkdir(parents=True,exist_ok=True)
  story_dir=Path(story_dir) if story_dir else target.parent;story_dir.mkdir(parents=True,exist_ok=True)
  decode=subprocess.Popen([ffmpeg(),'-v','error','-i',str(source),'-t',str(end),'-vf',f'fps={fps},scale={width}:{height}:flags=lanczos','-f','rawvideo','-pix_fmt','rgb24','pipe:1'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
@@ -281,4 +315,4 @@ def render(source,result,output,story_dir=None):
    if process.poll() is None:process.kill();process.wait()
    for stream in [process.stdin,process.stdout,process.stderr]:
     if stream and not stream.closed:stream.close()
- return {'start':0,'end':timeline['duration'],'sourceEnd':end,'fps':fps,'frameCount':written,'sourceFrameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':'story-freeze-hd-v12','width':width,'height':height+band,'pictureWidth':width,'pictureHeight':height}
+ return {'start':0,'end':timeline['duration'],'sourceEnd':end,'fps':fps,'frameCount':written,'sourceFrameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':manifest['renderStyle'],'width':width,'height':height+band,'pictureWidth':width,'pictureHeight':height}

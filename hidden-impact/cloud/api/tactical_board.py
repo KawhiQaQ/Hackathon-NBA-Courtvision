@@ -94,16 +94,17 @@ def draw_board(draw, font, motion, manifest, time, bounds):
     if not board:
         return False
     cx, cy, cw, ch = bounds
-    draw.rounded_rectangle((cx,cy,cx+cw,cy+ch),radius=11,fill=(5,22,30,248),outline='#54716a',width=1)
-    draw.text((cx+14,cy+9),'02 / 配合战术板',font=font(17),fill='#f4c45e')
-    draw.text((cx+cw-64,cy+14),'相对站位',font=font(10),fill='#b4c8cf')
+    from render_video import instrument_panel
+    instrument_panel(draw,bounds)
+    draw.text((cx+14,cy+9),'配合战术板',font=font(17),fill='#e3c991')
+    draw.text((cx+cw-64,cy+14),'相对站位',font=font(10),fill='#a8b3a4')
     px,py,pw,ph=cx+16,cy+43,280,126
-    draw.rounded_rectangle((px,py,px+pw,py+ph),radius=5,fill='#102c31',outline='#43615e',width=1)
+    draw.rounded_rectangle((px,py,px+pw,py+ph),radius=2,fill='#16271c',outline='#4a5944',width=1)
     # A restrained schematic grid; no basket, meter scale or false homography.
     for i in range(1,4):
-        draw.line((px+pw*i/4,py,px+pw*i/4,py+ph),fill='#254342',width=1)
+        draw.line((px+pw*i/4,py,px+pw*i/4,py+ph),fill='#2a3b2b',width=1)
     for i in range(1,3):
-        draw.line((px,py+ph*i/3,px+pw,py+ph*i/3),fill='#254342',width=1)
+        draw.line((px,py+ph*i/3,px+pw,py+ph*i/3),fill='#2a3b2b',width=1)
     left,top,width,height=board['viewport']
     project=lambda p:(px+(p[0]-left)/width*pw,py+(p[1]-top)/height*ph)
     people,routes=board_state(motion,board,time)
