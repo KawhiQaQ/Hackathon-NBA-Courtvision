@@ -31,7 +31,10 @@ from functools import lru_cache
 def font(size):
  path=Path(__file__).parent/'fonts/NotoSansSC.ttf'
  if not path.exists():raise RuntimeError('Missing bundled CJK font')
- return ImageFont.truetype(str(path),size)
+ face=ImageFont.truetype(str(path),size)
+ # Bundled Noto variable font defaults to Thin (100), too faint over footage.
+ face.set_variation_by_axes([500 if size<24 else 600])
+ return face
 
 
 def wrap(draw,text,size,width):
@@ -109,11 +112,30 @@ def composite(image,result,t):
   if arrow:
    points=[(x/motion['width']*w,y/motion['height']*h+44) for x,y in arrow['points']]
    direction_ribbon(im,points,tuple(bytes.fromhex(manifest['roles'][idx]['color'][1:])))
+ # The same source-linked numbers now travel with the MP4, not only the web page.
+ from broadcast import card_at
+ card=card_at(manifest['insights'],t,result['video']['duration'])
+ if card:
+  cw=272;ch=104+len(card['lines'])*19
+  # Choose the side with less tracked action; stable within each one-second beat.
+  sample=motion['frames'][min(len(motion['frames'])-1,int(t)*motion['fps'])]
+  crowded=sum(p['x']+p['w']/2>.5 for p in sample['people'] if not p.get('offscreen'))
+  cx=16 if crowded>len(visible)/2 else w-cw-16;cy=56
+  draw.rounded_rectangle((cx,cy,cx+cw,cy+ch),radius=10,fill=(6,24,33,232),outline=(119,207,228,140))
+  draw.text((cx+13,cy+10),card['title'],font=font(14),fill='#b6d4d7')
+  draw.text((cx+13,cy+31),card['value'],font=font(32),fill='#77cfe4')
+  if card['fraction'] is not None:
+   draw.rounded_rectangle((cx+112,cy+49,cx+cw-14,cy+55),radius=3,fill='#314852')
+   draw.rounded_rectangle((cx+112,cy+49,cx+112+(cw-126)*card['fraction'],cy+55),radius=3,fill='#77cfe4')
+  for j,line in enumerate(card['lines']):
+   draw.text((cx+13,cy+75+j*19),wrap(draw,line,12,cw-26)[0],font=font(12),fill='#eef4ec')
+  draw.text((cx+13,cy+ch-21),card['source'],font=font(10),fill='#9db5b8')
  segments=manifest['insights'].get('narration',{}).get('segments',[])
  seg=next((s for s in segments if s['start']<=t<s['end']),None)
  if seg:title,text=seg['title'],seg['text']
  else:title,text=manifest['actionTitle'],''
- draw.text((20,h+76),title,font=font(17),fill='white')
+ ai=manifest['insights'].get('narration',{}).get('modelInvoked')
+ draw.text((20,h+76),('AI 解说 · ' if ai else '')+title,font=font(17),fill='white')
  for i,line in enumerate(wrap(draw,text,14,w-40)[:2]):draw.text((20,h+101+i*20),line,font=font(14),fill='#d7e2d9')
  return im
 

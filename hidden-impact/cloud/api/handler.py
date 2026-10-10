@@ -276,6 +276,7 @@ def game_result(config,token):
   if value['statusCode']!=200 or response.get('status')!='completed':raise ValueError('请等待所有回合完成分析。')
   result=response['result'];presentation=result.get('presentation')
   if not presentation or not presentation.get('rendered'):raise ValueError('回合尚未生成完整展示结果。')
+  if presentation.get('analysisStatus')=='unconfirmed-mvp':raise ValueError('该回合尚未核验幕后 MVP，不能计入人物贡献排名。')
   official=(result.get('deepData') or {}).get('official') or {}
   if official.get('gameId') and official['gameId']!=config['gameId']:raise ValueError('所选视频来自不同比赛。')
   if official.get('team') and official['team']!=config['team']:raise ValueError('所选视频属于不同进攻球队。')

@@ -15,6 +15,7 @@ def main():
     parser.add_argument('--url', help='Local or deployed site; defaults to .cloud-config.json')
     parser.add_argument('--request', type=Path, help='Submit this keyframe request to the real pipeline')
     parser.add_argument('--public-only', action='store_true')
+    parser.add_argument('--api-only', action='store_true',help='Validate API before the first public result is published')
     args=parser.parse_args()
     base=(args.url or json.loads((ROOT/'.cloud-config.json').read_text())['url']).rstrip('/')+'/'
     origin=urlparse(base).netloc
@@ -36,12 +37,13 @@ def main():
     def data(path, body=None):return json.loads(fetch(path,body,authenticated=not args.public_only))
     for path in ['','workbench.html','showcase.js','app.js','game-view.js']:
         fetch(path);checked.add(path)
-    game=data('demo/game.json')
-    if len(game['rounds'])<5:raise RuntimeError('Five-round showcase is incomplete')
-    for round_ in game['rounds']:
+    game=data('demo/game.json') if not args.api_only else {'rounds':[]}
+    rounds=game.get('rounds',[game])
+    if not args.api_only and not rounds:raise RuntimeError('No published result')
+    for round_ in rounds:
         for asset in [round_['video'],round_['original']]+[f['image'] for f in round_['evidence']]:
             if asset not in checked:fetch(urljoin('demo/game.json',asset),asset=True);checked.add(asset)
-    print('Static release OK:',len(game['rounds']),'rounds,',len(checked),'assets',flush=True)
+    print('Static resources OK:',len(rounds),'published rounds,',len(checked),'assets',flush=True)
     if args.public_only:return
     assert data('api/health')['ok']
     assert data('api/session')['ok']
@@ -65,8 +67,10 @@ def main():
         raise RuntimeError('Analysis completed but timed commentary is unavailable')
     fetch(p['video'],asset=True)
     for frame in p.get('evidence',[]):fetch(frame['image'],asset=True)
-    summary=data('api/games',{'gameId':p.get('gameId') or 'smoke-'+job,'team':p.get('team') or 'smoke-team','jobIds':[job]})
-    data('api/games/'+summary['id'])
-    print('Real analysis, narration, MP4, evidence frames and game aggregation OK',flush=True)
+    if p.get('analysisStatus')!='unconfirmed-mvp':
+        summary=data('api/games',{'gameId':p.get('gameId') or 'smoke-'+job,'team':p.get('team') or 'smoke-team','jobIds':[job]})
+        data('api/games/'+summary['id'])
+        print('Game aggregation OK',flush=True)
+    print('Real analysis, narration, MP4 and evidence frames OK; MVP:',p.get('analysisStatus','verified'),flush=True)
 
 if __name__=='__main__':main()

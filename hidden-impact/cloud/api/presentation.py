@@ -20,6 +20,9 @@ def insights(result):
     for key in ['gameId','eventId','shooter','sourceUrl']:out[key]=official.get('url' if key=='sourceUrl' else key)
     shot=official.get('shot') or {}; p=shot.get('value'); points={'3分投篮':3,'2分投篮':2}.get(shot.get('shotType'))
     out.update(period=shot.get('period'),gameClock=shot.get('gameClock'))
+    alignment=deep.get('alignment') or {}
+    if finite(alignment.get('shotVideoTime')) and 0<=alignment['shotVideoTime']<=result['video']['duration']:
+        out['shotVideoTime']=alignment['shotVideoTime']
     if finite(p) and 0<=p<=1 and points:
         peer=deep.get('playerShots') or official.get('playerShots') or {}
         samples=[]
@@ -120,6 +123,8 @@ def motion(result,event,fps=24,width=1280,height=720):
 def build(result,fps=24):
     valid=[e for e in result.get('events',[]) if e.get('visualVerified') and finite(e.get('score')) and e['score']>0 and len({e.get(k) for k,_,_ in ROLES})==3 and all(e.get(k) for k,_,_ in ROLES)]
     if not valid or not result.get('vision',{}).get('frames'):
+        factual=build_factual(result,fps)
+        if factual:return factual
         result['presentation']={'status':'insufficient','reason':'尚无通过核验的三人配合事件。'}
         result.pop('presentationMotion',None)
         return result['presentation']
@@ -169,3 +174,32 @@ def build(result,fps=24):
     result['presentationMotion']=motion(result,e,fps=fps)
     result['focusPlayerId']=e['actorTrackId']
     return manifest
+
+
+def build_factual(result,fps=24):
+    """Keep a data broadcast usable when evidence cannot establish a hidden MVP.
+
+    No substitute winner, score, person positions or causal arrows are fabricated.
+    This branch requires a matched real shot and actual time-grounded narration.
+    """
+    info=insights(result)
+    if not info.get('shot') or not result.get('vision',{}).get('frames'):return None
+    evidence=[]
+    for seg in info['narration'].get('segments',[]):
+        times=[t for t in seg.get('frameTimes',[]) if finite(t) and 0<=t<result['video']['duration'] and seg['start']-.5<=t<=seg['end']+.5]
+        if not times:continue
+        t=min(times,key=lambda t:abs(t-(seg['start']+seg['end'])/2))
+        evidence.append(dict(time=t,label=seg['title'],text=seg['text'],chapter=seg['title'],kind='analysis',source='timed-narration',image=f'frame-{len(evidence)+1}.jpg'))
+        info['cues'].append({**seg,'seek':t,'phase':seg['title'],'evidence':f'画面 · {t:.2f}s'})
+    if not evidence:return None
+    official=result['deepData']['official']
+    p=dict(schema='hidden-impact/showcase-v1',mode='analysis',status='ready',analysisStatus='unconfirmed-mvp',
+        eventId=str(official.get('eventId','')),video='replay.mp4',original='original.mp4',videoId=result['video']['id'],
+        gameId=official.get('gameId'),team=official.get('team'),actor=dict(id=None,label='本回合数据解读'),score=None,components=[],roles=[],
+        evidence=evidence,insights=info,matchup=official.get('matchup','回合分析'),actionTitle='从进攻过程，看出手机会',
+        summary='本回合尚无足够证据确定幕后 MVP。',storyTitle='跟随关键画面，理解出手选择。',
+        generation=dict(analysisModel=result.get('model'),modelInvoked=result.get('modelInvoked',False),narration={k:info['narration'].get(k) for k in ['status','source','model','modelInvoked']}))
+    result['presentation']=p
+    result['presentationMotion']=dict(schema='hidden-impact/presentation-motion-v2',fps=fps,width=1280,height=720,
+        frames=[dict(time=i/fps,people=[],heroArrow=None,defenderArrow=None) for i in range(math.ceil(result['video']['duration']*fps))])
+    return p

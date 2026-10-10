@@ -3,7 +3,9 @@ const root=path.join(__dirname,'..');
 const modules=path.join(__dirname,'../../aws-preflight/node_modules/');
 const cdk=require(modules+'aws-cdk-lib');
 const {aws_s3:s3,aws_cloudfront:cf,aws_cloudfront_origins:origins,aws_s3_deployment:deploy,aws_bedrockagentcore:ac,aws_lambda:lambda,aws_iam:iam,aws_apigatewayv2:api,aws_apigatewayv2_integrations:integrations,aws_logs:logs}=cdk;
-const app=new cdk.App();const stack=new cdk.Stack(app,'HiddenImpactTeam14',{env:{account:process.env.CDK_DEFAULT_ACCOUNT||'214299441669',region:'us-east-1'},description:'Hidden Impact video analysis with Qwen3-VL and AgentCore'});
+const app=new cdk.App();
+if(!/^\d{12}$/.test(process.env.CDK_DEFAULT_ACCOUNT||''))throw Error('Set CDK_DEFAULT_ACCOUNT from the authenticated team STS identity.');
+const stack=new cdk.Stack(app,'HiddenImpactTeam14',{env:{account:process.env.CDK_DEFAULT_ACCOUNT,region:'us-east-1'},description:'Hidden Impact video analysis with Qwen3-VL and AgentCore'});
 const token=new cdk.CfnParameter(stack,'TeamKey',{type:'String',noEcho:true,minLength:24});
 const media=new s3.Bucket(stack,'Media',{blockPublicAccess:s3.BlockPublicAccess.BLOCK_ALL,encryption:s3.BucketEncryption.S3_MANAGED,enforceSSL:true,removalPolicy:cdk.RemovalPolicy.RETAIN,cors:[{allowedOrigins:['*'],allowedMethods:[s3.HttpMethods.GET,s3.HttpMethods.POST,s3.HttpMethods.HEAD],allowedHeaders:['*'],exposedHeaders:['ETag'],maxAge:3600}],lifecycleRules:[{prefix:'pending/',expiration:cdk.Duration.days(2)},{prefix:'jobs/',expiration:cdk.Duration.days(30)}]});
 const runtime=new ac.Runtime(stack,'VideoAgent',{runtimeName:'nba_team14_hidden_impact',description:'Video keyframes and structured evidence → Qwen3-VL → Hidden Impact explanation',agentRuntimeArtifact:ac.AgentRuntimeArtifact.fromCodeAsset({path:path.join(root,'cloud/agent'),runtime:ac.AgentCoreRuntime.PYTHON_3_13,entrypoint:['main.py'],exclude:['__pycache__','*.pyc']}),lifecycleConfiguration:{idleRuntimeSessionTimeout:cdk.Duration.seconds(60),maxLifetime:cdk.Duration.minutes(15)}});
@@ -15,6 +17,8 @@ const http=new api.HttpApi(stack,'Api',{createDefaultStage:false});http.addRoute
 const site=new s3.Bucket(stack,'Website',{blockPublicAccess:s3.BlockPublicAccess.BLOCK_ALL,encryption:s3.BucketEncryption.S3_MANAGED,enforceSSL:true,removalPolicy:cdk.RemovalPolicy.RETAIN});
 const distribution=new cf.Distribution(stack,'Frontend',{defaultRootObject:'index.html',priceClass:cf.PriceClass.PRICE_CLASS_100,defaultBehavior:{origin:origins.S3BucketOrigin.withOriginAccessControl(site),viewerProtocolPolicy:cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,cachePolicy:cf.CachePolicy.CACHING_OPTIMIZED,compress:true,responseHeadersPolicy:cf.ResponseHeadersPolicy.SECURITY_HEADERS}});
 distribution.addBehavior('/api/*',new origins.HttpOrigin(cdk.Fn.select(2,cdk.Fn.split('/',http.apiEndpoint))),{viewerProtocolPolicy:cf.ViewerProtocolPolicy.HTTPS_ONLY,allowedMethods:cf.AllowedMethods.ALLOW_ALL,cachePolicy:cf.CachePolicy.CACHING_DISABLED,originRequestPolicy:cf.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER});
-new deploy.BucketDeployment(stack,'Publish',{sources:[deploy.Source.asset(path.join(root,'web'))],destinationBucket:site,distribution,distributionPaths:['/*'],memoryLimit:512});
+// Public submission artifacts are published explicitly after source/rights and
+// result validation. Local research footage is never part of infrastructure deploy.
+new deploy.BucketDeployment(stack,'Publish',{sources:[deploy.Source.asset(path.join(root,'web'),{exclude:['demo/**','data/**','posters/**','media/**','results/**']})],destinationBucket:site,prune:false,distribution,distributionPaths:['/*'],memoryLimit:512});
 for(const [name,value] of Object.entries({FrontendUrl:`https://${distribution.distributionDomainName}`,MediaBucket:media.bucketName,SiteBucket:site.bucketName,DistributionId:distribution.distributionId,AgentRuntimeArn:runtime.agentRuntimeArn,AgentRuntimeId:runtime.agentRuntimeId,WorkerFunction:worker.functionName})){new cdk.CfnOutput(stack,name,{value});}
 cdk.Tags.of(stack).add('Project','HiddenImpact');cdk.Tags.of(stack).add('Team','Team14');

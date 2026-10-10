@@ -33,6 +33,8 @@ function selectRound(n){
  $('round-tabs').querySelectorAll('[data-round]').forEach((b,i)=>{b.classList.toggle('active',i===n);b.setAttribute('aria-pressed',String(i===n));});
  $('matchup').textContent=data.actionTitle||data.matchup||'回合分析';$('play-label').textContent=`回合 ${String(n+1).padStart(2,'0')} · ${data.identity?.jersey||'—'}号`;
  $('actor-name').textContent=data.identity?.jersey?`${data.team||game.team} ${data.identity.jersey}号`:data.actor.label;
+ if($('narration-kind'))$('narration-kind').textContent=data.insights?.narration?.modelInvoked?'AI 解说':'回合解读';
+ if($('contribution-kind'))$('contribution-kind').textContent=data.analysisStatus==='unconfirmed-mvp'?'本回合数据解读':'本回合幕后 MVP';
  $('action-title').textContent=data.actionTitle||'配合观察';$('score').textContent=Number.isFinite(data.impact?.score)?data.impact.score: Number.isFinite(data.score)?data.score:'—';
  $('impact-thesis').textContent=data.summary||data.insights?.interpretation||'';$('components').innerHTML=scoreMarkup(data.impact);$('score-formula').textContent=data.impact?.formula||'此回合仅有动作观察分，未提供完整机会对照。';
  $('roles').innerHTML=data.roles.map(r=>`<span><i style="--color:${esc(r.color)}"></i>${esc(r.displayName||r.label)}</span>`).join('');

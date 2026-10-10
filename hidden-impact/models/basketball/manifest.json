@@ -1,0 +1,17 @@
+{
+  "ball": {
+    "key": "models/basketball-v1/ball.onnx",
+    "size": 344190212,
+    "sha256": "7c6cdcdce95f653f0fcd32a70fc8c31874452b177da0aa7dedaa511a170cd0ad"
+  },
+  "court": {
+    "key": "models/basketball-v1/court.onnx",
+    "size": 278203097,
+    "sha256": "06e3ff339bcc36eb97ca4d4f213225d22032ec015f0a2c7c216e244498cf0a51"
+  },
+  "player": {
+    "key": "models/basketball-v1/player.onnx",
+    "size": 344190212,
+    "sha256": "36bf7184384af81e65269557f8d2428369cd35da74a396a13f54308623e9418c"
+  }
+}

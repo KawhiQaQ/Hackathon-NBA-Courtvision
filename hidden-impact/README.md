@@ -1,22 +1,66 @@
-# Hidden Impact · NBA 视频战术工作台
+# Hidden Impact · Team 14
 
-> **最新状态（2026-10-08）**：请优先阅读 [AWS 清理后恢复说明](docs/RESTORE.md)。本文后半部分保留了历次迭代记录，旧版模型、阈值及界面描述不代表当前实现。
+视频 → 篮球视觉检测 → AgentCore / Qwen3-VL → 贡献候选核验 → 深度数据与 AI 解说叠加 → 成片与关键帧。默认作品页直接呈现已经生成的结果；`workbench.html` 是重新分析入口。
 
-当前是 `temporal-impact-v5` + `focused-outcome-v2`：篮球专用检测、连续窗口评分、最终出手与举球释放冲突核验；界面使用固定角色「主角 / 收益队友 / 防守者」及三帧时间轴，已去掉小球场曲线和独立总结。60 项 Python 回归及前端回归可以从仓库内 fixtures 离线运行。
+## 当前运行与部署（2026-10-10）
 
-当前主数据源已经改为 **NBA 中国官网 Inside the Game**。SkillCorner 仅作为此前的数据实验保留，不参与当前视频分析，主页面也不再展示它。
+Python 3.12+、Node.js/npm、AWS CLI v2。所有云端资源在本队账号 `us-east-1`；只使用主办方配置的 SSO profile，**不要运行 `cdk bootstrap`**。账号 ID 从 STS 读取，不再回退到旧账号。
 
-## 打开应用
-
-- 本机：<http://127.0.0.1:8765>
-- AWS：<https://d18o4ltbbhvywp.cloudfront.net>
+从仓库根目录：
 
 ```sh
-cd '/Users/kawhi/Documents/AI+NBA/hidden-impact'
-python3 server.py --port 8765
+npm ci --prefix aws-preflight
+python3 -m venv hidden-impact/.venv
+hidden-impact/.venv/bin/python -m pip install -r hidden-impact/requirements.txt
+hidden-impact/.venv/bin/python -m pip install --target hidden-impact/cloud/agent/vendor -r hidden-impact/cloud/agent/requirements.txt
+hidden-impact/.venv/bin/python hidden-impact/scripts/prepare_vision.py
 ```
 
-本机服务使用 `.cloud-config.json` 与 `.team-access-code` 在服务器端代理云端请求，不向网页泄露 AWS 凭证。云端网页需要团队访问码，存于本机被 Git 忽略的 `.team-access-code` 文件。不是个人模型 API Key。
+模型大文件保存在本队私有 MediaBucket，来源与固定哈希见 `models/basketball/SOURCES.txt` 和 `manifest.json`。新机器通过 `scripts/restore_models.py --bucket <本队MediaBucket>` 恢复并校验；桶已被销毁时从本地私有备份恢复，不能假设 Git 包含权重。
+
+```sh
+cd hidden-impact
+aws sts get-caller-identity --profile nba --region us-east-1
+.venv/bin/python scripts/deploy.py
+.venv/bin/python -m unittest discover -s tests
+node tests/test_web_render.cjs
+node tests/test_game_view.cjs
+node tests/test_generated_showcase.cjs
+node tests/test_showcase_insights.cjs
+```
+
+最新地址取自 `infra/cdk-outputs.json` 的 `FrontendUrl`，不复用旧 CloudFront 地址。部署自动上传模型；团队访问码保存在 `.team-access-code`，不提交仓库。详细备份说明见 [RESTORE](docs/RESTORE.md)。
+
+## 官方片段与真实推理
+
+`scripts/ingest_official.py` 接受主办方视频、明确核对过的比赛/出手者/事件 ID，读取 NBA 深度数据，将素材登记至本队私有 S3，并提取普通任务请求。它不预置候选主角或解说。示例（练习片段）：
+
+```sh
+.venv/bin/python scripts/ingest_official.py --video data/videos/official/dallas-practice.mp4 --id dallas-practice --game 0022500701 --player 1642843 --event 666 --source https://comfile.csdnimg.cn/file/train_video.zip --shot-time 17.3 --out data/frames/official/dallas-request.json
+.venv/bin/python scripts/smoke_release.py --api-only --request data/frames/official/dallas-request.json
+.venv/bin/python scripts/publish_result.py --job <成功任务ID>
+.venv/bin/python scripts/smoke_release.py --public-only
+```
+
+真实任务经 CloudFront → API → Lambda → AgentCore → Bedrock → 渲染与 S3；smoke 脚本保存原始任务回执于私有 `verification/`。`--shot-time` 是视频内出手对齐秒数，提供时记录其复核来源；不提供则只显示回合数据摘要，不伪装实时数据。网页上传也可附配套 JSON，见 `web/data/shot-context-example.json`。
+
+未能核验出幕后 MVP 时，真实出手数据和分段解说仍可形成数据解读视频，主角及分数保持未确定。该状态不得计入 MVP 排名。视觉模型与 VLM 仍可能认错人，跑通管线不等于归因准确。
+
+公开发布只复制来源明确的已完成任务，并保留生成/复核记录；媒体是持久化对象而非临时签名 URL。CDK 不上传本地 `demo/`、`media/`、`posters/` 等研究素材。`/readme` 展示素材来源、AI 解说声明与接口。发布脚本不会自动填写比赛提交表单；考试视频发布后需以同样链路生成、检查并更新正式结果。
+
+## API
+
+- `GET /api/health`：公开健康检查。
+- `POST /api/upload` → S3 表单上传 → `POST /api/upload/complete`：私有素材导入。
+- `POST /api/jobs`：`{mode:"video",video:{id,title,duration},frames:[{time,image}],companion?:...}`；`image` 为 JPEG base64，3–20 帧。返回任务 ID。
+- `GET /api/jobs/{id}`：排队/运行/失败/完成状态，完成结果包含模型用量、证据、分阶段解说、presentation 与签名媒体地址。
+- `POST /api/games`：同场已核验任务汇总；`GET /api/games/{id}` 返回汇总结果。
+
+除健康检查外请求头为 `X-Team-Key`。AgentCore 标准入口为 `POST /invocations`，接受相同视频与关键帧合同及 worker 计算的视觉证据；`GET /ping` 用于 runtime 健康检查。没有额外私有评分协议的假设。
+
+## 历史研究记录
+
+以下保留早期设计与样本来源，旧模型/阈值/部署描述不替代上面的当前运行步骤。
 
 ## 数据来源
 

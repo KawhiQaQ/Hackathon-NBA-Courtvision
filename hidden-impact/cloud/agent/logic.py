@@ -336,7 +336,8 @@ def analyze(payload,client):
     if alignment:context['attackEnd']=min(context['attackEnd'],alignment['shotTime']) if finite(context.get('attackEnd')) else alignment['shotTime'];context['timeAlignment']=alignment
     companion=(payload.get('deepData') or {}).get('companion');roster,vision=ground(payload['vision'],context,companion);players,events=reports(roster,vision,companion)
     if events:
-        events[0]['commentary']=explain_temporal(events[0],payload,client)
+        try:events[0]['commentary']=explain_temporal(events[0],payload,client)
+        except Exception as exc:print('candidate_commentary_unavailable',type(exc).__name__,flush=True)
     return {'version':'basketball-roster-v3','scoringVersion':SCORE_VERSION,'model':MODEL_ID,'modelInvoked':True,'overview':clean_text(context.get('overview'),600),'players':players,'events':events,'vision':vision,'frameTimes':[f['time'] for f in payload['frames']],'video':payload['video'],'deepData':payload.get('deepData'),'source':'Basketball YOLO + temporal geometry + Qwen3-VL / AWS','usage':payload.get('_temporalUsage',response.get('usage',{})),'elapsedSeconds':round(time.monotonic()-started,2),'review':{'status':'unverified'},'cropClassification':True,'limitations':vision['limitations']}
 
 

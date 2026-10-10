@@ -57,6 +57,13 @@ class PlaymakingTests(unittest.TestCase):
 
 
 class PresentationTests(unittest.TestCase):
+    def test_unconfirmed_mvp_still_has_factual_data_broadcast_without_fake_roles(self):
+        r=fixture();r['events']=[]
+        r['deepData']={'videoId':r['video']['id'],'official':{'gameId':'g','eventId':2,'playerId':'p','shot':{'value':.3,'shotType':'2分投篮','success':0}}}
+        p=build(r)
+        self.assertEqual(p['status'],'ready');self.assertEqual(p['analysisStatus'],'unconfirmed-mvp')
+        self.assertEqual(p['roles'],[]);self.assertIsNone(p['score']);self.assertIsNone(p['actor']['id'])
+        self.assertTrue(p['evidence']);self.assertTrue(all(not f['people'] and f['heroArrow'] is None for f in r['presentationMotion']['frames']))
     def test_generic_contract_contains_real_segments_and_annotated_frame_requests(self):
         r=verified();p=build(r)
         self.assertEqual(p['mode'],'analysis');self.assertEqual(p['score'],r['events'][0]['score'])
