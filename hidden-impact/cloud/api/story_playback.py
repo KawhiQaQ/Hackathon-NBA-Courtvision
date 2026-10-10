@@ -14,7 +14,7 @@ def plan(manifest, duration, fps):
         segment=next((s for s in segments if s['start']<=evidence['time']<s['end']),{})
         text=segment.get('text') or evidence.get('text','')
         if not text or frame-last<fps or len(beats)>=8:continue
-        typing=min(2.0,max(.5,len(text)/38))
+        typing=min(2.6,max(.65,len(text)/28))
         count=round((typing+.7)*fps)
         if count>budget:continue
         beats.append({'sourceFrame':frame,'sourceTime':frame/fps,'duration':count/fps,'holdFrames':count,
