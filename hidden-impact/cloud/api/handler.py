@@ -47,7 +47,13 @@ def render_result(result,video_item,prefix):
      frame['imageKey']=frame_key
     presentation['rendered']=True
   except Exception as exc:
-   result['renderError']='战术视频生成失败，网页动态回放仍可用。';print('render_failed',str(exc)[:300])
+   result['renderError']='战术视频生成失败，请重试。'
+   result['presentation']['rendered']=False
+   # Preserve the analysis for diagnosis, but never advertise an incomplete
+   # video export as a completed job in the result-only viewer.
+   put(prefix+'result.json',result)
+   print('render_failed',type(exc).__name__,str(exc)[:300])
+   raise RuntimeError(result['renderError']) from exc
 
 def worker(event):
  job=key_id(event['job']);prefix=f'jobs/{job}/';session=str(uuid.uuid4());arn=os.environ['AGENT_RUNTIME_ARN']
@@ -76,9 +82,10 @@ def worker(event):
    from perception_cache import cache_key
    etag=s3.head_object(Bucket=BUCKET,Key=video_item['key'])['ETag'];cached_key=cache_key(video_item['key'],etag,original_frames)
    cached=None
-   try:cached=get(cached_key)
-   except s3.exceptions.ClientError as exc:
-    if exc.response['Error']['Code']!='NoSuchKey':raise
+   if not payload.get('force'):
+    try:cached=get(cached_key)
+    except s3.exceptions.ClientError as exc:
+     if exc.response['Error']['Code']!='NoSuchKey':raise
    if cached:
     vision,frames=cached['vision'],cached['frames']
    else:

@@ -2,6 +2,7 @@
 This verifies wiring, not cloud permissions or model accuracy.
 """
 import base64,copy,importlib.util,io,json,os,sys,tempfile,types,unittest
+from contextlib import nullcontext
 from pathlib import Path
 from unittest.mock import patch
 from PIL import Image
@@ -18,7 +19,13 @@ class WorkerPresentationTests(unittest.TestCase):
  def test_normal_job_renders_actor_evidence_and_board_without_review(self):
   self.run_pipeline(with_profile=True)
 
- def run_pipeline(self,commentary_failure=False,with_profile=False):
+ def test_render_failure_is_failed_not_a_completed_job(self):
+  self.run_pipeline(render_failure=True)
+
+ def test_force_recomputes_visual_detection_even_with_existing_cache(self):
+  self.run_pipeline(force=True)
+
+ def run_pipeline(self,commentary_failure=False,with_profile=False,render_failure=False,force=False):
   import subprocess
   from render_video import ffmpeg
   result=fixture()
@@ -27,7 +34,7 @@ class WorkerPresentationTests(unittest.TestCase):
    result['deepData']={'videoId':result['video']['id'],'official':{'gameId':'0022500701','eventId':666},'playerProfiles':[profile],'companion':{'players':[{'trackId':'lead-x','sourcePlayerId':'1629655'}]}}
   img=io.BytesIO();Image.new('RGB',(320,180),'gray').save(img,format='JPEG')
   frames=[dict(time=t,image=base64.b64encode(img.getvalue()).decode()) for t in [0,.4,.8,1.2,1.6,2.1]]
-  request={'mode':'video','video':result['video'],'frames':frames}
+  request={'mode':'video','video':result['video'],'frames':frames,'force':force}
   job='parity-job';prefix=f'jobs/{job}/';calls=[]
   class Store:
    def __init__(self):self.data={}
@@ -53,7 +60,10 @@ class WorkerPresentationTests(unittest.TestCase):
    def stop_runtime_session(self,**kw):pass
   store=Store();agent=Agent()
   boto=types.SimpleNamespace(client=lambda name,**kw:store if name=='s3' else agent)
-  vision=types.SimpleNamespace(build_vision=lambda *a:None,sample_video=lambda *a:None)
+  visual_calls=[]
+  def detect(payload,progress):
+   visual_calls.append('detect');return copy.deepcopy(result['vision']),frames
+  vision=types.SimpleNamespace(build_vision=detect,sample_video=lambda *a:frames)
   with tempfile.TemporaryDirectory() as temp,patch.dict(sys.modules,{'boto3':boto,'vision':vision}),patch.dict(os.environ,{'AGENT_RUNTIME_ARN':'test','TEAM_KEY':'test-key'}):
    source=Path(temp)/'source.mp4'
    subprocess.run([ffmpeg(),'-v','error','-f','lavfi','-i','color=c=gray:s=320x180:r=24:d=2.5','-c:v','libx264',str(source)],check=True)
@@ -62,7 +72,17 @@ class WorkerPresentationTests(unittest.TestCase):
    store.data['library/arbitrary-clip.json']=json.dumps({'key':'videos/source.mp4'}).encode()
    store.data[cache_key('videos/source.mp4','etag',frames)]=json.dumps({'vision':result['vision'],'frames':frames}).encode()
    spec=importlib.util.spec_from_file_location('parity_handler',ROOT/'cloud/api/handler.py');handler=importlib.util.module_from_spec(spec);spec.loader.exec_module(handler)
-   handler.worker({'job':job})
+   with patch('render_video.render',side_effect=RuntimeError('encoder failed')) if render_failure else nullcontext():
+    handler.worker({'job':job})
+   self.assertEqual(len(visual_calls),1 if force else 0)
+   if render_failure:
+    status=json.loads(store.data[prefix+'status.json'])
+    self.assertEqual(status['status'],'failed')
+    self.assertIn('战术视频生成失败',status['error'])
+    saved=json.loads(store.data[prefix+'result.json'])
+    self.assertFalse(saved['presentation']['rendered'])
+    self.assertNotIn(prefix+'tactical.mp4',store.data)
+    return
    status=json.loads(store.data[prefix+'status.json']);self.assertEqual(status['status'],'completed',status)
    self.assertIn('narrate-video',calls);self.assertIn('verify-temporal-candidates',calls)
    saved=json.loads(store.data[prefix+'result.json']);self.assertTrue(saved['presentation']['rendered'])

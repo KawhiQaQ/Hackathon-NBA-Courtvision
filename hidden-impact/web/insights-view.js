@@ -38,9 +38,9 @@ function actorMarkup(a) {
     <p class="gravity-scope">${escapeHTML(a.scope)} · ${escapeHTML(a.games ?? '—')} 场</p>
     <div class="outcome-pair"><div><span>创造机会影响力</span><b>${Number.isFinite(a.creation)?signed(a.creation):'—'}</b></div><div><span>投篮得分影响力</span><b>${Number.isFinite(a.scoring)?signed(a.scoring):'—'}</b></div></div>
     <p class="data-note">官方影响力的不同组成项；用于说明得分之外的价值，不是本回合贡献分。</p>
-    ${f?`<div class="gravity-reading"><b>此回合前：两分 ${f.sampleCount} 投 ${f.made} 中</b><span>主角顺下时的终结威胁</span></div>
-    <div class="quality-plot"><div class="quality-row"><span>实际命中</span><div><i style="width:${f.actual*100}%"></i></div><b>${pct(f.actual)}</b></div><div class="quality-row baseline"><span>官方预期</span><div><i style="width:${f.expected*100}%"></i></div><b>${pct(f.expected)}</b></div><div class="quality-axis"><span>0%</span><span>50%</span><span>100%</span></div></div>
-    <p class="data-note">同场先前两分出手。终结表现提供背景，防守是否受牵制仍需回看画面。</p>`:''}`;
+    ${f?`<div class="gravity-reading"><b>此回合前：${f.shotType==='3分投篮'?'三分':'两分'} ${f.sampleCount} 投 ${f.made} 中</b><span>主角顺下时的终结威胁</span></div>
+    <div class="quality-plot"><div class="quality-row"><span>实际命中</span><div><i style="width:${f.actual*100}%"></i></div><b>${pct(f.actual)}</b></div>${Number.isFinite(f.expected)?`<div class="quality-row baseline"><span>官方预期</span><div><i style="width:${f.expected*100}%"></i></div><b>${pct(f.expected)}</b></div>`:''}<div class="quality-axis"><span>0%</span><span>50%</span><span>100%</span></div></div>
+    <p class="data-note">同场先前${f.shotType==='3分投篮'?'三分':'两分'}出手。终结表现提供背景，防守是否受牵制仍需回看画面。</p>`:''}`;
 }
 
 export function gravityMarkup(insights) {

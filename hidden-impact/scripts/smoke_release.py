@@ -19,6 +19,7 @@ def main():
     parser.add_argument('--public-only', action='store_true')
     parser.add_argument('--api-only', action='store_true',help='Validate API before the first public result is published')
     parser.add_argument('--job', help='Resume checking an existing job without submitting again')
+    parser.add_argument('--output',type=Path,default=ROOT/'verification/cloud-release-smoke.json',help='Save the real job response for verification')
     args=parser.parse_args()
     base=(args.url or json.loads((ROOT/'.cloud-config.json').read_text())['url']).rstrip('/')+'/'
     origin=urlparse(base).netloc
@@ -44,7 +45,8 @@ def main():
                 if body is not None or attempt==3 or isinstance(exc,urllib.error.HTTPError) and exc.code not in [429,502,503,504]:raise
                 time.sleep(.5*2**attempt)
     def data(path, body=None):return json.loads(fetch(path,body,authenticated=not args.public_only))
-    for path in ['','workbench.html','showcase.js','app.js','game-view.js']:
+    for path in ['','workbench.html','showcase.js','app.js','game-view.js','insights-view.js',
+                 'showcase.css','studio-theme.css','studio-workbench.css','flow-view.js','upload-flow.js']:
         fetch(path);checked.add(path)
     if not args.api_only:
         note=fetch('readme').decode('utf-8')
@@ -70,16 +72,21 @@ def main():
     started=time.monotonic();last=None
     while time.monotonic()-started<1020:
         response=data('api/jobs/'+job);stage=(response['status'],response.get('stage'))
-        if stage!=last:print('Job status:',stage,flush=True);last=stage
+        if stage!=last:print('Job status:',stage,'elapsed:',round(time.monotonic()-started,1),'s',flush=True);last=stage
         if response['status']=='failed':raise RuntimeError(response.get('error','Job failed'))
         if response['status']=='completed':break
         time.sleep(4)
     else:raise RuntimeError('Job did not complete within 17 minutes: '+job)
-    out=ROOT/'verification/cloud-release-smoke.json';out.parent.mkdir(exist_ok=True);out.write_text(json.dumps(response,ensure_ascii=False,indent=2))
+    out=args.output;out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(response,ensure_ascii=False,indent=2))
     result=response['result'];p=result.get('presentation') or {}
+    if not result.get('modelInvoked'):raise RuntimeError('No real analysis model invocation recorded')
+    if result.get('renderError'):raise RuntimeError(result['renderError'])
     if not p.get('rendered'):raise RuntimeError('Analysis completed but rendered presentation is unavailable; inspect verification report')
     if result.get('narration',{}).get('status')=='unavailable' or not result.get('narration',{}).get('segments'):
         raise RuntimeError('Analysis completed but timed commentary is unavailable')
+    if not result['narration'].get('modelInvoked'):raise RuntimeError('Timed commentary did not invoke the model')
+    if not p.get('evidence') or any(not 0<=f['time']<result['video']['duration'] for f in p['evidence']):
+        raise RuntimeError('Story evidence is missing or outside the clip')
     fetch(p['video'],asset=True)
     for frame in p.get('evidence',[]):fetch(frame['image'],asset=True)
     if p.get('analysisStatus') not in ['unconfirmed-mvp','reviewed-story']:

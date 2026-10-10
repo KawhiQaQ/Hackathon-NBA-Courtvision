@@ -5,3 +5,6 @@ const html=ctx.gravityMarkup({actorProfile:{name:'主角<script>',scope:'赛季'
 assert(html.includes('创造机会影响力'));assert(html.includes('+0.33'));assert(html.includes('8 投 7 中'));assert(html.includes('74.1%'));assert(!html.includes('other'));assert(!html.includes('<script>'));
 const missing=ctx.gravityMarkup({actorProfile:{name:'主角',scope:'赛季',creation:null,scoring:null,finishing:null}});assert(!missing.includes('NaN'));assert(!missing.includes('0.00'));
 console.log('PASS: actor evidence, source values, escaping and missing values');
+
+const noExpected=ctx.gravityMarkup({actorProfile:{name:'主角',scope:'本场',creation:null,scoring:null,finishing:{shotType:'3分投篮',sampleCount:3,made:2,actual:2/3,expected:null}}});
+assert(noExpected.includes('三分 3 投 2 中'));assert(!noExpected.includes('官方预期'));assert(!noExpected.includes('先前两分'));assert(!noExpected.includes('NaN'));assert(!noExpected.includes('>0%</b>'));
