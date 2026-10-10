@@ -59,14 +59,21 @@ def normalize_segments(raw, payload):
 
 
 def narrate_window(payload, client, model_id):
-    content = [{'text': json.dumps({'video': payload['video'], 'deepData': payload.get('deepData'),
-                                  'context': payload.get('narrationContext', {}),'narrationWindow':payload.get('narrationWindow')}, ensure_ascii=False)}]
+    # Geometry/identity hypotheses must not turn into narration facts merely by
+    # being repeated in the prompt. Narration uses images and matched shot facts.
+    deep=payload.get('deepData') or {};official=deep.get('official') or {}
+    facts={'alignment':deep.get('alignment')}
+    window=payload.get('narrationWindow');shot_time=(deep.get('alignment') or {}).get('shotVideoTime')
+    if not window or number(shot_time) and window['end']>=shot_time:
+        facts['official']={k:official[k] for k in ['shooter','team','shot'] if k in official}
+    content = [{'text': json.dumps({'video': payload['video'], 'deepData': facts,
+                                  'narrationWindow':window}, ensure_ascii=False)}]
     for frame in payload['frames']:
         content.extend([{'text': f"视频绝对时间 {frame['time']:.3f} 秒"},
                         {'image': {'format': 'jpeg', 'source': {'bytes': base64.b64decode(frame['image'])}}}])
     usage={};error=None;previous_text=None
     for attempt in range(3):
-        instruction=PROMPT+'\n如果有 narrationWindow，只输出这一小段的解说，不能描述其他时间发生的动作。'+(f'\n上次输出校验失败：{error}。请重新对照证据，修复这个矛盾。' if error else '')
+        instruction=PROMPT+'\n叙述使用画面位置称呼，如右侧持球人、底角队友、篮下防守人；不要使用P编号或猜球衣号码。看不清球的位置时只说站位，不推测传球、接球和包夹。若有 narrationWindow，整个窗口只输出一段简短解说，start/end 等于窗口边界，正文20至45字，最多描述一个主要变化，不能描述其他时间发生的动作。' +(f'\n上次输出校验失败：{error}。请重新对照证据，修复这个矛盾。' if error else '')
         messages=[{'role': 'user', 'content': content}]
         if previous_text:
             messages.extend([{'role':'assistant','content':[{'text':previous_text}]},

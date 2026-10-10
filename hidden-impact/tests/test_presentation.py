@@ -72,6 +72,14 @@ class PlaymakingTests(unittest.TestCase):
         self.assertEqual(candidate['shotVideoTime'],3.5)
         self.assertEqual([f['time'] for f in candidate['frames'] if f['phase']=='outcome'],[3,4])
 
+    def test_shot_possession_conflict_vetoes_vlm_identity(self):
+        r=fixture();r['deepData']={'alignment':{'shotVideoTime':2.3}}
+        for f in r['vision']['frames']:
+            if f['time']>=1.7:f['handler']='another-shooter'
+        c=dict(id=r['events'][0]['id'],onBall=True,samePlayer=True,isShooter=False,passObserved=True,beneficiaryIsShooter=True,defenderResponds=True,observedShotTime=2.3)
+        reviewed=apply(r,[c]);self.assertTrue(reviewed['events'][0]['shotIdentityConflict'])
+        self.assertFalse(finalize(reviewed)['events'])
+
     def test_explicit_shooter_never_becomes_hidden_mvp(self):
         r=fixture();c=dict(id=r['events'][0]['id'],onBall=True,samePlayer=True,isShooter=True,passObserved=True,beneficiaryIsShooter=True,defenderResponds=True)
         self.assertFalse(finalize(apply(r,[c]))['events'])

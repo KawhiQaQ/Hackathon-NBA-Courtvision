@@ -79,6 +79,12 @@ def apply(result,checks):
   shot_time=((result.get('deepData') or {}).get('alignment') or {}).get('shotVideoTime')
   if isinstance(shot_time,(int,float)):
    ok=ok and any(c.get('defenderResponds') is True and c.get('beneficiaryIsShooter') is True and isinstance(c.get('observedShotTime'),(int,float)) and not isinstance(c['observedShotTime'],bool) and math.isfinite(c['observedShotTime']) and abs(c['observedShotTime']-shot_time)<=1.5 for c in matching)
+  if isinstance(shot_time,(int,float)):
+   handlers=[f.get('handler') for f in result.get('vision',{}).get('frames',[]) if shot_time-.6<=f['time']<=shot_time+.3 and f.get('handler')]
+   if len(handlers)>=2:
+    holder=max(set(handlers),key=handlers.count)
+    if handlers.count(holder)/len(handlers)>=.75 and holder!=e['beneficiaryTrackId']:
+     ok=False;e['shotIdentityConflict']={'source':'shot-window-possession','observedHandler':holder,'expectedBeneficiary':e['beneficiaryTrackId'],'observations':len(handlers)}
   # An explicit pass-to-shot check disambiguates the generic ball-rise veto;
   # an explicit shooter verdict still excludes the actor in every branch.
   veto={c['actorTrackId'] for c in reviewed if c.get('isShooter') is True} if e['actionType']=='draw-kick' else shooters
