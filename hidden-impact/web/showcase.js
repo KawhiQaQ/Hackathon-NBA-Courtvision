@@ -29,7 +29,7 @@ for(const [id,original] of [['original',true],['annotated',false]])$(id).onclick
 function selectRound(n){
  if(!game?.rounds[n])return;index=n;data=game.rounds[n];currentCue=null;document.querySelector('.layout').hidden=false;$('data-insights').hidden=false;
  if(data.schema!=='hidden-impact/showcase-v1'||!data.evidence?.length)throw Error('该回合缺少完整展示数据。');
- $('round-position').textContent=String(n+1).padStart(2,'0')+' / '+String(game.rounds.length).padStart(2,'0');$('round-prev').disabled=n===0;$('round-next').disabled=n===game.rounds.length-1;
+ $('round-select').value=String(n);$('round-position').textContent=String(n+1).padStart(2,'0')+' / '+String(game.rounds.length).padStart(2,'0');$('round-prev').disabled=n===0;$('round-next').disabled=n===game.rounds.length-1;
  $('round-tabs').querySelectorAll('[data-round]').forEach((b,i)=>{b.classList.toggle('active',i===n);b.setAttribute('aria-pressed',String(i===n));});
  $('matchup').textContent=data.actionTitle||data.matchup||'回合分析';$('play-label').textContent=`回合 ${String(n+1).padStart(2,'0')}${data.identity?.jersey?' · '+data.identity.jersey+'号':''}`;
  $('actor-name').textContent=data.identity?.jersey?`${data.team||game.team} ${data.identity.jersey}号`:data.actor.label;
@@ -40,20 +40,21 @@ function selectRound(n){
  $('impact-thesis').textContent=data.summary||data.insights?.interpretation||'';$('components').innerHTML=scoreMarkup(data.impact);$('score-formula').textContent=data.impact?.formula||(data.analysisStatus==='unconfirmed-mvp'?'角色证据不足，本回合暂不计入幕后 MVP 排名。':'此回合仅有动作观察分，未提供完整机会对照。');
  $('roles').innerHTML=data.roles.map(r=>`<span><i style="--color:${esc(r.color)}"></i>${esc(r.displayName||r.label)}</span>`).join('');
  const insight=data.insights||{cues:[],narration:{segments:[]}};$('live-insight').hidden=!insight.cues.length&&!insight.narration?.segments?.length;
- $('phase-rail').innerHTML=phaseMarkup(insight);$('opportunity').innerHTML=opportunityMarkup(insight);$('gravity').innerHTML=gravityMarkup(insight);$('opportunity').hidden=!insight.shot;$('gravity').hidden=!insight.gravity;
+ $('phase-rail').innerHTML=phaseMarkup(insight);$('opportunity').innerHTML=opportunityMarkup(insight);$('gravity').innerHTML=gravityMarkup(insight);$('opportunity').hidden=!insight.shot;$('gravity').hidden=!insight.gravity&&!insight.actorProfile;
  $('source-caption').textContent=insight.gameId?`${insight.gameId} · Q${insight.period??'—'} ${insight.gameClock??''} · 回合 #${insight.eventId??'—'}`:'';
  $('official-source').hidden=true;if(insight.sourceUrl){const source=new URL(insight.sourceUrl);if(source.protocol==='https:'&&source.hostname==='china.nba.cn'){$('official-source').href=source.href;$('official-source').hidden=false;}}
- $('story-heading').textContent=data.storyTitle||'从配合开始，看到机会出现。';
- $('frames').innerHTML=data.evidence.map((f,i)=>{const fact=storyFact(insight,f);return `<article class="story-card"><button class="film-image" data-frame="${i}" aria-label="回看 ${f.time} 秒：${esc(f.label)}"><img src="${esc(f.image)}" alt="${esc(f.label)}：${esc(f.text)}" draggable="false"><span class="film-time">${f.time.toFixed(2)}s ↗</span></button><div class="story-caption"><div class="story-chapter"><span>SCENE ${String(i+1).padStart(2,'0')}</span><b>${esc(f.chapter)}</b></div><h3>${esc(f.label)}</h3><p>${esc(f.text)}</p><div class="story-fact"><span>${esc(fact.label)}</span><b>${esc(fact.value)}</b></div></div></article>`;}).join('');
+ $('story-heading').textContent='关键配合';
+ $('frames').innerHTML=data.evidence.map((f,i)=>{const fact=storyFact(insight,f);return `<article class="story-card"><button class="film-image" data-frame="${i}" aria-label="回看 ${f.time} 秒：${esc(f.label)}"><img src="${esc(f.image)}" alt="${esc(f.label)}：${esc(f.text)}" draggable="false"><span class="film-time">${f.time.toFixed(2)}s ↗</span></button><div class="story-caption"><div class="story-chapter"><span>SCENE ${String(i+1).padStart(2,'0')}</span><b>${esc(f.chapter)}</b></div><h3>${esc(f.label)}</h3><p>${esc(f.text)}</p>${fact.value!=='回合画面'?`<div class="story-fact"><span>${esc(fact.label)}</span><b>${esc(fact.value)}</b></div>`:''}</div></article>`;}).join('');
  $('frames').scrollLeft=0;$('download-replay').href=data.video;if(summaryURL)URL.revokeObjectURL(summaryURL);summaryURL=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));$('download-summary').href=summaryURL;
  $('speed').value='1';$('annotated').classList.toggle('selected',true);$('original').classList.toggle('selected',false);$('annotated').setAttribute('aria-pressed','true');$('original').setAttribute('aria-pressed','false');
  video.poster=data.poster||data.evidence[0].image;loadVideo(data.video,0);storyPosition();sync();
 }
+$('round-select').onchange=()=>selectRound(Number($('round-select').value));
 $('round-prev').onclick=()=>selectRound(index-1);$('round-next').onclick=()=>selectRound(index+1);
 $('round-tabs').onclick=e=>{const b=e.target.closest('[data-round]');if(b)selectRound(Number(b.dataset.round));};
 $('phase-rail').onclick=e=>{const b=e.target.closest('[data-cue]');if(b){stopAt=null;video.pause();video.currentTime=data.insights.cues[Number(b.dataset.cue)].seek;sync();}};
 $('frames').onclick=e=>{const b=e.target.closest('[data-frame]');if(b){stopAt=null;video.pause();video.currentTime=data.evidence[Number(b.dataset.frame)].time;sync();}};
-$('leaderboard').onclick=e=>{const b=e.target.closest('[data-round]');if(b){selectRound(Number(b.dataset.round));$('round-browser').scrollIntoView({behavior:'smooth'});}};
+$('leaderboard').onclick=e=>{const b=e.target.closest('[data-round]');if(b){selectRound(Number(b.dataset.round));location.hash='video';}};
 function resolveAssets(round,base){if(round.video?.startsWith('demo/')&&base.pathname.endsWith('/demo/showcase.json'))base=new URL('../',base);for(const key of ['video','original','poster'])if(round[key])round[key]=new URL(round[key],base).href;for(const f of round.evidence||[])f.image=new URL(f.image,base).href;return round;}
 async function read(url,auth=false){const response=await fetch(url,{cache:'no-store',...(auth?{headers:{'X-Team-Key':sessionStorage.getItem('hi-team-key')||''}}:{})});if(!response.ok)throw Error(response.status===401?'请先在分析工作台连接团队工作区。':'结果加载失败。');return response.json();}
 try{
@@ -67,6 +68,7 @@ try{
  else throw Error('不支持的结果格式');
  game.rounds.forEach(r=>resolveAssets(r,base));if(!game.rounds.length)throw Error('尚无可展示回合。');
  $('round-browser').hidden=false;$('game-scope').textContent=`${game.team||'比赛'} · ${game.rounds.length} 个同场回合`;
+ $('round-select').innerHTML=game.rounds.map((r,i)=>`<option value="${i}">回合 ${String(i+1).padStart(2,'0')} · ${esc(r.actionTitle||r.matchup||'配合观察')}</option>`).join('');
  $('round-tabs').innerHTML=game.rounds.map((r,i)=>`<button data-round="${i}" aria-pressed="false"><span>${String(i+1).padStart(2,'0')}</span><div><b>${esc(r.identity?.jersey?`${r.identity.jersey}号 · 幕后主角`:r.actor.label)}</b><small>${esc(r.actionTitle||r.matchup)}</small></div></button>`).join('');
  $('awards').hidden=game.schema!=='hidden-impact/game-showcase-v1';if(!$('awards').hidden){$('award-scope').textContent=`${game.team} · ${game.gameId} · 已上传 ${game.roundCount} 回合，${game.creditedRounds} 回合计入身份汇总`;$('award-hero').innerHTML=awardMarkup(game);$('leaderboard').innerHTML=rankingMarkup(game);$('game-formula').textContent=game.formula;}
  selectRound(0);
