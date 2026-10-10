@@ -3,7 +3,7 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.join(__dirname,'..'),game=JSON.parse(fs.readFileSync(path.join(root,'web/demo/game.json'),'utf8'));
 const helpers=vm.createContext({});vm.runInContext(fs.readFileSync(path.join(root,'web/game-view.js'),'utf8').replace(/export /g,''),helpers);
 const insights=fs.readFileSync(path.join(root,'web/insights-view.js'),'utf8').replace(/export /g,'');
-const source=fs.readFileSync(path.join(root,'web/showcase.js'),'utf8').replace(/^import .*;\n/gm,'');
+const source=fs.readFileSync(path.join(root,'web/showcase.js'),'utf8').replace(/^import .*;\n/gm,'')+'\n'+fs.readFileSync(path.join(root,'web/story-playback.js'),'utf8').replace(/export /g,'');
 const nodes=new Map(),events=new Map();
 function node(){return {innerHTML:'',textContent:'',value:'1',hidden:false,currentTime:0,duration:14,paused:true,scrollLeft:0,clientWidth:400,scrollWidth:1200,classList:{toggle(){}},setAttribute(k,v){this[k]=v},removeAttribute(k){delete this[k]},addEventListener(k,f){events.set(k,f)},querySelectorAll(){return []},querySelector(){return null},pause(){this.paused=true},play(){this.paused=false;return Promise.resolve()},load(){},scrollBy(){},scrollIntoView(){}}}
 for(const m of fs.readFileSync(path.join(root,'web/index.html'),'utf8').matchAll(/id="([^"]+)"/g))nodes.set(m[1],node());

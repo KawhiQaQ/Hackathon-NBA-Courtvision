@@ -10,7 +10,7 @@ PROMPT = '''你是篮球转播解说员。根据按时间排序的视频帧、�
 开头也要讲具体动作：谁向哪里移动、队友如何调整站位、随后出现什么机会。避免长时间只说“先看机会出现之前”。每段通常2到4秒，标题不超过24字，正文25到70字。分段应覆盖已有证据的时间范围，画面看不清时不要补造动作。可说“寻找接应位置”，不可把意图或相关变化断言成因果。
 区分持球推进与无球跑动。只把实际可见或官方确认的投篮写成命中。阶段汇总Gravity只作球员特点，不能作本回合的实时引力。出手质量与平均值的差异不是任何球员的个人增益。
 若 deepData.alignment.shotVideoTime 已提供，它是已对齐的本回合唯一出手时刻；此前不得把本回合的命中、篮板或攻防转换说成已经发生；对手当前退防或持球方推进可以据实描述。正文和标题只解说动作，不包含任何比分、倒计时或视频秒数；忽略画面记分牌。时间数字只放在 start、end、frameTimes 字段。严格按每张帧旁边的绝对秒数判断动作，切勿把后面的出手提前到前面的段落。
-若 actorEvidence 已提供，可用其此前两分/三分表现或阶段创造机会指标解释为何幕后MVP值得防守注意。明确此前表现与当前动作，不能把背景威胁直接说成成功牵制；只有画面显示防守响应才描述响应。roleDetections 提供已确认角色在当前帧的定位，用位置与图片核对人物。
+若 actorEvidence 已提供，可用其此前两分/三分表现或阶段创造机会指标解释为何幕后MVP值得防守注意。明确此前表现与当前动作，不能把背景威胁直接说成成功牵制；只有画面显示防守响应才描述响应。roleDetections 提供已确认角色在当前帧的定位，用位置与图片核对人物。若 verifiedRoles 非空，叙事以幕后MVP为中心：其移动或掩护做了什么，主要防守人如何响应，受益队友获得什么接应或出手机会。只写当前窗口有画面证据的一环，不强行每段都讲三人。幕后MVP离开画面时可说此前配合后的队友终结，不编造画外动作。
 只返回JSON：{"segments":[{"start":视频绝对秒,"end":视频绝对秒,"title":"当前动作标题","text":"中文解说","frameTimes":[支持该描述的输入帧准确时间]}]}。
 段落按时间排序、互不重叠，均在片段内，每段不超过4.5秒，每段至少引用一张在该段附近的输入帧。移动描述要比较至少两帧。不要把任何输出称为已验证的归因。'''
 
@@ -69,16 +69,22 @@ def narrate_window(payload, client, model_id):
         facts['official']={k:official[k] for k in ['shooter','team','shot'] if k in official}
     ctx=payload.get('narrationContext') or {}
     evidence=ctx.get('actorEvidence')
-    role_ids={evidence.get('trackId')} if evidence else set()
+    # Only finalized visual events may establish the three narrative roles.
+    verified_roles=[]
+    for event in ctx.get('events',[]):
+        if window and (event.get('end',0)<window['start'] or event.get('start',0)>window['end']):continue
+        verified_roles.append({role:event[key] for role,key in [('幕后MVP','actorTrackId'),('受益队友','beneficiaryTrackId'),('主要防守人','defenderTrackId')] if event.get(key)})
+    role_ids={pid for roles in verified_roles for pid in roles.values()}
+    if evidence:role_ids.add(evidence.get('trackId'))
     role_detections=[{'time':f['time'],'people':[p for p in f.get('people',[]) if p.get('trackId') in role_ids]} for f in ctx.get('detections',[])]
-    content = [{'text': json.dumps({'video': payload['video'], 'deepData': facts, 'actorEvidence':evidence, 'roleDetections':role_detections,
+    content = [{'text': json.dumps({'video': payload['video'], 'deepData': facts, 'actorEvidence':evidence, 'verifiedRoles':verified_roles, 'roleDetections':role_detections,
                                   'narrationWindow':window}, ensure_ascii=False)}]
     for frame in payload['frames']:
         content.extend([{'text': f"视频绝对时间 {frame['time']:.3f} 秒"},
                         {'image': {'format': 'jpeg', 'source': {'bytes': base64.b64decode(frame['image'])}}}])
     usage={};error=None;previous_text=None
     for attempt in range(3):
-        instruction=PROMPT+'\n叙述使用画面位置称呼，如右侧持球人、底角队友、篮下防守人；不要使用P编号或猜球衣号码。看不清球的位置时只说站位，不推测传球、接球和包夹。若有 narrationWindow，整个窗口只输出一段简短解说，start/end 等于窗口边界，正文20至45字，最多描述一个主要变化，不能描述其他时间发生的动作。' +(f'\n上次输出校验失败：{error}。请重新对照证据，修复这个矛盾。' if error else '')
+        instruction=PROMPT+'\n已核验角色优先称幕后MVP、受益队友和主要防守人，并用画面位置辅助识别；没有已核验角色时用右侧持球人、底角队友、篮下防守人等位置称呼；不要使用P编号或猜球衣号码。看不清球的位置时只说站位，不推测传球、接球和包夹。若有 narrationWindow，整个窗口只输出一段简短解说，start/end 等于窗口边界，正文20至45字，最多描述一个主要变化，不能描述其他时间发生的动作。' +(f'\n上次输出校验失败：{error}。请重新对照证据，修复这个矛盾。' if error else '')
         messages=[{'role': 'user', 'content': content}]
         if previous_text:
             messages.extend([{'role':'assistant','content':[{'text':previous_text}]},

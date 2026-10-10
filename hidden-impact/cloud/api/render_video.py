@@ -211,13 +211,27 @@ def composite(image,result,t):
    text=card['outcome'];tw=draw.textlength(text,font=font(12))
    draw.text((cx+cw-16-tw,cy+unit_y),text,font=font(12),fill='#eef4ec')
   draw.text((cx+16,cy+(140 if compact else 180)),card['context'],font=font(11),fill='#a4bcc3')
- segments=manifest['insights'].get('narration',{}).get('segments',[])
- seg=next((s for s in segments if s['start']<=t<s['end']),None)
- if seg:title,text=seg['title'],seg['text']
- else:title,text=manifest['actionTitle'],''
+ return paint_commentary(im,result,t)
+
+
+def paint_commentary(im,result,t,beat=None,progress=1):
+ """Only redraw the caption strip during holds; all visual evidence stays still."""
+ manifest=result['presentation'];scale=im.width/960;h=im.height/scale-144
+ draw=ScaledDraw(im,scale)
+ draw.rounded_rectangle((0,h+73,960,h+144),radius=0,fill='#0b2029')
+ if beat is None:
+  segments=manifest['insights'].get('narration',{}).get('segments',[])
+  beat=next((s for s in segments if s['start']<=t<s['end']),{})
+  timeline=manifest.get('playback')
+  if timeline:
+   previous=[b for b in timeline['beats'] if b['sourceTime']<=t]
+   beat=previous[-1] if previous else {'title':manifest['actionTitle'],'text':''}
+ title=beat.get('title') or manifest['actionTitle'];text=beat.get('text','')
+ typed=text[:math.ceil(len(text)*max(0,min(1,progress)))]
  ai=manifest['insights'].get('narration',{}).get('modelInvoked')
  draw.text((20,h+76),('AI 解说 · ' if ai else '')+title,font=font(17),fill='white')
- for i,line in enumerate(wrap(draw,text,14,w-40)[:2]):draw.text((20,h+101+i*20),line,font=font(14),fill='#d7e2d9')
+ for i,line in enumerate(wrap(draw,typed+('▏' if progress<1 else ''),14,920)[:2]):
+  draw.text((20,h+101+i*20),line,font=font(14),fill='#d7e2d9')
  return im
 
 
@@ -227,12 +241,22 @@ def render(source,result,output,story_dir=None):
  if result['presentation'].get('status')!='ready':return None
  manifest=result['presentation'];start=0;end=result['video']['duration']
  width,height,band,original=output_dimensions(source);fps=result['presentationMotion']['fps']
- manifest.update(width=width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='tactical-board-hd-v11',encoding={'codec':'h264','crf':17,'preset':'fast'})
+ from story_playback import plan,audio_filter
+ timeline=plan(manifest,end,fps);manifest['playback']=timeline
+ holds={b['sourceFrame']:b for b in timeline['beats']}
+ manifest.update(width=width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='story-freeze-hd-v12',encoding={'codec':'h264','crf':17,'preset':'fast'})
  target=Path(output);target.parent.mkdir(parents=True,exist_ok=True)
  story_dir=Path(story_dir) if story_dir else target.parent;story_dir.mkdir(parents=True,exist_ok=True)
  decode=subprocess.Popen([ffmpeg(),'-v','error','-i',str(source),'-t',str(end),'-vf',f'fps={fps},scale={width}:{height}:flags=lanczos','-f','rawvideo','-pix_fmt','rgb24','pipe:1'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
- encode=subprocess.Popen([ffmpeg(),'-y','-v','error','-f','rawvideo','-pix_fmt','rgb24','-s',f'{width}x{height+band}','-r',str(fps),'-i','pipe:0','-i',str(source),'-map','0:v','-map','1:a?','-t',str(end),'-c:v','libx264','-pix_fmt','yuv420p','-preset','fast','-crf','17','-c:a','aac','-movflags','+faststart',str(output)],stdin=subprocess.PIPE,stderr=subprocess.PIPE)
- index=0;saved=set()
+ # Detect the optional audio stream without requiring ffprobe in Lambda.
+ has_audio=subprocess.run([ffmpeg(),'-v','error','-i',str(source),'-map','0:a:0','-t','0.01','-f','null','-'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0
+ cmd=[ffmpeg(),'-y','-v','error','-f','rawvideo','-pix_fmt','rgb24','-s',f'{width}x{height+band}','-r',str(fps),'-i','pipe:0','-i',str(source)]
+ if has_audio:cmd+=['-filter_complex',audio_filter(timeline),'-map','0:v','-map','[storyaudio]','-c:a','aac']
+ else:cmd+=['-map','0:v','-an']
+ cmd+=['-t',str(timeline['duration']),'-c:v','libx264','-pix_fmt','yuv420p','-preset','fast','-crf','17','-movflags','+faststart',str(output)]
+ encode=subprocess.Popen(cmd,stdin=subprocess.PIPE,stderr=subprocess.PIPE)
+ index=0;written=0;saved=set()
+
  try:
   while True:
    raw=decode.stdout.read(width*height*3)
@@ -240,8 +264,14 @@ def render(source,result,output,story_dir=None):
    t=index/fps;im=composite(Image.frombytes('RGB',(width,height),raw),result,t)
    for j,f in enumerate(manifest['evidence']):
     if j not in saved and index>=round(f['time']*fps):
-     im.save(story_dir/f['image'],quality=95,subsampling=0);saved.add(j)
-   encode.stdin.write(im.tobytes());index+=1
+     paint_commentary(im.copy(),result,t,{'title':f.get('label',''),'text':f.get('text','')}).save(story_dir/f['image'],quality=95,subsampling=0);saved.add(j)
+   beat=holds.get(index)
+   if beat:
+    for hold_index in range(beat['holdFrames']):
+     progress=min(1,hold_index/fps/beat['typingDuration'])
+     frozen=paint_commentary(im.copy(),result,t,beat,progress)
+     encode.stdin.write(frozen.tobytes());written+=1
+   encode.stdin.write(im.tobytes());written+=1;index+=1
   encode.stdin.close();errors=encode.stderr.read();code=encode.wait(timeout=60);decode.wait(timeout=10)
   if code:raise RuntimeError(errors.decode()[-500:])
   if index<max(1,int(end*fps*.95)) or len(saved)!=len(manifest['evidence']):raise RuntimeError('Incomplete replay or evidence frames')
@@ -250,4 +280,4 @@ def render(source,result,output,story_dir=None):
    if process.poll() is None:process.kill();process.wait()
    for stream in [process.stdin,process.stdout,process.stderr]:
     if stream and not stream.closed:stream.close()
- return {'start':0,'end':end,'fps':fps,'frameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':'tactical-board-hd-v11','width':width,'height':height+band,'pictureWidth':width,'pictureHeight':height}
+ return {'start':0,'end':timeline['duration'],'sourceEnd':end,'fps':fps,'frameCount':written,'sourceFrameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':'story-freeze-hd-v12','width':width,'height':height+band,'pictureWidth':width,'pictureHeight':height}

@@ -163,7 +163,7 @@ class PresentationTests(unittest.TestCase):
             directory=Path(directory);source=directory/'input.mp4';r=verified();build(r,fps=10)
             subprocess.run([ffmpeg(),'-v','error','-f','lavfi','-i','color=c=gray:s=320x180:r=10:d=2.5','-c:v','libx264',str(source)],check=True)
             output=directory/'replay.mp4';meta=render(source,r,output)
-            self.assertEqual(meta['start'],0);self.assertEqual(meta['frameCount'],25)
+            self.assertEqual(meta['start'],0);self.assertEqual(meta['sourceFrameCount'],25);self.assertGreater(meta['frameCount'],25);self.assertEqual(meta['frameCount'],round(r['presentation']['playback']['duration']*10))
             for f in r['presentation']['evidence']:
                 with Image.open(directory/f['image']) as im:self.assertEqual(im.size,(320,228))
             self.assertGreater(output.stat().st_size,1000)

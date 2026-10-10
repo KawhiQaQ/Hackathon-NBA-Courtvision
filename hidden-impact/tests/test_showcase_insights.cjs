@@ -26,7 +26,7 @@ assert(!ctx.opportunityMarkup({...manifest.insights,shooter:'<script>bad</script
  const buttons=manifest.insights.cues.map(node);nodes.get('phase-rail').querySelectorAll=()=>buttons;
  const doc={getElementById:id=>{assert(nodes.has(id),'Missing DOM node '+id);return nodes.get(id)},querySelectorAll:()=>[],querySelector:()=>node(),addEventListener(){}};
  const context=vm.createContext({scoreMarkup:helpers.scoreMarkup,awardMarkup:helpers.awardMarkup,rankingMarkup:helpers.rankingMarkup,Blob,document:doc,window:{addEventListener(){}},fetch:async()=>({ok:true,json:async()=>manifest}),URL,URLSearchParams,location:{search:'',href:'http://localhost/',origin:'http://localhost'},console});
- const source=fs.readFileSync(path.join(root,'web/showcase.js'),'utf8').replace(/^import .*;\n/gm,'');
+ const source=fs.readFileSync(path.join(root,'web/showcase.js'),'utf8').replace(/^import .*;\n/gm,'')+'\n'+fs.readFileSync(path.join(root,'web/story-playback.js'),'utf8').replace(/export /g,'');
  await vm.runInContext(view+'\n(async()=>{'+source+'})()',context);
  assert.equal(nodes.get('load-error').hidden,true);
  assert.equal(nodes.get('data-insights').hidden,false);

@@ -45,7 +45,7 @@ def main():
                 if body is not None or attempt==3 or isinstance(exc,urllib.error.HTTPError) and exc.code not in [429,502,503,504]:raise
                 time.sleep(.5*2**attempt)
     def data(path, body=None):return json.loads(fetch(path,body,authenticated=not args.public_only))
-    for path in ['','workbench.html','showcase.js','app.js','game-view.js','insights-view.js',
+    for path in ['','workbench.html','showcase.js','story-playback.js','app.js','game-view.js','insights-view.js',
                  'showcase.css','studio-theme.css','studio-workbench.css','flow-view.js','upload-flow.js']:
         fetch(path);checked.add(path)
     if not args.api_only:

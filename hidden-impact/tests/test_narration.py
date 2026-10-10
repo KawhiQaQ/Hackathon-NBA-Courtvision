@@ -45,6 +45,13 @@ class NarrationTests(unittest.TestCase):
         self.assertEqual(sent['actorEvidence']['finishing']['made'],7)
         self.assertEqual(sent['roleDetections'][0]['people'],[{'trackId':'hero','x':.2,'y':.3}])
 
+    def test_verified_trio_reaches_model_without_unrelated_tracks(self):
+        self.payload['narrationContext']={'events':[{'actorTrackId':'a','beneficiaryTrackId':'b','defenderTrackId':'d','start':0,'end':4}], 'detections':[{'time':0,'people':[{'trackId':k} for k in ['a','b','d','unrelated']]}]}
+        client=Client(self.raw);analyze(self.payload,client)
+        sent=json.loads(client.calls[0]['messages'][0]['content'][0]['text'])
+        self.assertEqual(sent['verifiedRoles'],[{'幕后MVP':'a','受益队友':'b','主要防守人':'d'}])
+        self.assertEqual([p['trackId'] for p in sent['roleDetections'][0]['people']],['a','b','d'])
+
     def test_invalid_timing_references_and_text_are_rejected(self):
         variants = [
             {'start': -1}, {'end': 5}, {'start': float('nan')}, {'title': ''},
