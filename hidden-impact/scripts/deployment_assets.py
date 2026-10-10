@@ -17,7 +17,7 @@ def preflight(root=ROOT):
                 root/'cloud/vision-layer/python/onnxruntime/__init__.py',
                 root/'cloud/vision-layer/python/PIL/__init__.py',
                 root/'cloud/vision-layer/python/numpy/__init__.py',
-                root/'cloud/api/fonts/NotoSansSC.ttf', root/'web/demo/game.json']
+                root/'cloud/api/fonts/NotoSansSC.ttf', root/'web/index.html']
     required += [root/f'models/basketball/{name}.onnx' for name in MODEL_NAMES]
     missing = [str(p.relative_to(root)) for p in required if not p.is_file() or not p.stat().st_size]
     if missing:

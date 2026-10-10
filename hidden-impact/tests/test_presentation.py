@@ -151,7 +151,7 @@ class PresentationTests(unittest.TestCase):
     def test_output_size_uses_real_media_without_upscaling(self):
         from unittest.mock import patch
         from render_video import output_dimensions
-        for original,expected in [((1920,1080),(1920,1080,88)),((3840,2160),(1920,1080,88)),((1280,720),(1280,720,58)),((320,180),(320,180,14)),((1080,1920),(606,1080,28))]:
+        for original,expected in [((1920,1080),(1280,720,58)),((3840,2160),(1280,720,58)),((1280,720),(1280,720,58)),((320,180),(320,180,14)),((1080,1920),(404,720,18))]:
             with self.subTest(original=original),patch('render_video.source_dimensions',return_value=original):
                 self.assertEqual(output_dimensions('video')[:3],expected)
 

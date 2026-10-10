@@ -52,7 +52,7 @@ class GameSummaryTests(unittest.TestCase):
    else:bad['players'][0]['jersey']='P6'
    with self.assertRaises(ValueError):validate_companion(bad,3)
  def test_five_real_assets_and_reproducible_rankings(self):
-  s=json.loads((ROOT/'web/demo/game.json').read_text());self.assertEqual(len(s['rounds']),5)
+  s=json.loads((ROOT/'tests/fixtures/legacy-showcase/game.json').read_text());self.assertEqual(len(s['rounds']),5)
   self.assertEqual(len({r['videoId'] for r in s['rounds']}),5)
   again=aggregate(s['rounds'],s['gameId'],s['team']);self.assertEqual(s['ranking'],again['ranking'])
   for r in s['rounds']:
@@ -60,7 +60,7 @@ class GameSummaryTests(unittest.TestCase):
    self.assertEqual(len(r['roles']),3);self.assertGreaterEqual(len(r['evidence']),4)
    self.assertNotIn('阿努诺比',json.dumps({'roles':r['roles'],'evidence':r['evidence'],'narration':r['insights']['narration']},ensure_ascii=False))
    for asset in [r['video'],r['original'],*[f['image'] for f in r['evidence']]]:
-    p=ROOT/'web/demo'/asset.split('?')[0];self.assertTrue(p.is_file(),p);self.assertGreater(p.stat().st_size,5000)
+    p=ROOT/'tests/fixtures/legacy-showcase'/asset.split('?')[0];self.assertTrue(p.is_file(),p);self.assertGreater(p.stat().st_size,5000)
    self.assertFalse(r['generation']['modelInvoked'])
  def test_measured_action_is_bounded_not_constant(self):
   low=[dict(time=t,engagement=5,separation=.3) for t in [0,1,2]]

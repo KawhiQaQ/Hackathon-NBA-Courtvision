@@ -13,6 +13,58 @@ def validate_companion(data,duration):
   if not isinstance(r,dict) or not number(r.get('time'),0,duration) or r['time']<=previous or not number(r.get('expectedPoints'),0,4):raise ValueError('机会记录需递增、在视频内；expectedPoints范围0–4。')
   previous=r['time'];out['opportunity'].append({'time':r['time'],'expectedPoints':r['expectedPoints']})
  if data.get('shotContext') is not None:out['shotContext']=validate_shot_context(data['shotContext'])
+ if data.get('alignment') is not None:
+  a=data['alignment']
+  if not isinstance(a,dict) or not number(a.get('shotVideoTime'),0,duration):raise ValueError('出手对齐时间必须在视频内。')
+  out['alignment']={'shotVideoTime':a['shotVideoTime'],'source':str(a.get('source','supplied-companion'))[:100]}
+ if data.get('roster') is not None:
+  if not isinstance(data['roster'],list) or len(data['roster'])>30:raise ValueError('roster最多30人。')
+  import re
+  out['roster']=[]
+  for p in data['roster']:
+   if not isinstance(p,dict) or not re.fullmatch(r'\d{1,12}',str(p.get('playerId',''))) or not re.fullmatch(r'\d{1,2}',str(p.get('jersey',''))):raise ValueError('名单需真实playerId与球衣号码。')
+   out['roster'].append({k:str(p.get(k,''))[:80] for k in ['playerId','jersey','name','team','appearance','appearanceSource']})
+ if data.get('playerProfiles') is not None:
+  profiles=data['playerProfiles'];game=(out.get('shotContext') or {}).get('gameId')
+  if not isinstance(profiles,list) or len(profiles)>30 or not game:raise ValueError('球员数据需要对应比赛。')
+  out['playerProfiles']=[]
+  for p in profiles:
+   if not isinstance(p,dict) or p.get('gameId')!=game:raise ValueError('球员数据比赛不匹配。')
+   pid=str(p.get('playerId',''));shots=p.get('shots') or {};rows=shots.get('shotList',[])
+   if str(shots.get('playerId'))!=pid or shots.get('gameId')!=game or not isinstance(rows,list) or len(rows)>100:raise ValueError('球员出手记录不匹配。')
+   clean=[]
+   for row in rows:
+    s=validate_shot_context({'gameId':game,'team':out['shotContext']['team'],'playerId':pid,'shot':row})['shot']
+    if not isinstance(row.get('eventId'),int) or isinstance(row['eventId'],bool):raise ValueError('球员出手缺少eventId。')
+    clean.append({**s,'eventId':row['eventId'],'gameId':game,'playerId':pid})
+   leverage=p.get('leverage') or {};lv={'PLAYERID':pid}
+   if str(leverage.get('PLAYERID'))==pid:
+    for key in ['CREATION_LVG','SHOT_LVG','GP']:
+     if number(leverage.get(key),-100000,100000):lv[key]=leverage[key]
+   out['playerProfiles'].append({'playerId':pid,'gameId':game,'name':str(p.get('name',''))[:80],'scope':str(p.get('scope',''))[:200],
+    'shots':{'playerId':pid,'gameId':game,'shotList':clean},'leverage':lv,'sources':[s[:500] for s in p.get('sources',[])[:10] if isinstance(s,str)]})
+ if data.get('uniforms') is not None:
+  u=data['uniforms']
+  if not isinstance(u,dict) or len(u)>2 or any(not isinstance(k,str) or not isinstance(v,str) or len(k)>80 or len(v)>100 for k,v in u.items()):raise ValueError('球衣描述最多两队。')
+  out['uniforms']=dict(u)
+ if data.get('playByPlay') is not None:
+  rows=data['playByPlay'];game=(out.get('shotContext') or {}).get('gameId');known={p['playerId'] for p in out.get('roster',[])}
+  if not isinstance(rows,list) or len(rows)>300 or not game:raise ValueError('逐回合事件需要对应比赛。')
+  out['playByPlay']=[]
+  for row in rows:
+   if not isinstance(row,dict) or row.get('gameId')!=game or str(row.get('playerId')) not in known:raise ValueError('逐回合事件比赛或球员不匹配。')
+   if row.get('type') not in ['miss','made-two','made-three','offensive-rebound','assist','shooting-foul','block']:raise ValueError('未知事件类型。')
+   if not isinstance(row.get('source'),str) or not row['source'].startswith('https://'):raise ValueError('逐回合事件需要来源。')
+   if not number(row.get('period'),1,20) or not isinstance(row.get('gameClock'),str):raise ValueError('逐回合事件需要节次与时钟。')
+   import re
+   if not re.fullmatch(r'\d{1,2}:[0-5]\d(?:\.\d+)?',row['gameClock']):raise ValueError('比赛时钟无效。')
+   clean={k:row[k] for k in ['gameId','playerId','type','period','gameClock','source']}
+   for key in ['eventId','relatedEventId']:
+    if key in row:
+     if not number(row[key],0,1000000):raise ValueError('事件编号无效。')
+     clean[key]=row[key]
+   if row.get('defenderId') in known:clean['defenderId']=row['defenderId']
+   out['playByPlay'].append(clean)
  if data['schema'].endswith('v1'):return out
  players=data.get('players',[])
  if not isinstance(players,list) or len(players)>30:raise ValueError('players最多30个身份映射。')
@@ -65,6 +117,18 @@ def validate_shot_context(ctx):
   if s.get('gameClock') is not None:out['gameClock']=str(s['gameClock'])[:20]
   return out
  clean={k:ctx[k] for k in ['gameId','team','playerId']};clean['shooter']=str(ctx.get('shooter','出手队友'))[:80];clean['shot']=shot(ctx.get('shot'))
+ if ctx.get('shooterJersey') is not None:
+  import re
+  if not re.fullmatch(r'\d{1,2}',str(ctx['shooterJersey'])):raise ValueError('出手者号码无效。')
+  clean['shooterJersey']=str(ctx['shooterJersey'])
+ if ctx.get('rosterGravity') is not None:
+  rows=ctx['rosterGravity']
+  if not isinstance(rows,list) or len(rows)>40:raise ValueError('引力画像最多40人。')
+  clean['gravityScope']=str(ctx.get('gravityScope','阶段汇总'))[:200];clean['rosterGravity']=[]
+  for p in rows:
+   if not isinstance(p,dict):raise ValueError('引力画像格式错误。')
+   gravity={k:p['gravity'][k] for k in ['OVERALL_GRAV','ON_BALL_PERIM_GRAV','ON_BALL_INTERIOR_GRAV','OFF_BALL_PERIM_GRAV','OFF_BALL_INTERIOR_GRAV'] if finite((p.get('gravity') or {}).get(k))}
+   clean['rosterGravity'].append({'id':str(p.get('id',''))[:30],'name':str(p.get('name',''))[:80],'team':str(p.get('team',''))[:30],'games':p.get('games') if finite(p.get('games')) else None,'gravity':gravity})
  if ctx.get('eventId') is not None:
   if not isinstance(ctx['eventId'],(str,int)) or len(str(ctx['eventId']))>80:raise ValueError('eventId无效。')
   clean['eventId']=ctx['eventId']

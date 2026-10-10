@@ -1,5 +1,5 @@
 """Regression checks for a reviewer who never opens a file or signs into AWS."""
-import json,threading,unittest,urllib.request,urllib.error,sys
+import shutil,tempfile,os,json,threading,unittest,urllib.request,urllib.error,sys
 from pathlib import Path
 from functools import partial
 from http.server import ThreadingHTTPServer
@@ -10,10 +10,14 @@ class QuietHandler(Handler):
 class LocalShowcaseTest(unittest.TestCase):
  @classmethod
  def setUpClass(cls):
-  cls.server=ThreadingHTTPServer(('127.0.0.1',0),partial(QuietHandler,directory=str(ROOT/'web')))
+  cls.work=tempfile.TemporaryDirectory();cls.fixture_web=Path(cls.work.name)
+  for item in (ROOT/'web').iterdir():
+   if item.name!='demo':shutil.copytree(item,cls.fixture_web/item.name) if item.is_dir() and item.name=='data' else shutil.copyfile(item,cls.fixture_web/item.name) if item.is_file() else None
+  shutil.copytree(ROOT/'tests/fixtures/legacy-showcase',cls.fixture_web/'demo')
+  cls.server=ThreadingHTTPServer(('127.0.0.1',0),partial(QuietHandler,directory=str(cls.fixture_web)))
   cls.server.cloud_enabled=False;cls.thread=threading.Thread(target=cls.server.serve_forever,daemon=True);cls.thread.start();cls.url=f'http://127.0.0.1:{cls.server.server_port}'
  @classmethod
- def tearDownClass(cls):cls.server.shutdown();cls.server.server_close();cls.thread.join()
+ def tearDownClass(cls):cls.server.shutdown();cls.server.server_close();cls.thread.join();cls.work.cleanup()
  def get(self,path,**headers):return urllib.request.urlopen(urllib.request.Request(self.url+path,headers=headers))
  def test_root_is_precomputed_showcase(self):
   with self.get('/') as r:html=r.read().decode()
@@ -23,11 +27,11 @@ class LocalShowcaseTest(unittest.TestCase):
   for asset in [d['video'],d['original'],d['poster'],*[f['image'] for f in d['evidence']]]:
    with self.get('/'+asset,Range='bytes=0-31') as r:self.assertIn(r.status,[200,206]);self.assertTrue(r.read(32))
  def test_game_summary_http(self):
-  data=json.loads((ROOT/'web/demo/game.json').read_text())
+  data=json.loads((ROOT/'tests/fixtures/legacy-showcase/game.json').read_text())
   request=urllib.request.Request(self.url+'/api/game-summary',data=json.dumps(data).encode(),headers={'Content-Type':'application/json'})
   with urllib.request.urlopen(request) as response:self.assertEqual(json.load(response)['ranking'],data['ranking'])
  def test_mp4_seek_and_suffix(self):
-  raw=(ROOT/'web/demo/replay.mp4').read_bytes()
+  raw=(ROOT/'tests/fixtures/legacy-showcase/replay.mp4').read_bytes()
   with self.get('/demo/replay.mp4',Range='bytes=101-200') as r:
    self.assertEqual(r.status,206);self.assertEqual(r.read(),raw[101:201]);self.assertEqual(r.headers['Content-Range'],f'bytes 101-200/{len(raw)}')
   with self.get('/demo/replay.mp4',Range='bytes=-100') as r:self.assertEqual(r.read(),raw[-100:])

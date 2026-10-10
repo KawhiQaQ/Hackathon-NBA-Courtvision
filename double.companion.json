@@ -1,0 +1,1597 @@
+{
+  "schema": "hidden-impact/companion-v2",
+  "source": "NBA China 深度赛场 + NBA 官方比赛记录（0022500356）",
+  "notes": "",
+  "opportunity": [],
+  "shotContext": {
+    "gameId": "0022500356",
+    "team": "独行侠",
+    "playerId": "1631108",
+    "shooter": "马克斯 克里斯蒂",
+    "shot": {
+      "value": 0.3,
+      "shotType": "3分投篮",
+      "success": 1,
+      "period": 2,
+      "gameClock": "04:58"
+    },
+    "shooterJersey": "00",
+    "gravityScope": "2025-26 常规赛汇总（非单回合、非截至比赛日）",
+    "rosterGravity": [
+      {
+        "id": "201142",
+        "name": "凯文 杜兰特",
+        "team": "HOU",
+        "games": null,
+        "gravity": {
+          "OVERALL_GRAV": 16.237,
+          "ON_BALL_PERIM_GRAV": 13.68,
+          "ON_BALL_INTERIOR_GRAV": 11.045,
+          "OFF_BALL_PERIM_GRAV": 18.468,
+          "OFF_BALL_INTERIOR_GRAV": 12.47
+        }
+      },
+      {
+        "id": "202691",
+        "name": "克莱 汤普森",
+        "team": "DAL",
+        "games": null,
+        "gravity": {
+          "OVERALL_GRAV": 12.209,
+          "ON_BALL_PERIM_GRAV": 7.081,
+          "ON_BALL_INTERIOR_GRAV": -7.455,
+          "OFF_BALL_PERIM_GRAV": 15.09,
+          "OFF_BALL_INTERIOR_GRAV": -0.081
+        }
+      },
+      {
+        "id": "1642263",
+        "name": "里德 谢泼德",
+        "team": "HOU",
+        "games": null,
+        "gravity": {
+          "OVERALL_GRAV": 6.243,
+          "ON_BALL_PERIM_GRAV": 4.68,
+          "ON_BALL_INTERIOR_GRAV": -11.975,
+          "OFF_BALL_PERIM_GRAV": 7.786,
+          "OFF_BALL_INTERIOR_GRAV": -4.591
+        }
+      },
+      {
+        "id": "1631108",
+        "name": "马克斯 克里斯蒂",
+        "team": "DAL",
+        "games": null,
+        "gravity": {
+          "OVERALL_GRAV": 3.931,
+          "ON_BALL_PERIM_GRAV": 1.208,
+          "ON_BALL_INTERIOR_GRAV": -10.892,
+          "OFF_BALL_PERIM_GRAV": 6.001,
+          "OFF_BALL_INTERIOR_GRAV": -5.95
+        }
+      },
+      {
+        "id": "1642843",
+        "name": "库珀 弗拉格",
+        "team": "DAL",
+        "games": null,
+        "gravity": {
+          "OVERALL_GRAV": 3.828,
+          "ON_BALL_PERIM_GRAV": 2.897,
+          "ON_BALL_INTERIOR_GRAV": -2.938,
+          "OFF_BALL_PERIM_GRAV": 6.217,
+          "OFF_BALL_INTERIOR_GRAV": -2.41
+        }
+      },
+      {
+        "id": "1631095",
+        "name": "贾巴里 史密斯",
+        "team": "HOU",
+        "games": null,
+        "gravity": {
+          "OVERALL_GRAV": 2.881,
+          "ON_BALL_PERIM_GRAV": 2.111,
+          "ON_BALL_INTERIOR_GRAV": -4.236,
+          "OFF_BALL_PERIM_GRAV": 3.586,
+          "OFF_BALL_INTERIOR_GRAV": -1.637
+        }
+      },
+      {
+        "id": "203114",
+        "name": "克里斯 米德尔顿",
+        "team": "DAL",
+        "games": null,
+        "gravity": {
+          "OVERALL_GRAV": 2.808,
+          "ON_BALL_PERIM_GRAV": 2.079,
+          "ON_BALL_INTERIOR_GRAV": -7.195,
+          "OFF_BALL_PERIM_GRAV": 5.747,
+          "OFF_BALL_INTERIOR_GRAV": -3.87
+        }
+      },
+      {
+        "id": "1631106",
+        "name": "塔里 伊森",
+        "team": "HOU",
+        "games": null,
+        "gravity": {
+          "OVERALL_GRAV": 0.547,
+          "ON_BALL_PERIM_GRAV": -1.267,
+          "ON_BALL_INTERIOR_GRAV": -10.802,
+          "OFF_BALL_PERIM_GRAV": 1.966,
+          "OFF_BALL_INTERIOR_GRAV": -7.755
+        }
+      },
+      {
+        "id": "1630578",
+        "name": "阿尔佩伦 申京",
+        "team": "HOU",
+        "games": null,
+        "gravity": {
+          "OVERALL_GRAV": 0.093,
+          "ON_BALL_PERIM_GRAV": 0.369,
+          "ON_BALL_INTERIOR_GRAV": -5.606,
+          "OFF_BALL_PERIM_GRAV": 2.42,
+          "OFF_BALL_INTERIOR_GRAV": -2.549
+        }
+      },
+      {
+        "id": "1629006",
+        "name": "约什 奥科吉",
+        "team": "HOU",
+        "games": null,
+        "gravity": {
+          "OVERALL_GRAV": -1.133,
+          "ON_BALL_PERIM_GRAV": -1.951,
+          "ON_BALL_INTERIOR_GRAV": -6.407,
+          "OFF_BALL_PERIM_GRAV": -0.768,
+          "OFF_BALL_INTERIOR_GRAV": -3.131
+        }
+      },
+      {
+        "id": "1630314",
+        "name": "布兰登 威廉姆斯",
+        "team": "DAL",
+        "games": null,
+        "gravity": {
+          "OVERALL_GRAV": -1.37,
+          "ON_BALL_PERIM_GRAV": -3.562,
+          "ON_BALL_INTERIOR_GRAV": -22.269,
+          "OFF_BALL_PERIM_GRAV": 4.016,
+          "OFF_BALL_INTERIOR_GRAV": -9.576
+        }
+      },
+      {
+        "id": "1628997",
+        "name": "凯莱布 马丁",
+        "team": "DAL",
+        "games": null,
+        "gravity": {
+          "OVERALL_GRAV": -1.917,
+          "ON_BALL_PERIM_GRAV": -6.901,
+          "ON_BALL_INTERIOR_GRAV": -16.538,
+          "OFF_BALL_PERIM_GRAV": 0.581,
+          "OFF_BALL_INTERIOR_GRAV": -6.633
+        }
+      },
+      {
+        "id": "1642948",
+        "name": "莱恩 内姆布哈德",
+        "team": "DAL",
+        "games": null,
+        "gravity": {
+          "OVERALL_GRAV": -2.147,
+          "ON_BALL_PERIM_GRAV": -2.797,
+          "ON_BALL_INTERIOR_GRAV": -23.154,
+          "OFF_BALL_PERIM_GRAV": 1.422,
+          "OFF_BALL_INTERIOR_GRAV": -14.575
+        }
+      },
+      {
+        "id": "1630230",
+        "name": "纳吉 马绍尔",
+        "team": "DAL",
+        "games": null,
+        "gravity": {
+          "OVERALL_GRAV": -2.455,
+          "ON_BALL_PERIM_GRAV": -4.865,
+          "ON_BALL_INTERIOR_GRAV": -21.149,
+          "OFF_BALL_PERIM_GRAV": 0.344,
+          "OFF_BALL_INTERIOR_GRAV": -8.153
+        }
+      },
+      {
+        "id": "203991",
+        "name": "克林特 卡佩拉",
+        "team": "HOU",
+        "games": null,
+        "gravity": {
+          "OVERALL_GRAV": -4.381,
+          "ON_BALL_PERIM_GRAV": -5.119,
+          "ON_BALL_INTERIOR_GRAV": -4.601,
+          "OFF_BALL_PERIM_GRAV": -4.001,
+          "OFF_BALL_INTERIOR_GRAV": -4.137
+        }
+      },
+      {
+        "id": "1641708",
+        "name": "阿门 汤普森",
+        "team": "HOU",
+        "games": null,
+        "gravity": {
+          "OVERALL_GRAV": -4.593,
+          "ON_BALL_PERIM_GRAV": -5.602,
+          "ON_BALL_INTERIOR_GRAV": -13.765,
+          "OFF_BALL_PERIM_GRAV": -2.273,
+          "OFF_BALL_INTERIOR_GRAV": -8.431
+        }
+      },
+      {
+        "id": "1628963",
+        "name": "马文 巴格利三世",
+        "team": "DAL",
+        "games": null,
+        "gravity": {
+          "OVERALL_GRAV": -6.29,
+          "ON_BALL_PERIM_GRAV": -3.894,
+          "ON_BALL_INTERIOR_GRAV": -17.637,
+          "OFF_BALL_PERIM_GRAV": -3.878,
+          "OFF_BALL_INTERIOR_GRAV": -9.666
+        }
+      },
+      {
+        "id": "203939",
+        "name": "德怀特 鲍威尔",
+        "team": "DAL",
+        "games": null,
+        "gravity": {
+          "OVERALL_GRAV": -10.149,
+          "ON_BALL_PERIM_GRAV": -14.331,
+          "ON_BALL_INTERIOR_GRAV": -14.905,
+          "OFF_BALL_PERIM_GRAV": -7.229,
+          "OFF_BALL_INTERIOR_GRAV": -7.837
+        }
+      }
+    ],
+    "eventId": 273,
+    "playerShots": {
+      "gameId": "0022500356",
+      "playerId": "1631108",
+      "shotList": [
+        {
+          "value": 0.177,
+          "shotType": "2分投篮",
+          "success": 0,
+          "period": 2,
+          "gameClock": ""
+        },
+        {
+          "value": 0.3,
+          "shotType": "3分投篮",
+          "success": 1,
+          "period": 2,
+          "gameClock": ""
+        }
+      ]
+    }
+  },
+  "roster": [
+    {
+      "playerId": "1631108",
+      "jersey": "00",
+      "name": "马克斯 克里斯蒂",
+      "team": "独行侠",
+      "appearance": "卷曲头发，深蓝色00号，白色护腿，蓝白球鞋",
+      "appearanceSource": "video-observation"
+    },
+    {
+      "playerId": "203939",
+      "jersey": "7",
+      "name": "德怀特 鲍威尔",
+      "team": "独行侠",
+      "appearance": "短发、浅肤色高个内线，深蓝色7号，浅色球鞋",
+      "appearanceSource": "video-observation"
+    },
+    {
+      "playerId": "1630314",
+      "jersey": "10",
+      "name": "布兰登 威廉姆斯",
+      "team": "独行侠"
+    },
+    {
+      "playerId": "1642843",
+      "jersey": "32",
+      "name": "库珀 弗拉格",
+      "team": "独行侠"
+    },
+    {
+      "playerId": "1629023",
+      "jersey": "25",
+      "name": "PJ 华盛顿",
+      "team": "独行侠"
+    },
+    {
+      "playerId": "201142",
+      "jersey": "7",
+      "name": "凯文 杜兰特",
+      "team": "火箭"
+    },
+    {
+      "playerId": "1631095",
+      "jersey": "10",
+      "name": "贾巴里 史密斯",
+      "team": "火箭",
+      "appearance": "红色10号，荧光绿色球鞋",
+      "appearanceSource": "video-observation"
+    },
+    {
+      "playerId": "203991",
+      "jersey": "30",
+      "name": "克林特 卡佩拉",
+      "team": "火箭"
+    },
+    {
+      "playerId": "1629006",
+      "jersey": "20",
+      "name": "约什 奥科吉",
+      "team": "火箭"
+    },
+    {
+      "playerId": "1641708",
+      "jersey": "1",
+      "name": "阿门 汤普森",
+      "team": "火箭"
+    }
+  ],
+  "playerProfiles": [
+    {
+      "playerId": "1631108",
+      "gameId": "0022500356",
+      "name": "马克斯 克里斯蒂",
+      "scope": "2025-26 常规赛汇总（抓取于2026-10-10，非截至比赛日）",
+      "shots": {
+        "playerId": "1631108",
+        "gameId": "0022500356",
+        "shotList": [
+          {
+            "value": 0.177,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 270,
+            "gameId": "0022500356",
+            "playerId": "1631108"
+          },
+          {
+            "value": 0.3,
+            "shotType": "3分投篮",
+            "success": 1,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 273,
+            "gameId": "0022500356",
+            "playerId": "1631108"
+          }
+        ]
+      },
+      "leverage": {
+        "PLAYERID": "1631108",
+        "CREATION_LVG": 0.57,
+        "SHOT_LVG": 0.1
+      },
+      "sources": [
+        "https://api.nba.cn/nba-web/api/web/inside/gpShot?gameId=0022500356&playerId=1631108",
+        "https://api.nba.cn/nba-web/api/web/inside/season/playerLeverage?season=2025-26&seasonType=Regular%20Season"
+      ]
+    },
+    {
+      "playerId": "203939",
+      "gameId": "0022500356",
+      "name": "德怀特 鲍威尔",
+      "scope": "2025-26 常规赛汇总（抓取于2026-10-10，非截至比赛日）",
+      "shots": {
+        "playerId": "203939",
+        "gameId": "0022500356",
+        "shotList": [
+          {
+            "value": 0.944,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 469,
+            "gameId": "0022500356",
+            "playerId": "203939"
+          }
+        ]
+      },
+      "leverage": {
+        "PLAYERID": "203939",
+        "CREATION_LVG": 0.18,
+        "SHOT_LVG": 0.03
+      },
+      "sources": [
+        "https://api.nba.cn/nba-web/api/web/inside/gpShot?gameId=0022500356&playerId=203939",
+        "https://api.nba.cn/nba-web/api/web/inside/season/playerLeverage?season=2025-26&seasonType=Regular%20Season"
+      ]
+    },
+    {
+      "playerId": "1630314",
+      "gameId": "0022500356",
+      "name": "布兰登 威廉姆斯",
+      "scope": "2025-26 常规赛汇总（抓取于2026-10-10，非截至比赛日）",
+      "shots": {
+        "playerId": "1630314",
+        "gameId": "0022500356",
+        "shotList": [
+          {
+            "value": 0.222,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 86,
+            "gameId": "0022500356",
+            "playerId": "1630314"
+          },
+          {
+            "value": 0.508,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 115,
+            "gameId": "0022500356",
+            "playerId": "1630314"
+          },
+          {
+            "value": 0.377,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 136,
+            "gameId": "0022500356",
+            "playerId": "1630314"
+          },
+          {
+            "value": 0.489,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 143,
+            "gameId": "0022500356",
+            "playerId": "1630314"
+          },
+          {
+            "value": 0.506,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 152,
+            "gameId": "0022500356",
+            "playerId": "1630314"
+          },
+          {
+            "value": 0.354,
+            "shotType": "3分投篮",
+            "success": 1,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 286,
+            "gameId": "0022500356",
+            "playerId": "1630314"
+          },
+          {
+            "value": 0.866,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 298,
+            "gameId": "0022500356",
+            "playerId": "1630314"
+          },
+          {
+            "value": 0.506,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 305,
+            "gameId": "0022500356",
+            "playerId": "1630314"
+          },
+          {
+            "value": 0.89,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 408,
+            "gameId": "0022500356",
+            "playerId": "1630314"
+          },
+          {
+            "value": 0.669,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 440,
+            "gameId": "0022500356",
+            "playerId": "1630314"
+          },
+          {
+            "value": 0.829,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 457,
+            "gameId": "0022500356",
+            "playerId": "1630314"
+          }
+        ]
+      },
+      "leverage": {
+        "PLAYERID": "1630314",
+        "CREATION_LVG": 1.07,
+        "SHOT_LVG": -0.07
+      },
+      "sources": [
+        "https://api.nba.cn/nba-web/api/web/inside/gpShot?gameId=0022500356&playerId=1630314",
+        "https://api.nba.cn/nba-web/api/web/inside/season/playerLeverage?season=2025-26&seasonType=Regular%20Season"
+      ]
+    },
+    {
+      "playerId": "1642843",
+      "gameId": "0022500356",
+      "name": "库珀 弗拉格",
+      "scope": "2025-26 常规赛汇总（抓取于2026-10-10，非截至比赛日）",
+      "shots": {
+        "playerId": "1642843",
+        "gameId": "0022500356",
+        "shotList": [
+          {
+            "value": 0.389,
+            "shotType": "3分投篮",
+            "success": 1,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 16,
+            "gameId": "0022500356",
+            "playerId": "1642843"
+          },
+          {
+            "value": 0.477,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 45,
+            "gameId": "0022500356",
+            "playerId": "1642843"
+          },
+          {
+            "value": 0.45,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 90,
+            "gameId": "0022500356",
+            "playerId": "1642843"
+          },
+          {
+            "value": 0.428,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 96,
+            "gameId": "0022500356",
+            "playerId": "1642843"
+          },
+          {
+            "value": 0.368,
+            "shotType": "3分投篮",
+            "success": 0,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 228,
+            "gameId": "0022500356",
+            "playerId": "1642843"
+          },
+          {
+            "value": 0.376,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 235,
+            "gameId": "0022500356",
+            "playerId": "1642843"
+          },
+          {
+            "value": 0.278,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 258,
+            "gameId": "0022500356",
+            "playerId": "1642843"
+          },
+          {
+            "value": 0.582,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 281,
+            "gameId": "0022500356",
+            "playerId": "1642843"
+          },
+          {
+            "value": 0.233,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 311,
+            "gameId": "0022500356",
+            "playerId": "1642843"
+          },
+          {
+            "value": 0.495,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 324,
+            "gameId": "0022500356",
+            "playerId": "1642843"
+          },
+          {
+            "value": 0.619,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 379,
+            "gameId": "0022500356",
+            "playerId": "1642843"
+          },
+          {
+            "value": 0.4,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 4,
+            "gameClock": "",
+            "eventId": 595,
+            "gameId": "0022500356",
+            "playerId": "1642843"
+          },
+          {
+            "value": 0.421,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 4,
+            "gameClock": "",
+            "eventId": 615,
+            "gameId": "0022500356",
+            "playerId": "1642843"
+          },
+          {
+            "value": 0.836,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 4,
+            "gameClock": "",
+            "eventId": 630,
+            "gameId": "0022500356",
+            "playerId": "1642843"
+          }
+        ]
+      },
+      "leverage": {
+        "PLAYERID": "1642843",
+        "CREATION_LVG": 1.77,
+        "SHOT_LVG": -0.2
+      },
+      "sources": [
+        "https://api.nba.cn/nba-web/api/web/inside/gpShot?gameId=0022500356&playerId=1642843",
+        "https://api.nba.cn/nba-web/api/web/inside/season/playerLeverage?season=2025-26&seasonType=Regular%20Season"
+      ]
+    },
+    {
+      "playerId": "1629023",
+      "gameId": "0022500356",
+      "name": "PJ 华盛顿",
+      "scope": "2025-26 常规赛汇总（抓取于2026-10-10，非截至比赛日）",
+      "shots": {
+        "playerId": "1629023",
+        "gameId": "0022500356",
+        "shotList": [
+          {
+            "value": 0.408,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 111,
+            "gameId": "0022500356",
+            "playerId": "1629023"
+          },
+          {
+            "value": 0.977,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 157,
+            "gameId": "0022500356",
+            "playerId": "1629023"
+          },
+          {
+            "value": 0.362,
+            "shotType": "3分投篮",
+            "success": 1,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 193,
+            "gameId": "0022500356",
+            "playerId": "1629023"
+          },
+          {
+            "value": 0.414,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 266,
+            "gameId": "0022500356",
+            "playerId": "1629023"
+          },
+          {
+            "value": 0.415,
+            "shotType": "3分投篮",
+            "success": 0,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 308,
+            "gameId": "0022500356",
+            "playerId": "1629023"
+          },
+          {
+            "value": 0.428,
+            "shotType": "3分投篮",
+            "success": 0,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 359,
+            "gameId": "0022500356",
+            "playerId": "1629023"
+          },
+          {
+            "value": 0.381,
+            "shotType": "3分投篮",
+            "success": 0,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 369,
+            "gameId": "0022500356",
+            "playerId": "1629023"
+          },
+          {
+            "value": 0.939,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 423,
+            "gameId": "0022500356",
+            "playerId": "1629023"
+          },
+          {
+            "value": 0.919,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 429,
+            "gameId": "0022500356",
+            "playerId": "1629023"
+          },
+          {
+            "value": 0.888,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 462,
+            "gameId": "0022500356",
+            "playerId": "1629023"
+          },
+          {
+            "value": 0.404,
+            "shotType": "3分投篮",
+            "success": 0,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 465,
+            "gameId": "0022500356",
+            "playerId": "1629023"
+          },
+          {
+            "value": 0.374,
+            "shotType": "3分投篮",
+            "success": 0,
+            "period": 4,
+            "gameClock": "",
+            "eventId": 563,
+            "gameId": "0022500356",
+            "playerId": "1629023"
+          },
+          {
+            "value": 0.45,
+            "shotType": "3分投篮",
+            "success": 1,
+            "period": 4,
+            "gameClock": "",
+            "eventId": 586,
+            "gameId": "0022500356",
+            "playerId": "1629023"
+          }
+        ]
+      },
+      "leverage": {
+        "PLAYERID": "1629023",
+        "CREATION_LVG": 0.58,
+        "SHOT_LVG": -0.54
+      },
+      "sources": [
+        "https://api.nba.cn/nba-web/api/web/inside/gpShot?gameId=0022500356&playerId=1629023",
+        "https://api.nba.cn/nba-web/api/web/inside/season/playerLeverage?season=2025-26&seasonType=Regular%20Season"
+      ]
+    },
+    {
+      "playerId": "201142",
+      "gameId": "0022500356",
+      "name": "凯文 杜兰特",
+      "scope": "2025-26 常规赛汇总（抓取于2026-10-10，非截至比赛日）",
+      "shots": {
+        "playerId": "201142",
+        "gameId": "0022500356",
+        "shotList": [
+          {
+            "value": 0.301,
+            "shotType": "3分投篮",
+            "success": 0,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 18,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.194,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 28,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.432,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 35,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.299,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 37,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.356,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 64,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.497,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 70,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.417,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 91,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.331,
+            "shotType": "3分投篮",
+            "success": 1,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 98,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.505,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 205,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.338,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 256,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.442,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 264,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.49,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 299,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.274,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 310,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.445,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 352,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.351,
+            "shotType": "3分投篮",
+            "success": 0,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 355,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.405,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 367,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.573,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 412,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.362,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 425,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.515,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 435,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          },
+          {
+            "value": 0.41,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 445,
+            "gameId": "0022500356",
+            "playerId": "201142"
+          }
+        ]
+      },
+      "leverage": {
+        "PLAYERID": "201142",
+        "CREATION_LVG": 1.57,
+        "SHOT_LVG": 0.85
+      },
+      "sources": [
+        "https://api.nba.cn/nba-web/api/web/inside/gpShot?gameId=0022500356&playerId=201142",
+        "https://api.nba.cn/nba-web/api/web/inside/season/playerLeverage?season=2025-26&seasonType=Regular%20Season"
+      ]
+    },
+    {
+      "playerId": "1631095",
+      "gameId": "0022500356",
+      "name": "贾巴里 史密斯",
+      "scope": "2025-26 常规赛汇总（抓取于2026-10-10，非截至比赛日）",
+      "shots": {
+        "playerId": "1631095",
+        "gameId": "0022500356",
+        "shotList": [
+          {
+            "value": 0.379,
+            "shotType": "3分投篮",
+            "success": 0,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 52,
+            "gameId": "0022500356",
+            "playerId": "1631095"
+          },
+          {
+            "value": 0.374,
+            "shotType": "3分投篮",
+            "success": 0,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 113,
+            "gameId": "0022500356",
+            "playerId": "1631095"
+          },
+          {
+            "value": 0.931,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 120,
+            "gameId": "0022500356",
+            "playerId": "1631095"
+          },
+          {
+            "value": 0.576,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 142,
+            "gameId": "0022500356",
+            "playerId": "1631095"
+          },
+          {
+            "value": 0.405,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 238,
+            "gameId": "0022500356",
+            "playerId": "1631095"
+          },
+          {
+            "value": 0.507,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 268,
+            "gameId": "0022500356",
+            "playerId": "1631095"
+          },
+          {
+            "value": 0.357,
+            "shotType": "3分投篮",
+            "success": 0,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 277,
+            "gameId": "0022500356",
+            "playerId": "1631095"
+          },
+          {
+            "value": 0.635,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 282,
+            "gameId": "0022500356",
+            "playerId": "1631095"
+          },
+          {
+            "value": 0.37,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 349,
+            "gameId": "0022500356",
+            "playerId": "1631095"
+          },
+          {
+            "value": 0.427,
+            "shotType": "3分投篮",
+            "success": 1,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 373,
+            "gameId": "0022500356",
+            "playerId": "1631095"
+          },
+          {
+            "value": 0.48,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 414,
+            "gameId": "0022500356",
+            "playerId": "1631095"
+          },
+          {
+            "value": 0.908,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 438,
+            "gameId": "0022500356",
+            "playerId": "1631095"
+          },
+          {
+            "value": 0.337,
+            "shotType": "3分投篮",
+            "success": 1,
+            "period": 4,
+            "gameClock": "",
+            "eventId": 528,
+            "gameId": "0022500356",
+            "playerId": "1631095"
+          },
+          {
+            "value": 0.434,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 4,
+            "gameClock": "",
+            "eventId": 533,
+            "gameId": "0022500356",
+            "playerId": "1631095"
+          },
+          {
+            "value": 0.401,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 4,
+            "gameClock": "",
+            "eventId": 577,
+            "gameId": "0022500356",
+            "playerId": "1631095"
+          },
+          {
+            "value": 0.552,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 4,
+            "gameClock": "",
+            "eventId": 591,
+            "gameId": "0022500356",
+            "playerId": "1631095"
+          },
+          {
+            "value": 0.241,
+            "shotType": "3分投篮",
+            "success": 0,
+            "period": 4,
+            "gameClock": "",
+            "eventId": 601,
+            "gameId": "0022500356",
+            "playerId": "1631095"
+          },
+          {
+            "value": 0.025,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 4,
+            "gameClock": "",
+            "eventId": 620,
+            "gameId": "0022500356",
+            "playerId": "1631095"
+          }
+        ]
+      },
+      "leverage": {
+        "PLAYERID": "1631095",
+        "CREATION_LVG": 0.54,
+        "SHOT_LVG": -0.16
+      },
+      "sources": [
+        "https://api.nba.cn/nba-web/api/web/inside/gpShot?gameId=0022500356&playerId=1631095",
+        "https://api.nba.cn/nba-web/api/web/inside/season/playerLeverage?season=2025-26&seasonType=Regular%20Season"
+      ]
+    },
+    {
+      "playerId": "203991",
+      "gameId": "0022500356",
+      "name": "克林特 卡佩拉",
+      "scope": "2025-26 常规赛汇总（抓取于2026-10-10，非截至比赛日）",
+      "shots": {
+        "playerId": "203991",
+        "gameId": "0022500356",
+        "shotList": [
+          {
+            "value": 0.52,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 10,
+            "gameId": "0022500356",
+            "playerId": "203991"
+          },
+          {
+            "value": 0.21,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 13,
+            "gameId": "0022500356",
+            "playerId": "203991"
+          },
+          {
+            "value": 0.377,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 43,
+            "gameId": "0022500356",
+            "playerId": "203991"
+          },
+          {
+            "value": 0.95,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 248,
+            "gameId": "0022500356",
+            "playerId": "203991"
+          },
+          {
+            "value": 0.948,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 382,
+            "gameId": "0022500356",
+            "playerId": "203991"
+          },
+          {
+            "value": 0.796,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 4,
+            "gameClock": "",
+            "eventId": 524,
+            "gameId": "0022500356",
+            "playerId": "203991"
+          }
+        ]
+      },
+      "leverage": {
+        "PLAYERID": "203991",
+        "CREATION_LVG": 0.18,
+        "SHOT_LVG": -0.13
+      },
+      "sources": [
+        "https://api.nba.cn/nba-web/api/web/inside/gpShot?gameId=0022500356&playerId=203991",
+        "https://api.nba.cn/nba-web/api/web/inside/season/playerLeverage?season=2025-26&seasonType=Regular%20Season"
+      ]
+    },
+    {
+      "playerId": "1629006",
+      "gameId": "0022500356",
+      "name": "约什 奥科吉",
+      "scope": "2025-26 常规赛汇总（抓取于2026-10-10，非截至比赛日）",
+      "shots": {
+        "playerId": "1629006",
+        "gameId": "0022500356",
+        "shotList": [
+          {
+            "value": 0.67,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 49,
+            "gameId": "0022500356",
+            "playerId": "1629006"
+          },
+          {
+            "value": 0.367,
+            "shotType": "3分投篮",
+            "success": 0,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 361,
+            "gameId": "0022500356",
+            "playerId": "1629006"
+          },
+          {
+            "value": 0.357,
+            "shotType": "3分投篮",
+            "success": 1,
+            "period": 4,
+            "gameClock": "",
+            "eventId": 567,
+            "gameId": "0022500356",
+            "playerId": "1629006"
+          }
+        ]
+      },
+      "leverage": {
+        "PLAYERID": "1629006",
+        "CREATION_LVG": 0.24,
+        "SHOT_LVG": -0.14
+      },
+      "sources": [
+        "https://api.nba.cn/nba-web/api/web/inside/gpShot?gameId=0022500356&playerId=1629006",
+        "https://api.nba.cn/nba-web/api/web/inside/season/playerLeverage?season=2025-26&seasonType=Regular%20Season"
+      ]
+    },
+    {
+      "playerId": "1641708",
+      "gameId": "0022500356",
+      "name": "阿门 汤普森",
+      "scope": "2025-26 常规赛汇总（抓取于2026-10-10，非截至比赛日）",
+      "shots": {
+        "playerId": "1641708",
+        "gameId": "0022500356",
+        "shotList": [
+          {
+            "value": 0.525,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 32,
+            "gameId": "0022500356",
+            "playerId": "1641708"
+          },
+          {
+            "value": 0.366,
+            "shotType": "3分投篮",
+            "success": 0,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 40,
+            "gameId": "0022500356",
+            "playerId": "1641708"
+          },
+          {
+            "value": 0.882,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 1,
+            "gameClock": "",
+            "eventId": 147,
+            "gameId": "0022500356",
+            "playerId": "1641708"
+          },
+          {
+            "value": 0.382,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 2,
+            "gameClock": "",
+            "eventId": 172,
+            "gameId": "0022500356",
+            "playerId": "1641708"
+          },
+          {
+            "value": 0.504,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 376,
+            "gameId": "0022500356",
+            "playerId": "1641708"
+          },
+          {
+            "value": 0.177,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 380,
+            "gameId": "0022500356",
+            "playerId": "1641708"
+          },
+          {
+            "value": 0.414,
+            "shotType": "3分投篮",
+            "success": 0,
+            "period": 3,
+            "gameClock": "",
+            "eventId": 441,
+            "gameId": "0022500356",
+            "playerId": "1641708"
+          },
+          {
+            "value": 0.556,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 4,
+            "gameClock": "",
+            "eventId": 501,
+            "gameId": "0022500356",
+            "playerId": "1641708"
+          },
+          {
+            "value": 0.412,
+            "shotType": "3分投篮",
+            "success": 0,
+            "period": 4,
+            "gameClock": "",
+            "eventId": 531,
+            "gameId": "0022500356",
+            "playerId": "1641708"
+          },
+          {
+            "value": 0.867,
+            "shotType": "2分投篮",
+            "success": 1,
+            "period": 4,
+            "gameClock": "",
+            "eventId": 540,
+            "gameId": "0022500356",
+            "playerId": "1641708"
+          },
+          {
+            "value": 0.591,
+            "shotType": "2分投篮",
+            "success": 0,
+            "period": 4,
+            "gameClock": "",
+            "eventId": 561,
+            "gameId": "0022500356",
+            "playerId": "1641708"
+          }
+        ]
+      },
+      "leverage": {
+        "PLAYERID": "1641708",
+        "CREATION_LVG": 1.49,
+        "SHOT_LVG": -0.26
+      },
+      "sources": [
+        "https://api.nba.cn/nba-web/api/web/inside/gpShot?gameId=0022500356&playerId=1641708",
+        "https://api.nba.cn/nba-web/api/web/inside/season/playerLeverage?season=2025-26&seasonType=Regular%20Season"
+      ]
+    }
+  ],
+  "players": [],
+  "frames": [],
+  "gravity": [],
+  "alignment": {
+    "shotVideoTime": 13.5,
+    "source": "video-event-alignment"
+  },
+  "playByPlay": [
+    {
+      "eventId": 270,
+      "type": "miss",
+      "playerId": "1631108",
+      "period": 2,
+      "gameClock": "05:06",
+      "defenderId": "1631095",
+      "gameId": "0022500356",
+      "source": "https://statsdmz.nba.com/pdfs/20251206/20251206_HOUDAL_book.pdf"
+    },
+    {
+      "type": "offensive-rebound",
+      "playerId": "203939",
+      "period": 2,
+      "gameClock": "05:03",
+      "gameId": "0022500356",
+      "source": "https://statsdmz.nba.com/pdfs/20251206/20251206_HOUDAL_book.pdf"
+    },
+    {
+      "eventId": 273,
+      "type": "made-three",
+      "playerId": "1631108",
+      "period": 2,
+      "gameClock": "04:58",
+      "gameId": "0022500356",
+      "source": "https://statsdmz.nba.com/pdfs/20251206/20251206_HOUDAL_book.pdf"
+    },
+    {
+      "type": "shooting-foul",
+      "playerId": "1631095",
+      "period": 2,
+      "gameClock": "04:58",
+      "relatedEventId": 273,
+      "gameId": "0022500356",
+      "source": "https://statsdmz.nba.com/pdfs/20251206/20251206_HOUDAL_book.pdf"
+    }
+  ],
+  "uniforms": {
+    "独行侠": "深蓝色（navy）球衣",
+    "火箭": "红色（red）球衣"
+  }
+}

@@ -39,3 +39,5 @@ backups/
 
 # Historical cloud call outputs are local evidence, not source
 **/verification/
+
+/double.mp4

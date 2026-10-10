@@ -4,7 +4,7 @@ import copy
 import math
 from statistics import median, mean
 
-ROLES=[('actorTrackId','幕后MVP','#f4c45e'),('beneficiaryTrackId','收益队友','#77cfe4'),('defenderTrackId','防守者','#ee927f')]
+ROLES=[('actorTrackId','幕后MVP','#f4c45e'),('beneficiaryTrackId','受益队友','#77cfe4'),('defenderTrackId','防守者','#ee927f')]
 FIELDS=[('OVERALL_GRAV','总体引力'),('ON_BALL_PERIM_GRAV','持球 · 外线'),('ON_BALL_INTERIOR_GRAV','持球 · 内线'),('OFF_BALL_PERIM_GRAV','无球 · 外线'),('OFF_BALL_INTERIOR_GRAV','无球 · 内线')]
 
 def finite(x):return isinstance(x,(int,float)) and not isinstance(x,bool) and math.isfinite(x)
@@ -126,6 +126,10 @@ def motion(result,event,fps=24,width=1280,height=720):
 
 def build(result,fps=24):
     valid=[e for e in result.get('events',[]) if e.get('visualVerified') and finite(e.get('score')) and e['score']>0 and len({e.get(k) for k,_,_ in ROLES})==3 and all(e.get(k) for k,_,_ in ROLES)]
+    if not valid or result.get('visualRoleLock',{}).get('eventId')=='visual-role-story':
+        from role_localization import visual_event
+        visual=visual_event(result.get('visualRoleLock',{}),result['video']['duration'])
+        if visual:valid=[visual]
     if not valid or not result.get('vision',{}).get('frames'):
         factual=build_factual(result,fps)
         if factual:return factual
@@ -133,9 +137,11 @@ def build(result,fps=24):
         result.pop('presentationMotion',None)
         return result['presentation']
     e=max(valid,key=lambda e:e['score']); players={p['id']:p for p in result['players']}
+    lock=result.get('visualRoleLock',{});locked=lock.get('status')=='locked' and lock.get('eventId')==e['id']
     roles=[]
-    for key,label,color in ROLES:
+    for i,(key,label,color) in enumerate(ROLES):
         pid=e[key];name=result.get('confirmedNames',{}).get(pid) or players.get(pid,{}).get('label',pid)
+        if locked:pid=lock['roles'][i]['id'];name=lock['roles'][i]['name']
         roles.append({'id':pid,'label':label,'displayName':name+' · '+label,'name':name,'color':color})
     info=insights(result); segments=info['narration'].get('segments',[])
     from actor_profile import mapped_profile
@@ -170,16 +176,33 @@ def build(result,fps=24):
         'generation':{'analysisModel':result.get('model'),'modelInvoked':result.get('modelInvoked',False),
                       'narration':{k:info['narration'].get(k) for k in ['status','source','model','modelInvoked']}}}
     from game_summary import round_score
-    manifest['impact']=round_score(e['score'],info.get('shot'))
+    manifest['impact']=round_score(e['score'],info.get('shot')) if finite(e['score']) else None
+    if locked:
+        manifest['roleLocalization']={k:lock.get(k) for k in ['source','coverage','sampleFps','beneficiaryIsFinalShooter']}
+        # Dense identity correction is a display improvement, not a new causal score.
+        # The original score may refer to an incorrectly associated beneficiary.
+        if not lock.get('sourceRolesConfirmed'):manifest.update(score=None,impact=None,scoringStatus='identity-corrected-needs-rescoring')
     manifest.update(gameId=official.get('gameId'),team=official.get('team'),videoId=result['video']['id'],
                     roundKey=str(official.get('gameId',''))+':'+str(official['eventId']) if official.get('eventId') is not None else result['video']['id'])
     mapping=next((p for p in ((result.get('deepData') or {}).get('companion') or {}).get('players',[]) if p.get('trackId')==e['actorTrackId']),{})
-    if mapping.get('jersey') is not None:
+    if locked and lock['roles'][0].get('jersey'):
+        manifest['identity']={'jersey':lock['roles'][0]['jersey'],'confirmed':True,'source':'vlm-roster-review'}
+    elif mapping.get('jersey') is not None:
         manifest['identity']={'jersey':str(mapping['jersey']),'confirmed':True,'source':'supplied-companion'}
     from story_direction import build_direction
     manifest['direction']=build_direction(manifest,result['video']['duration'],e)
     result['presentation']=manifest
-    result['presentationMotion']=motion(result,e,fps=fps)
+    render_event=e
+    if locked:
+        render_event={**e,**{k:r['id'] for (k,_,_),r in zip(ROLES,lock['roles'])}}
+        result['presentationMotion']=motion({**result,'vision':{'frames':lock['frames']}},render_event,fps=fps)
+        manifest['direction']=build_direction(manifest,result['video']['duration'],render_event)
+    elif lock.get('status')=='unavailable':
+        safe=copy.deepcopy(result['vision'])
+        for f in safe['frames']:f['people']=[]
+        result['presentationMotion']=motion({**result,'vision':safe},e,fps=fps)
+        manifest['roleLocalization']={'status':'unavailable','reason':lock.get('reason')}
+    else:result['presentationMotion']=motion(result,e,fps=fps)
     result['focusPlayerId']=e['actorTrackId']
     return manifest
 

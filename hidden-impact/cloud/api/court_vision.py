@@ -102,15 +102,18 @@ def assign(cost):
 
 def build(payload,progress=None):
  started=time.monotonic();anchors={round(f['time'],3):f for f in payload['frames']};inputs={round(f['time'],3):f for f in payload.get('_denseFrames',[])};inputs.update(anchors)
- frames=[];annotated=[];crops={};tracks={};nextid=1;scene=0;previous_thumb=None;last_cal=None;last_key=-99
+ frames=[];annotated=[];crops={};tracks={};nextid=1;scene=0;previous_thumb=None;last_cal=None;last_key=-99;last_ball=-99
  for index,(t,frame) in enumerate(sorted(inputs.items())):
   im=Image.open(io.BytesIO(base64.b64decode(frame['image']))).convert('RGB');thumb=np.asarray(im.resize((32,18)),float)/255
   cut=previous_thumb is not None and np.mean(abs(thumb-previous_thumb))>.25
-  if cut:scene+=1;tracks={};last_cal=None;last_key=-99
-  if t-last_key>=.45:
+  if cut:scene+=1;tracks={};last_cal=None;last_key=-99;last_ball=-99
+  if t-last_key>=.95:
    last_cal=calibrate(infer(im,'court'));last_key=t
   cal=last_cal
-  detections=infer(im,'player');ball_detections=infer(im,'ball');players=[]
+  detections=infer(im,'player');ball_detections=[];players=[]
+  # People remain at 6 fps. Ball/court inference uses a bounded rate; never reuse stale ball coordinates.
+  if t in anchors or t-last_ball>=.45:
+   ball_detections=infer(im,'ball');last_ball=t
   for d in detections:
    if d['class']!=4 or d['confidence']<.32:continue
    x,y,x2,y2=d['box'];w=x2-x;h=y2-y

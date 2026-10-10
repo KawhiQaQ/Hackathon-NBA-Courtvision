@@ -1,14 +1,14 @@
 // Exercise real collection navigation, identity changes, media controls and award links.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
-const root=path.join(__dirname,'..'),game=JSON.parse(fs.readFileSync(path.join(root,'web/demo/game.json'),'utf8'));
-const helpers=vm.createContext({});vm.runInContext(fs.readFileSync(path.join(root,'web/game-view.js'),'utf8').replace(/export /g,''),helpers);
+const root=path.join(__dirname,'..'),game=JSON.parse(fs.readFileSync(path.join(root,'tests/fixtures/legacy-showcase/game.json'),'utf8'));
+const helpers=vm.createContext({setTimeout,clearTimeout,});vm.runInContext(fs.readFileSync(path.join(root,'web/game-view.js'),'utf8').replace(/export /g,''),helpers);
 const insights=fs.readFileSync(path.join(root,'web/insights-view.js'),'utf8').replace(/export /g,'');
-const source=fs.readFileSync(path.join(root,'web/showcase.js'),'utf8').replace(/^import .*;\n/gm,'')+'\n'+fs.readFileSync(path.join(root,'web/story-playback.js'),'utf8').replace(/export /g,'');
+const source=fs.readFileSync(path.join(root,'web/playback-recovery.js'),'utf8').replace(/export /g,'')+'\n'+fs.readFileSync(path.join(root,'web/showcase.js'),'utf8').replace(/^import .*;\n/gm,'')+'\n'+fs.readFileSync(path.join(root,'web/story-playback.js'),'utf8').replace(/export /g,'');
 const nodes=new Map(),events=new Map();
-function node(){return {innerHTML:'',textContent:'',value:'1',hidden:false,currentTime:0,duration:14,paused:true,scrollLeft:0,clientWidth:400,scrollWidth:1200,classList:{toggle(){}},setAttribute(k,v){this[k]=v},removeAttribute(k){delete this[k]},addEventListener(k,f){events.set(k,f)},querySelectorAll(){return []},querySelector(){return null},pause(){this.paused=true},play(){this.paused=false;return Promise.resolve()},load(){},scrollBy(){},scrollIntoView(){}}}
+function node(){return {style:{},innerHTML:'',textContent:'',value:'1',hidden:false,currentTime:0,duration:14,paused:true,scrollLeft:0,clientWidth:400,scrollWidth:1200,classList:{toggle(){}},setAttribute(k,v){this[k]=v},removeAttribute(k){delete this[k]},addEventListener(k,f){events.set(k,f)},querySelectorAll(){return []},querySelector(){return null},pause(){this.paused=true},play(){this.paused=false;return Promise.resolve()},load(){},scrollBy(){},scrollIntoView(){}}}
 for(const m of fs.readFileSync(path.join(root,'web/index.html'),'utf8').matchAll(/id="([^"]+)"/g))nodes.set(m[1],node());
 nodes.get('load-error').hidden=true;
-const context=vm.createContext({document:{getElementById:id=>{assert(nodes.has(id),id);return nodes.get(id)},querySelector:()=>node(),addEventListener(){}},window:{addEventListener(){}},scoreMarkup:helpers.scoreMarkup,awardMarkup:helpers.awardMarkup,rankingMarkup:helpers.rankingMarkup,Blob,URL,URLSearchParams,location:{href:'http://localhost/',search:'',origin:'http://localhost'},console,fetch:async()=>({ok:true,json:async()=>structuredClone(game)})});
+const context=vm.createContext({setTimeout,clearTimeout,document:{getElementById:id=>{assert(nodes.has(id),id);return nodes.get(id)},querySelector:()=>node(),addEventListener(){}},window:{addEventListener(){}},scoreMarkup:helpers.scoreMarkup,awardMarkup:helpers.awardMarkup,rankingMarkup:helpers.rankingMarkup,Blob,URL,URLSearchParams,location:{href:'http://localhost/',search:'',origin:'http://localhost'},console,fetch:async()=>({ok:true,json:async()=>structuredClone(game)})});
 (async()=>{
  await vm.runInContext(insights+'\n(async()=>{'+source+'})()',context);
  assert(nodes.get('load-error').hidden);assert(nodes.get('round-prev').disabled);

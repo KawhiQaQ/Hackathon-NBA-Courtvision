@@ -40,6 +40,14 @@ def build_profile(result, player_id):
 
 def mapped_profile(result):
     """Resolve only a verified event's explicit companion identity, never a name guess."""
+    lock=result.get('visualRoleLock') or {};deep=result.get('deepData') or {}
+    if lock.get('status')=='locked':
+        actor=lock['roles'][0];roster=deep.get('roster') or []
+        matches=[p for p in roster if str(p.get('jersey'))==actor.get('jersey') and p.get('team')==actor.get('team')]
+        if len(matches)==1:
+            profile=build_profile(result,matches[0]['playerId'])
+            if profile:return {**profile,'trackId':actor['id'],'identitySource':'vlm-roster-review'}
+        if not lock.get("sourceRolesConfirmed"):return None
     events=[e for e in result.get('events',[]) if e.get('visualVerified') and finite(e.get('score')) and e['score']>0]
     if not events:return None
     event=max(events,key=lambda e:e['score']);track=event['actorTrackId']

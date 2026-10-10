@@ -45,11 +45,11 @@ aws sts get-caller-identity --profile nba --region us-east-1
 
 ## 导入与发布
 
-以下示例使用独行侠官方练习素材：
+以下示例使用独行侠官方考试素材（北京时间 2025-12-07）：
 
 ```sh
-.venv/bin/python scripts/ingest_official.py --video data/videos/official/dallas-practice.mp4 --id dallas-practice --game 0022500701 --player 1642843 --event 666 --source https://comfile.csdnimg.cn/file/train_video.zip --shot-time 17.3 --out data/frames/official/dallas-request.json
-.venv/bin/python scripts/smoke_release.py --api-only --request data/frames/official/dallas-request.json
+.venv/bin/python scripts/ingest_official.py --video ../double.mp4 --id dallas-exam --game 0022500356 --player 1631108 --event 273 --source https://du5imhgxabl0d.cloudfront.net/portal --companion ../double.companion.json --out data/frames/official/dallas-exam-request.json
+.venv/bin/python scripts/smoke_release.py --api-only --request data/frames/official/dallas-exam-request.json
 .venv/bin/python scripts/publish_result.py --job <成功任务ID>
 .venv/bin/python scripts/smoke_release.py --public-only
 ```

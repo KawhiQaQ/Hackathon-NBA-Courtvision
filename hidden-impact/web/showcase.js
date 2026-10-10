@@ -1,4 +1,5 @@
 import {sourceTime,replayTime} from './story-playback.js?v=1';
+import {createPlaybackRecovery} from './playback-recovery.js?v=1';
 import {cueAt,narrationAt,phaseMarkup,opportunityMarkup,gravityMarkup,storyFact} from './insights-view.js?v=actor-evidence-1';
 import {scoreMarkup,awardMarkup,rankingMarkup} from './game-view.js?v=game-1';
 const $=id=>document.getElementById(id),video=$('replay');
@@ -22,13 +23,21 @@ function storyPosition(){const track=$('frames'),cards=[...track.querySelectorAl
 for(const [id,direction] of [['story-prev',-1],['story-next',1]])$(id).onclick=()=>{const card=$('frames').querySelector('.story-card');if(card)$('frames').scrollBy({left:direction*(card.offsetWidth+18),behavior:'smooth'});};
 $('frames').addEventListener('scroll',storyPosition,{passive:true});window.addEventListener('resize',storyPosition);
 $('frames').addEventListener('keydown',e=>{if(e.target===$('frames')&&['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();$(e.key==='ArrowLeft'?'story-prev':'story-next').click();}});
-function loadVideo(src,t=0,playing=false){const token=++version;stopAt=null;video.pause();$('video-error').hidden=true;$('transport').hidden=true;video.onloadedmetadata=()=>{if(token!==version)return;video.currentTime=Math.min(t,video.duration||0);fitVideo();video.playbackRate=Number($('speed').value);if(playing)video.play().catch(()=>{});sync();};video.src=src;video.load();}
+function loadVideo(src,t=0,playing=false,recovering=false){if(!recovering)recovery.reset();const token=++version;stopAt=null;video.pause();$('video-error').hidden=true;$('transport').hidden=true;video.onloadedmetadata=()=>{if(token!==version)return;video.currentTime=Math.min(t,video.duration||0);fitVideo();video.playbackRate=Number($('speed').value);if(playing)video.play().catch(()=>{});sync();};video.preload='auto';video.src=src;video.load();}
+const recovery=createPlaybackRecovery(video,{
+ refresh:async()=>{
+  const active=data,jobId=active?.job||new URLSearchParams(location.search).get('job');
+  if(jobId){const fresh=(await read('/api/jobs/'+encodeURIComponent(jobId),true)).result?.presentation;if(!fresh?.rendered)throw Error('结果暂不可用，请稍后重试。');if(active===data){active.video=fresh.video;active.original=fresh.original;$('download-replay').href=fresh.video;}}
+  return originalMode?active.original:active.video;
+ },
+ reload:(src,t,playing)=>loadVideo(src,t,playing,true),
+ message:(text,retry)=>{const el=$('video-error');el.hidden=!text;el.textContent=text;el.style.cursor=retry?'pointer':'default';el.onclick=retry?()=>recovery.retry():null;}
+});
 function transport(){const playing=!video.paused;$('play-pause').textContent=playing?'Ⅱ 暂停':'▶ 播放';$('play-pause').setAttribute('aria-label',playing?'暂停视频':'播放视频');}
 video.addEventListener('timeupdate',()=>{if(stopAt!==null&&video.currentTime>=stopAt){const end=stopAt;stopAt=null;video.pause();video.currentTime=end;}sync();});
 video.addEventListener('loadeddata',()=>{video.controls=false;$('transport').hidden=false;sync();});
 for(const kind of ['play','pause','ended'])video.addEventListener(kind,transport);
-video.addEventListener('error',()=>$('video-error').hidden=false);
-$('play-pause').onclick=()=>{stopAt=null;if(video.paused)video.play().catch(()=>{$('video-error').hidden=false;});else video.pause();};
+$('play-pause').onclick=()=>{stopAt=null;if(video.error){recovery.retry();return;}if(video.paused)video.play().catch(e=>{if(e.name!=='AbortError'&&e.name!=='NotAllowedError')recovery.retry();});else video.pause();};
 $('scrub').oninput=()=>{stopAt=null;video.currentTime=Number($('scrub').value);sync();};
 $('speed').onchange=()=>video.playbackRate=Number($('speed').value);
 $('expand-video').onclick=()=>{video.controls=true;if(video.webkitEnterFullscreen)video.webkitEnterFullscreen();else video.requestFullscreen?.().catch(()=>video.controls=false);};

@@ -58,12 +58,12 @@ def render_result(result,video_item,prefix):
 def worker(event):
  job=key_id(event['job']);prefix=f'jobs/{job}/';session=str(uuid.uuid4());arn=os.environ['AGENT_RUNTIME_ARN']
  # Lambda asynchronous delivery is at-least-once: claim a job with a conditional S3 write.
- try:s3.put_object(Bucket=BUCKET,Key=prefix+'claim',Body=b'claimed',IfNoneMatch='*')
+ try:s3.put_object(Bucket=BUCKET,Key=prefix+('analysis-claim' if event.get('phase')=='analysis' else 'claim'),Body=b'claimed',IfNoneMatch='*')
  except s3.exceptions.ClientError as exc:
   if exc.response['Error']['Code'] in ['PreconditionFailed','ConditionalRequestConflict']:return
   raise
  try:
-  payload=get(prefix+'request.json');original_frames=payload.get('frames',[]);put(prefix+'status.json',{'job':job,'status':'running','updatedAt':time.time()})
+  payload=get(prefix+'request.json');original_frames=payload.get('frames',[]);dense_frames=None;put(prefix+'status.json',{'job':job,'status':'running','updatedAt':time.time()})
   if payload.get('mode')=='reviewed-presentation':
    from reviewed_presentation import build
    source_job=key_id(payload['sourceJob']);source=get(f'jobs/{source_job}/result.json')
@@ -82,7 +82,7 @@ def worker(event):
    from perception_cache import cache_key
    etag=s3.head_object(Bucket=BUCKET,Key=video_item['key'])['ETag'];cached_key=cache_key(video_item['key'],etag,original_frames)
    cached=None
-   if not payload.get('force'):
+   if not payload.get('force') or event.get('phase')=='analysis':
     try:cached=get(cached_key)
     except s3.exceptions.ClientError as exc:
      if exc.response['Error']['Code']!='NoSuchKey':raise
@@ -91,12 +91,18 @@ def worker(event):
    else:
     with tempfile.TemporaryDirectory() as workdir:
      video_path=workdir+'/input.video';s3.download_file(BUCKET,video_item['key'],video_path)
-     payload['_denseFrames']=sample_video(video_path,payload['video']['duration'])
+     dense_frames=sample_video(video_path,payload['video']['duration']);payload['_denseFrames']=dense_frames
     vision,frames=build_vision(payload,progress)
     payload.pop('_denseFrames',None)
     put(cached_key,{'vision':vision,'frames':frames})
    payload['vision']=vision;payload['frames']=frames
    put(prefix+'perception.json',vision)
+   # A fresh invocation gives VLM review and rendering their own timeout budget.
+   if event.get('phase')!='analysis' and os.environ.get('AWS_LAMBDA_FUNCTION_NAME'):
+    dispatch=functions.invoke(FunctionName=os.environ['AWS_LAMBDA_FUNCTION_NAME'],InvocationType='Event',Payload=json.dumps({'internal':'analyze','job':job,'phase':'analysis'}).encode())
+    if dispatch.get('StatusCode')!=202:raise RuntimeError('Analysis continuation was not accepted')
+    put(prefix+'status.json',{'job':job,'status':'running','stage':'vlm','updatedAt':time.time()})
+    return
    put(prefix+'status.json',{'job':job,'status':'running','stage':'vlm','updatedAt':time.time()})
   response=agent.invoke_agent_runtime(agentRuntimeArn=arn,runtimeSessionId=session,qualifier='DEFAULT',contentType='application/json',accept='application/json',payload=json.dumps(payload).encode())
   stream=response['response']
@@ -123,6 +129,31 @@ def worker(event):
     for check in verdict['checks']:
      for k in ['inputTokens','outputTokens','totalTokens']:current.setdefault('usage',{})[k]=current.get('usage',{}).get(k,0)+check.get('usage',{}).get(k,0)
    current=finalize(current)
+   if current.get('vision',{}).get('frames'):
+    try:
+     from role_localization import resolve
+     if dense_frames is None:
+      with tempfile.TemporaryDirectory() as workdir:
+       video_path=workdir+'/input.video';s3.download_file(BUCKET,video_item['key'],video_path)
+       dense_frames=sample_video(video_path,payload['video']['duration'])
+     def role_invoke(document):
+      role_session=str(uuid.uuid4())
+      try:
+       response=agent.invoke_agent_runtime(agentRuntimeArn=arn,runtimeSessionId=role_session,qualifier='DEFAULT',contentType='application/json',accept='application/json',payload=json.dumps(document).encode())
+       try:value=json.loads(response['response'].read())
+       finally:response['response'].close()
+       if not value.get('ok'):raise ValueError(value.get('error','角色核验失败'))
+       return value['result']
+      finally:
+       try:agent.stop_runtime_session(agentRuntimeArn=arn,runtimeSessionId=role_session,qualifier='DEFAULT')
+       except Exception:pass
+     def role_progress(done,total):put(prefix+'status.json',{'job':job,'status':'running','stage':'identity','done':done,'total':total,'updatedAt':time.time()})
+     role_progress(0,1)
+     current['visualRoleLock']=resolve(current,vision,dense_frames,role_invoke,role_progress)
+     for k,v in current['visualRoleLock'].get('usage',{}).items():current.setdefault('usage',{})[k]=current.get('usage',{}).get(k,0)+v
+    except Exception as exc:
+     current['visualRoleLock']={'status':'unavailable','reason':str(exc)[:200]}
+     print('role_localization_unavailable',type(exc).__name__,str(exc)[:200])
    if current['events']:
     try:
      text_result=invoke_review({'mode':'explain-temporal-candidate','event':current['events'][0],'deepData':current.get('deepData')})
@@ -188,6 +219,7 @@ def handler(event,context):
     if replay and replay.get('key')==f'jobs/{job}/tactical.mp4':replay['url']=s3.generate_presigned_url('get_object',Params={'Bucket':BUCKET,'Key':replay['key']},ExpiresIn=3600)
     presentation=status['result'].get('presentation',{})
     if presentation.get('rendered'):
+     presentation['job']=job
      if presentation.get('videoKey')!=f'jobs/{job}/tactical.mp4' or not replay or not replay.get('url'):raise ValueError('Invalid replay asset')
      presentation['video']=replay['url']
      item=get(f"library/{key_id(status['result']['video']['id'])}.json")
@@ -280,7 +312,10 @@ def handler(event,context):
       body['deepData']['official']=context
       body['deepData']['opportunitySource']=body['deepData']['companion']['source']
       body['deepData']['videoId']=body['video']['id']
-   digest=hashlib.sha256((VERSION+'temporal-impact-v5-broadcast-r11'+json.dumps(body,sort_keys=True)).encode()).hexdigest()[:32]
+     for field in ['alignment','roster','playerProfiles','playByPlay','uniforms']:
+      if field in body['deepData']['companion']:body['deepData'][field]=body['deepData']['companion'][field]
+    if body.get('mode') not in ['snapshot','matched-video']:validate_payload(body)
+   digest=hashlib.sha256((VERSION+'temporal-impact-v5-role-lock-r13'+json.dumps(body,sort_keys=True)).encode()).hexdigest()[:32]
    status=None
    if not body.get('force'):
     try:

@@ -20,6 +20,7 @@ def main():
     ap.add_argument('--source',required=True);ap.add_argument('--shot-time',type=float);ap.add_argument('--out',type=Path,required=True)
     ap.add_argument('--season',default='2025-26');ap.add_argument('--season-type',default='Regular Season')
     ap.add_argument('--teams',default='DAL,HOU',help='Team abbreviations for gravity comparison')
+    ap.add_argument('--companion',type=Path,help='Validated companion JSON for this same clip')
     ap.add_argument('--prepare-only',action='store_true',help='Prepare request and source metadata without uploading')
     args=ap.parse_args()
     import re
@@ -43,6 +44,16 @@ def main():
     if args.shot_time is not None:
         if not 0<=args.shot_time<=duration:raise ValueError('shot-time outside clip')
         deep['alignment']=dict(shotVideoTime=args.shot_time,source='visual-review',eventId=args.event)
+    companion=None
+    if args.companion:
+        sys.path.insert(0,str(ROOT/'cloud/api'))
+        from companion import validate_companion
+        companion=validate_companion(json.loads(args.companion.read_text()),duration)
+        ctx=companion.get('shotContext') or {}
+        if ctx.get('gameId')!=args.game or str(ctx.get('playerId'))!=args.player or ctx.get('eventId')!=args.event:raise ValueError('Companion does not match selected game/player/event')
+        deep['official'].update(ctx)
+        for key in ['roster','playerProfiles','alignment','playByPlay','uniforms']:
+            if key in companion:deep[key]=companion[key]
     video=dict(id=args.id,title=shots['teamName']+' · '+official['shooter']+' · '+shot['shotDesc'],duration=duration,source=args.source)
     frames=[]
     for i in range(18):
@@ -50,7 +61,9 @@ def main():
         raw=subprocess.check_output([imageio_ffmpeg.get_ffmpeg_exe(),'-v','error','-ss',str(t),'-i',str(args.video),'-frames:v','1','-vf','scale=960:-2','-q:v','5','-f','image2pipe','-vcodec','mjpeg','-'])
         frames.append(dict(time=t,image=base64.b64encode(raw).decode()))
     args.out.parent.mkdir(parents=True,exist_ok=True)
-    args.out.write_text(json.dumps(dict(mode='video',video=video,frames=frames),ensure_ascii=False))
+    request=dict(mode='video',video=video,frames=frames)
+    if companion:request['companion']=companion
+    args.out.write_text(json.dumps(request,ensure_ascii=False))
     args.out.with_suffix('.metadata.json').write_text(json.dumps(dict(video=video,deepData=deep),ensure_ascii=False,indent=2))
     if args.prepare_only:
         print('Prepared',args.id,'request',args.out);return

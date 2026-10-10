@@ -49,7 +49,7 @@ def validate_payload(data):
     if deep is not None:
         if not isinstance(deep, dict) or deep.get('videoId') != video['id']:
             raise ValueError('深度数据 videoId 必须与当前视频一致。')
-        if len(json.dumps(deep)) > 40000:
+        if len(json.dumps(deep,ensure_ascii=False).encode()) > 256000:
             raise ValueError('单片段深度数据过大。')
     return data
 
@@ -392,6 +392,9 @@ def add_temporal_usage(payload,response):
 _before_focused_review=analyze
 
 def analyze(payload,client):
+    if payload.get('mode') in ['resolve-replay-roles','locate-replay-roles','locate-known-roles']:
+        from role_model import analyze_roles
+        return analyze_roles(payload,client,MODEL_ID)
     if payload.get('mode')=='narrate-video':
         from narration import narrate
         validate_payload(payload)

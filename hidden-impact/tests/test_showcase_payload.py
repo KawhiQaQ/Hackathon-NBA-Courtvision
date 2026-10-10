@@ -6,12 +6,12 @@ from showcase_payload import export_payload
 class PayloadTest(unittest.TestCase):
  def setUp(self):self.audit=json.loads((ROOT/'data/review-archive/showcase-audit.json').read_text())
  def test_coordinates_arrows_and_story_are_unchanged(self):
-  current=json.loads((ROOT/'web/demo/analysis.json').read_text());original=self.audit['analysis']
+  current=json.loads((ROOT/'tests/fixtures/legacy-showcase/analysis.json').read_text());original=self.audit['analysis']
   for before,after in zip(original['presentationMotion']['frames'],current['presentationMotion']['frames']):
    self.assertEqual(before['time'],after['time']);self.assertEqual(before['heroArrow']['points'],after['heroArrow']['points'])
    for a,b in zip(before['people'],after['people']):
     for key in ['trackId','x','y','w','h','offscreen']:self.assertEqual(a.get(key),b.get(key))
-  self.assertEqual(json.loads((ROOT/'web/demo/showcase.json').read_text())['evidence'],self.audit['showcase']['evidence'])
+  self.assertEqual(json.loads((ROOT/'tests/fixtures/legacy-showcase/showcase.json').read_text())['evidence'],self.audit['showcase']['evidence'])
  def test_export_uses_an_allowlist_and_keeps_audit(self):
   self.audit['analysis']['unusedInternalField']='test'
   with tempfile.TemporaryDirectory() as directory:

@@ -64,7 +64,7 @@ vm.runInContext('gap.frames[2].scene=1',context);
 assert.equal(vm.runInContext('visiblePeople(gap,.16).length',context),0);
 console.log('PASS: stable trio before the event, explicit missing-identity status and bounded interpolation.');
 // The reviewed collaboration keeps five distinct identities and gives both defenders directions.
-context.cooperation=JSON.parse(fs.readFileSync(path.join(root,'web/demo/analysis.json'),'utf8'));
+context.cooperation=JSON.parse(fs.readFileSync(path.join(root,'tests/fixtures/legacy-showcase/analysis.json'),'utf8'));
 vm.runInContext('state.offline=true;state.results.set(state.id,cooperation);state.playerId=null;render();',context);
 nodes.get('video').currentTime=8.63;vm.runInContext('renderOverlay()',context);
 for(const id of ['P6','P1','P30'])assert(nodes.get('overlay').innerHTML.includes(`data-focus="${id}"`));

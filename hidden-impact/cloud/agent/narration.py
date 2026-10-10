@@ -147,17 +147,25 @@ def request_for_result(result, frames):
     from actor_profile import mapped_profile
     actor_evidence=mapped_profile(result)
     tracks = result.get('vision', {}).get('frames', [])
+    lock=result.get('visualRoleLock',{})
+    events=[{k:e[k] for k in ['actorTrackId','beneficiaryTrackId','defenderTrackId','start','end','summary'] if k in e} for e in result.get('events',[]) if e.get('visualVerified')]
+    if lock.get('status')=='locked':
+        tracks=lock['frames']
+        from role_model import visual_event
+        source=next((e for e in result['events'] if e['id']==lock['eventId']),None) or visual_event(lock,result['video']['duration'])
+        events=[{k:source[k] for k in ['start','end','summary'] if k in source}|{key:r['id'] for key,r in zip(['actorTrackId','beneficiaryTrackId','defenderTrackId'],lock['roles'])}] if source else []
+        if actor_evidence:actor_evidence={**actor_evidence,'trackId':lock['roles'][0]['id']} if actor_evidence.get('identitySource')=='vlm-roster-review' or lock.get('sourceRolesConfirmed') else None
+    elif lock.get('status')=='unavailable':events=[]
     detections = []
     for frame in frames:
         nearest = min(tracks, key=lambda f: abs(f['time']-frame['time'])) if tracks else None
-        if nearest and abs(nearest['time']-frame['time']) <= .2:
+        if nearest and abs(nearest['time']-frame['time']) <= .3:
             detections.append({'time': frame['time'], 'people': [
                 {k: p[k] for k in ['trackId','x','y','w','h','team'] if k in p}
                 for p in nearest.get('people', [])]})
     return {'mode': 'narrate-video', 'video': result['video'], 'frames': frames,
             'deepData': result.get('deepData'), 'narrationContext': {
                 'actorEvidence':actor_evidence,
-                'players': [{k: p[k] for k in ['id','label','team','role'] if k in p} for p in result.get('players', [])],
-                'events': [{k: e[k] for k in ['actorTrackId','beneficiaryTrackId','defenderTrackId','start','end','summary'] if k in e}
-                           for e in result.get('events', []) if e.get('visualVerified')],
+                'players': ([{'id':r['id'],'label':r['name'],'team':r.get('team'),'role':r['role']} for r in lock['roles']] if lock.get('status')=='locked' else [{k: p[k] for k in ['id','label','team','role'] if k in p} for p in result.get('players', [])]),
+                'events': events,
                 'detections': detections}}

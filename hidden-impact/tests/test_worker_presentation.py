@@ -25,7 +25,10 @@ class WorkerPresentationTests(unittest.TestCase):
  def test_force_recomputes_visual_detection_even_with_existing_cache(self):
   self.run_pipeline(force=True)
 
- def run_pipeline(self,commentary_failure=False,with_profile=False,render_failure=False,force=False):
+ def test_perception_checkpoints_before_agent_and_continues_from_cache(self):
+  self.run_pipeline(force=True,checkpoint=True)
+
+ def run_pipeline(self,commentary_failure=False,with_profile=False,render_failure=False,force=False,checkpoint=False):
   import subprocess
   from render_video import ffmpeg
   result=fixture()
@@ -44,10 +47,17 @@ class WorkerPresentationTests(unittest.TestCase):
    def upload_file(self,path,bucket,key,**kw):self.data[key]=Path(path).read_bytes()
    def download_file(self,bucket,key,path):Path(path).write_bytes(self.data[key])
    def generate_presigned_url(self,operation,Params,**kw):return 'https://assets.example/'+Params['Key']+'?signature=test'
+  dispatched=[]
   class Agent:
+   def invoke(self,Payload,**kw):dispatched.append(json.loads(Payload));return {'StatusCode':202}
    def invoke_agent_runtime(self,payload,**kw):
     document=json.loads(payload);mode=document.get('mode');calls.append(mode)
-    if mode=='verify-temporal-candidates':
+    if mode=='resolve-replay-roles':
+     t=document['frames'][0]['time']
+     value={'beneficiaryIsFinalShooter':True,'distinctRoles':True,'shotTime':2.1,'roles':[{'role':role,'team':'甲队' if i<2 else '乙队','jersey':str(i+1),'reference':{'time':t,'detectionId':f'D{i}'}} for i,role in enumerate(['actor','beneficiary','defender'])]}
+    elif mode=='locate-replay-roles':
+     value={'frames':[{'time':f['time'],'roles':{role:{'detectionId':f'D{i}','confidence':.99} for i,role in enumerate(['actor','beneficiary','defender'])}} for f in document['frames']]}
+    elif mode=='verify-temporal-candidates':
      value={'checks':[dict(id=c['id'],onBall=True,samePlayer=True,isShooter=False,passObserved=True,beneficiaryIsShooter=True,defenderResponds=True) for c in document['candidates']]}
     elif mode=='narrate-video':
      if with_profile:assert document['narrationContext']['actorEvidence']['finishing']['made']==7
@@ -64,7 +74,7 @@ class WorkerPresentationTests(unittest.TestCase):
   def detect(payload,progress):
    visual_calls.append('detect');return copy.deepcopy(result['vision']),frames
   vision=types.SimpleNamespace(build_vision=detect,sample_video=lambda *a:frames)
-  with tempfile.TemporaryDirectory() as temp,patch.dict(sys.modules,{'boto3':boto,'vision':vision}),patch.dict(os.environ,{'AGENT_RUNTIME_ARN':'test','TEAM_KEY':'test-key'}):
+  with tempfile.TemporaryDirectory() as temp,patch.dict(sys.modules,{'boto3':boto,'vision':vision}),patch.dict(os.environ,{'AGENT_RUNTIME_ARN':'test','TEAM_KEY':'test-key',**({'AWS_LAMBDA_FUNCTION_NAME':'worker'} if checkpoint else {})}):
    source=Path(temp)/'source.mp4'
    subprocess.run([ffmpeg(),'-v','error','-f','lavfi','-i','color=c=gray:s=320x180:r=24:d=2.5','-c:v','libx264',str(source)],check=True)
    store.data['videos/source.mp4']=source.read_bytes()
@@ -74,6 +84,10 @@ class WorkerPresentationTests(unittest.TestCase):
    spec=importlib.util.spec_from_file_location('parity_handler',ROOT/'cloud/api/handler.py');handler=importlib.util.module_from_spec(spec);spec.loader.exec_module(handler)
    with patch('render_video.render',side_effect=RuntimeError('encoder failed')) if render_failure else nullcontext():
     handler.worker({'job':job})
+    if checkpoint:
+     self.assertEqual(calls,[]);self.assertEqual(dispatched,[{'internal':'analyze','job':job,'phase':'analysis'}])
+     self.assertNotIn(prefix+'result.json',store.data)
+     handler.worker(dispatched[0])
    self.assertEqual(len(visual_calls),1 if force else 0)
    if render_failure:
     status=json.loads(store.data[prefix+'status.json'])
@@ -84,7 +98,7 @@ class WorkerPresentationTests(unittest.TestCase):
     self.assertNotIn(prefix+'tactical.mp4',store.data)
     return
    status=json.loads(store.data[prefix+'status.json']);self.assertEqual(status['status'],'completed',status)
-   self.assertIn('narrate-video',calls);self.assertIn('verify-temporal-candidates',calls)
+   self.assertIn('narrate-video',calls);self.assertIn('verify-temporal-candidates',calls);self.assertIn('locate-replay-roles',calls)
    saved=json.loads(store.data[prefix+'result.json']);self.assertTrue(saved['presentation']['rendered'])
    if with_profile:
     self.assertEqual(saved['presentation']['insights']['actorProfile']['playerId'],'1629655')

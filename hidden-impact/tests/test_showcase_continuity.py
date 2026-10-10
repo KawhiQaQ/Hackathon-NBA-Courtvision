@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'scripts'))
 from showcase_motion import BroadcastRenderer,W,H
 class ContinuityTest(unittest.TestCase):
  @classmethod
- def setUpClass(cls):cls.result=json.loads((ROOT/'web/demo/analysis.json').read_text())
+ def setUpClass(cls):cls.result=json.loads((ROOT/'tests/fixtures/legacy-showcase/analysis.json').read_text())
  def test_no_role_or_arrow_dropouts(self):
   motion=self.result['presentationMotion'];frames=motion['frames']
   self.assertGreaterEqual(len(frames),404)

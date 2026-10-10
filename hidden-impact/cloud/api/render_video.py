@@ -92,7 +92,7 @@ def source_dimensions(source):
 
 
 def output_dimensions(source):
- sw,sh=source_dimensions(source);ratio=min(1,1920/sw,1080/sh)
+ sw,sh=source_dimensions(source);ratio=min(1,1280/sw,720/sh)
  width=max(2,int(sw*ratio/2)*2);height=max(2,int(sh*ratio/2)*2)
  return width,height,round(44*width/960/2)*2,(sw,sh)
 
@@ -292,16 +292,16 @@ def render(source,result,output,story_dir=None):
  from story_playback import plan,audio_filter
  timeline=plan(manifest,end,fps);manifest['playback']=timeline
  holds={b['sourceFrame']:b for b in timeline['beats']}
- manifest.update(width=canvas_width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='wide-editorial-hd-v15',encoding={'codec':'h264','crf':17,'preset':'fast'})
+ manifest.update(width=canvas_width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='wide-stream-v16',encoding={'codec':'h264','crf':22,'preset':'fast','maxrate':'3500k','bufferSize':'7000k','keyframeSeconds':2})
  target=Path(output);target.parent.mkdir(parents=True,exist_ok=True)
  story_dir=Path(story_dir) if story_dir else target.parent;story_dir.mkdir(parents=True,exist_ok=True)
  decode=subprocess.Popen([ffmpeg(),'-v','error','-i',str(source),'-t',str(end),'-vf',f'fps={fps},scale={width}:{height}:flags=lanczos','-f','rawvideo','-pix_fmt','rgb24','pipe:1'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
  # Detect the optional audio stream without requiring ffprobe in Lambda.
  has_audio=subprocess.run([ffmpeg(),'-v','error','-i',str(source),'-map','0:a:0','-t','0.01','-f','null','-'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0
  cmd=[ffmpeg(),'-y','-v','error','-f','rawvideo','-pix_fmt','rgb24','-s',f'{canvas_width}x{height+band}','-r',str(fps),'-i','pipe:0','-i',str(source)]
- if has_audio:cmd+=['-filter_complex',audio_filter(timeline),'-map','0:v','-map','[storyaudio]','-c:a','aac']
+ if has_audio:cmd+=['-filter_complex',audio_filter(timeline),'-map','0:v','-map','[storyaudio]','-c:a','aac','-b:a','96k']
  else:cmd+=['-map','0:v','-an']
- cmd+=['-t',str(timeline['duration']),'-c:v','libx264','-pix_fmt','yuv420p','-preset','fast','-crf','17','-movflags','+faststart',str(output)]
+ cmd+=['-t',str(timeline['duration']),'-c:v','libx264','-pix_fmt','yuv420p','-preset','fast','-crf','22','-maxrate','3500k','-bufsize','7000k','-g',str(round(fps*2)),'-movflags','+faststart',str(output)]
  encode=subprocess.Popen(cmd,stdin=subprocess.PIPE,stderr=subprocess.PIPE)
  index=0;written=0;saved=set()
 

@@ -26,7 +26,7 @@ def actor_card(profile, time, switch_time):
     creation=profile.get('creation');scoring=profile.get('scoring');finishing=profile.get('finishing')
     if finite(creation) and finite(scoring) and (time < switch_time / 2 or not finishing):
         c=comparison('actor-creation','幕后MVP不止得分',profile['name'],creation,scoring,
-                     ('投篮得分','创造机会'),'影响力',f"{profile.get('scope','阶段汇总')} · {profile.get('games','—')} 场")
+                     ('投篮得分','创造机会'),'影响力','赛季背景 · 非本回合测量'+(f" · {profile['games']} 场" if finite(profile.get('games')) else ''))
         # These are two components, not before/after or a causal uplift.
         c.update(delta=None,headline=f'{creation:+.2f}',headlineUnit='创造机会影响力',accent='#f4c45e')
         return c
