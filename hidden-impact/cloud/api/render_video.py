@@ -138,11 +138,11 @@ def composite(image,result,t):
  im=broadcast_shell(w,h).copy();im.paste(image,(0,round(44*pixel_scale)))
  w,h=960,h/pixel_scale
  draw=ScaledDraw(im,pixel_scale)
- draw.line((20,13,20,30),fill='#d9bf82',width=3)
- draw.line((26,13,26,24),fill='#d9bf82',width=2)
- draw.text((38,11),'HIDDEN IMPACT',font=font(17),fill='#e9dfc7')
- draw.line((195,13,195,31),fill='#475043',width=1)
- draw.text((211,12),manifest['actor']['label'],font=font(16),fill='#c8d3c5')
+ draw.text((20,15),'TEAM 14',font=font(11),fill='#d9bf82')
+ draw.text((80,1),'HI',font=font(28),fill='#e9dfc7')
+ draw.line((118,13,118,31),fill='#475043',width=1)
+ draw.text((130,12),'Hidden Impact',font=font(15),fill='#d2d7c8')
+ draw.text((270,13),manifest['actor']['label'],font=font(14),fill='#97a792')
  from story_direction import build_direction,phase_at,draw_chapters
  direction=manifest.get('direction') or build_direction(manifest,result['video']['duration'])
  manifest['direction']=direction
@@ -279,7 +279,7 @@ def render(source,result,output,story_dir=None):
  from story_playback import plan,audio_filter
  timeline=plan(manifest,end,fps);manifest['playback']=timeline
  holds={b['sourceFrame']:b for b in timeline['beats']}
- manifest.update(width=width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='editorial-forest-hd-v13',encoding={'codec':'h264','crf':17,'preset':'fast'})
+ manifest.update(width=width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='editorial-forest-hd-v14',encoding={'codec':'h264','crf':17,'preset':'fast'})
  target=Path(output);target.parent.mkdir(parents=True,exist_ok=True)
  story_dir=Path(story_dir) if story_dir else target.parent;story_dir.mkdir(parents=True,exist_ok=True)
  decode=subprocess.Popen([ffmpeg(),'-v','error','-i',str(source),'-t',str(end),'-vf',f'fps={fps},scale={width}:{height}:flags=lanczos','-f','rawvideo','-pix_fmt','rgb24','pipe:1'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
