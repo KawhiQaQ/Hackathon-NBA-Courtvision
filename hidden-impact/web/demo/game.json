@@ -12,7 +12,7 @@
       "matchup": "尼克斯 × 马刺",
       "source": "NBA China · Inside the Game",
       "duration": 13.466666666666667,
-      "renderStyle": "locked-trio-v2",
+      "renderStyle": "dual-route-v3",
       "width": 960,
       "height": 684,
       "video": "game/197/replay.mp4",
@@ -385,7 +385,7 @@
         "id": "NYK-32",
         "label": "尼克斯 32号"
       },
-      "score": 60.7,
+      "score": 28.2,
       "components": [],
       "roles": [
         {
@@ -403,10 +403,10 @@
           "color": "#77cfe4"
         },
         {
-          "id": "SAS-5",
+          "id": "SAS-1",
           "label": "防守者",
-          "displayName": "马刺 5号 · 防守者",
-          "name": "马刺 5号",
+          "displayName": "马刺 1号 · 防守者",
+          "name": "马刺 1号",
           "color": "#ee927f"
         }
       ],
@@ -649,16 +649,16 @@
       },
       "impact": {
         "version": "hidden-impact/game-impact-v1",
-        "score": 71.8,
-        "actionScore": 60.7,
+        "score": 50.7,
+        "actionScore": 28.2,
         "components": [
           {
             "key": "action",
             "label": "配合与防守响应",
             "weight": 65,
-            "value": 0.607,
+            "value": 0.282,
             "detail": "连续画面中的动作证据",
-            "points": 39.45
+            "points": 18.33
           },
           {
             "key": "opportunity",
@@ -686,7 +686,7 @@
       "team": "尼克斯",
       "videoId": "nba-0042500404-428",
       "roundKey": "0042500404:428",
-      "renderStyle": "locked-trio-v2",
+      "renderStyle": "dual-route-v3",
       "identity": {
         "jersey": "32",
         "confirmed": true,
@@ -1045,7 +1045,7 @@
       "team": "尼克斯",
       "videoId": "nba-0042500404-497",
       "roundKey": "0042500404:497",
-      "renderStyle": "locked-trio-v2",
+      "renderStyle": "dual-route-v3",
       "identity": {
         "jersey": "23",
         "confirmed": true,
@@ -1404,7 +1404,7 @@
       "team": "尼克斯",
       "videoId": "nba-0042500404-532",
       "roundKey": "0042500404:532",
-      "renderStyle": "locked-trio-v2",
+      "renderStyle": "dual-route-v3",
       "identity": {
         "jersey": "23",
         "confirmed": true,
@@ -1426,7 +1426,7 @@
         "id": "NYK-5",
         "label": "尼克斯 5号"
       },
-      "score": 55.7,
+      "score": 37.9,
       "components": [],
       "roles": [
         {
@@ -1444,10 +1444,10 @@
           "color": "#77cfe4"
         },
         {
-          "id": "SAS-4",
+          "id": "SAS-1",
           "label": "防守者",
-          "displayName": "马刺 4号 · 防守者",
-          "name": "马刺 4号",
+          "displayName": "马刺 1号 · 防守者",
+          "name": "马刺 1号",
           "color": "#ee927f"
         }
       ],
@@ -1726,16 +1726,16 @@
       },
       "impact": {
         "version": "hidden-impact/game-impact-v1",
-        "score": 54.2,
-        "actionScore": 55.7,
+        "score": 42.6,
+        "actionScore": 37.9,
         "components": [
           {
             "key": "action",
             "label": "配合与防守响应",
             "weight": 65,
-            "value": 0.557,
+            "value": 0.379,
             "detail": "连续画面中的动作证据",
-            "points": 36.21
+            "points": 24.64
           },
           {
             "key": "opportunity",
@@ -1763,7 +1763,7 @@
       "team": "尼克斯",
       "videoId": "nba-0042500404-658",
       "roundKey": "0042500404:658",
-      "renderStyle": "locked-trio-v2",
+      "renderStyle": "dual-route-v3",
       "identity": {
         "jersey": "5",
         "confirmed": true,
@@ -1778,26 +1778,29 @@
   "ranking": [
     {
       "team": "尼克斯",
-      "jersey": "32",
-      "key": "尼克斯:32",
-      "label": "尼克斯 32号",
+      "jersey": "23",
+      "key": "尼克斯:23",
+      "label": "尼克斯 23号",
       "scores": [
-        71.8
+        41.4,
+        47.5
       ],
       "rounds": [
-        "0042500404:428"
+        "0042500404:497",
+        "0042500404:532"
       ],
       "coverage": [
+        1.0,
         1.0
       ],
-      "wins": 1,
-      "total": 71.8,
-      "average": 71.8,
-      "gameScore": 35.99,
+      "wins": 2,
+      "total": 88.9,
+      "average": 44.5,
+      "gameScore": 38.14,
       "components": {
-        "total": 15.04,
-        "average": 17.95,
-        "wins": 3.0
+        "total": 21.02,
+        "average": 11.11,
+        "wins": 6.0
       },
       "dataCoverage": 1.0,
       "rank": 1
@@ -1819,15 +1822,98 @@
       "wins": 1,
       "total": 71.5,
       "average": 71.5,
-      "gameScore": 35.85,
+      "gameScore": 37.78,
       "components": {
-        "total": 14.98,
+        "total": 16.91,
         "average": 17.88,
         "wins": 3.0
       },
       "dataCoverage": 1.0,
       "rank": 2
     },
+    {
+      "team": "尼克斯",
+      "jersey": "32",
+      "key": "尼克斯:32",
+      "label": "尼克斯 32号",
+      "scores": [
+        50.7
+      ],
+      "rounds": [
+        "0042500404:428"
+      ],
+      "coverage": [
+        1.0
+      ],
+      "wins": 1,
+      "total": 50.7,
+      "average": 50.7,
+      "gameScore": 27.67,
+      "components": {
+        "total": 11.99,
+        "average": 12.68,
+        "wins": 3.0
+      },
+      "dataCoverage": 1.0,
+      "rank": 3
+    },
+    {
+      "team": "尼克斯",
+      "jersey": "5",
+      "key": "尼克斯:5",
+      "label": "尼克斯 5号",
+      "scores": [
+        42.6
+      ],
+      "rounds": [
+        "0042500404:658"
+      ],
+      "coverage": [
+        1.0
+      ],
+      "wins": 1,
+      "total": 42.6,
+      "average": 42.6,
+      "gameScore": 23.72,
+      "components": {
+        "total": 10.07,
+        "average": 10.65,
+        "wins": 3.0
+      },
+      "dataCoverage": 1.0,
+      "rank": 4
+    }
+  ],
+  "winner": {
+    "team": "尼克斯",
+    "jersey": "23",
+    "key": "尼克斯:23",
+    "label": "尼克斯 23号",
+    "scores": [
+      41.4,
+      47.5
+    ],
+    "rounds": [
+      "0042500404:497",
+      "0042500404:532"
+    ],
+    "coverage": [
+      1.0,
+      1.0
+    ],
+    "wins": 2,
+    "total": 88.9,
+    "average": 44.5,
+    "gameScore": 38.14,
+    "components": {
+      "total": 21.02,
+      "average": 11.11,
+      "wins": 6.0
+    },
+    "dataCoverage": 1.0,
+    "rank": 1
+  },
+  "leaders": [
     {
       "team": "尼克斯",
       "jersey": "23",
@@ -1848,91 +1934,11 @@
       "wins": 2,
       "total": 88.9,
       "average": 44.5,
-      "gameScore": 35.74,
+      "gameScore": 38.14,
       "components": {
-        "total": 18.62,
+        "total": 21.02,
         "average": 11.11,
         "wins": 6.0
-      },
-      "dataCoverage": 1.0,
-      "rank": 3
-    },
-    {
-      "team": "尼克斯",
-      "jersey": "5",
-      "key": "尼克斯:5",
-      "label": "尼克斯 5号",
-      "scores": [
-        54.2
-      ],
-      "rounds": [
-        "0042500404:658"
-      ],
-      "coverage": [
-        1.0
-      ],
-      "wins": 1,
-      "total": 54.2,
-      "average": 54.2,
-      "gameScore": 27.9,
-      "components": {
-        "total": 11.35,
-        "average": 13.55,
-        "wins": 3.0
-      },
-      "dataCoverage": 1.0,
-      "rank": 4
-    }
-  ],
-  "winner": {
-    "team": "尼克斯",
-    "jersey": "32",
-    "key": "尼克斯:32",
-    "label": "尼克斯 32号",
-    "scores": [
-      71.8
-    ],
-    "rounds": [
-      "0042500404:428"
-    ],
-    "coverage": [
-      1.0
-    ],
-    "wins": 1,
-    "total": 71.8,
-    "average": 71.8,
-    "gameScore": 35.99,
-    "components": {
-      "total": 15.04,
-      "average": 17.95,
-      "wins": 3.0
-    },
-    "dataCoverage": 1.0,
-    "rank": 1
-  },
-  "leaders": [
-    {
-      "team": "尼克斯",
-      "jersey": "32",
-      "key": "尼克斯:32",
-      "label": "尼克斯 32号",
-      "scores": [
-        71.8
-      ],
-      "rounds": [
-        "0042500404:428"
-      ],
-      "coverage": [
-        1.0
-      ],
-      "wins": 1,
-      "total": 71.8,
-      "average": 71.8,
-      "gameScore": 35.99,
-      "components": {
-        "total": 15.04,
-        "average": 17.95,
-        "wins": 3.0
       },
       "dataCoverage": 1.0,
       "rank": 1

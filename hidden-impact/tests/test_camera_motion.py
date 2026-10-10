@@ -8,6 +8,22 @@ from presentation import motion
 from test_presentation import verified
 
 class CameraMotionTests(unittest.TestCase):
+ def test_defender_has_independent_direction_and_disappears_on_missing_track(self):
+  r=verified()
+  for f in r['vision']['frames']:
+   for p in f['people']:
+    p['x']=.45+f['time']*(.06 if p['trackId']=='lead-x' else -.06)
+  frames=motion(r,r['events'][0])['frames']
+  hero=frames[0]['heroArrow'];defender=frames[0]['defenderArrow']
+  self.assertEqual(defender['trackId'],'guard-z')
+  self.assertGreater(hero['points'][-1][0],hero['points'][0][0])
+  self.assertLess(defender['points'][-1][0],defender['points'][0][0])
+  self.assertGreater(len(defender['points']),2)
+  for f in r['vision']['frames']:
+   if .3<f['time']<1.5:f['people']=[p for p in f['people'] if p['trackId']!='guard-z']
+  frame=motion(r,r['events'][0],fps=10)['frames'][10]
+  self.assertIsNone(frame['defenderArrow']);self.assertIsNotNone(frame['heroArrow'])
+
  def test_background_translation_and_featureless_rejection(self):
   a=np.random.default_rng(4).normal(size=(54,320))
   shift=translation(a,np.roll(a,(-2,-9),(0,1)))

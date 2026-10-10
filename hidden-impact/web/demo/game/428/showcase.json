@@ -9,7 +9,7 @@
     "id": "NYK-32",
     "label": "尼克斯 32号"
   },
-  "score": 60.7,
+  "score": 28.2,
   "components": [],
   "roles": [
     {
@@ -27,10 +27,10 @@
       "color": "#77cfe4"
     },
     {
-      "id": "SAS-5",
+      "id": "SAS-1",
       "label": "防守者",
-      "displayName": "马刺 5号 · 防守者",
-      "name": "马刺 5号",
+      "displayName": "马刺 1号 · 防守者",
+      "name": "马刺 1号",
       "color": "#ee927f"
     }
   ],
@@ -273,16 +273,16 @@
   },
   "impact": {
     "version": "hidden-impact/game-impact-v1",
-    "score": 71.8,
-    "actionScore": 60.7,
+    "score": 50.7,
+    "actionScore": 28.2,
     "components": [
       {
         "key": "action",
         "label": "配合与防守响应",
         "weight": 65,
-        "value": 0.607,
+        "value": 0.282,
         "detail": "连续画面中的动作证据",
-        "points": 39.45
+        "points": 18.33
       },
       {
         "key": "opportunity",
@@ -310,7 +310,7 @@
   "team": "尼克斯",
   "videoId": "nba-0042500404-428",
   "roundKey": "0042500404:428",
-  "renderStyle": "locked-trio-v2",
+  "renderStyle": "dual-route-v3",
   "identity": {
     "jersey": "32",
     "confirmed": true,

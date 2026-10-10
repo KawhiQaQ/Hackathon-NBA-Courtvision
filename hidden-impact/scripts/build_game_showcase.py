@@ -7,7 +7,7 @@ from pathlib import Path
 from statistics import median
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'cloud/api'))
-from presentation import build
+from presentation import build,motion
 from render_video import render
 from game_summary import measured_action,round_score,aggregate
 from game_review_annotations import CLIPS
@@ -56,12 +56,16 @@ def render_first(audit,manifest,destination):
     destination.mkdir(exist_ok=True)
     manifest.update(mode='analysis',status='ready',eventId=audit['events'][0]['id'])
     audit['presentation']=manifest
-    audit['presentationMotion'].update(width=1280,height=720)
-    for row in audit['presentationMotion']['frames']:
-        if row['people'][0].get('offscreen'):row['heroArrow']=None
+    from camera_motion import attach
+    from vision import sample_video
+    # Preserve accepted reviewed positions, regenerate BOTH arrows through the
+    # production motion builder instead of retaining a separate first-play style.
+    frames=[{'time':row['time'],'scene':0,'people':[p for p in row['people'] if not p.get('offscreen')]} for row in audit['presentationMotion']['frames']]
+    audit['vision']=attach({**audit['vision'],'frames':frames},sample_video(ROOT/'web/demo/original.mp4',audit['video']['duration']))
+    audit['presentationMotion']=motion(audit,audit['events'][0],fps=30)
     for k,entry in enumerate(manifest['evidence']):entry['image']=f'frame-{k+1}.jpg'
     render(ROOT/'web/demo/original.mp4',audit,destination/'replay.mp4')
-    manifest.update(mode='demo',video='game/197/replay.mp4',rendered=True,renderStyle='locked-trio-v2')
+    manifest.update(mode='demo',video='game/197/replay.mp4',rendered=True,renderStyle='dual-route-v3')
     for k,entry in enumerate(manifest['evidence']):entry['image']=f'game/197/frame-{k+1}.jpg'
     manifest['poster']=manifest['evidence'][0]['image']
 
@@ -105,10 +109,11 @@ def package():
     single=copy.deepcopy(first);single['video']='replay.mp4';single['original']='../../original.mp4';single['poster']='frame-1.jpg'
     for k,f in enumerate(single['evidence']):f['image']=f'frame-{k+1}.jpg'
     (out/'197/showcase.json').write_text(json.dumps(single,ensure_ascii=False,indent=2))
+    (archive/'197.json').write_text(json.dumps(audit,ensure_ascii=False))
     rounds.append(first)
     for event_id,cfg in CLIPS.items():
         item=catalog[str(event_id)];result=reviewed_result(item,cfg);manifest=build(result)
-        manifest.update(renderStyle='locked-trio-v2',mode='demo',identity={'jersey':cfg['hero'],'confirmed':True,'source':'human-video-review'},duration=item['duration'])
+        manifest.update(renderStyle='dual-route-v3',mode='demo',identity={'jersey':cfg['hero'],'confirmed':True,'source':'human-video-review'},duration=item['duration'])
         manifest['insights']['shooter']='尼克斯 '+cfg['mate']+'号'
         if manifest['insights'].get('gravity'):manifest['insights']['gravity']['player']='尼克斯 '+cfg['mate']+'号'
         destination=out/str(event_id);destination.mkdir(exist_ok=True)

@@ -43,12 +43,36 @@ def wrap(draw,text,size,width):
  return rows
 
 
+def direction_ribbon(image,points,color):
+ """Antialiased tapered route ribbon, with a clear head and restrained shadow."""
+ if len(points)<2:return
+ pad=18;left=math.floor(min(p[0] for p in points))-pad;top=math.floor(min(p[1] for p in points))-pad
+ width=math.ceil(max(p[0] for p in points))-left+pad;height=math.ceil(max(p[1] for p in points))-top+pad
+ scale=3;layer=Image.new('RGBA',(width*scale,height*scale));d=ImageDraw.Draw(layer)
+ local=[((x-left)*scale,(y-top)*scale) for x,y in points]
+ # Reserve the final 15 pixels for the arrowhead, preventing a blunt shaft tip.
+ end=local[-1];a=local[-2];angle=math.atan2(end[1]-a[1],end[0]-a[0]);u=(math.cos(angle),math.sin(angle));n=(-u[1],u[0])
+ head=15*scale;base=(end[0]-u[0]*head,end[1]-u[1]*head)
+ shaft=[p for p in local[:-1] if math.dist(p,end)>head]+[base]
+ edges=[[],[]]
+ for i,p in enumerate(shaft):
+  before=shaft[max(0,i-1)];after=shaft[min(len(shaft)-1,i+1)];ang=math.atan2(after[1]-before[1],after[0]-before[0]);half=(1.6+1.6*i/max(1,len(shaft)-1))*scale
+  for side,sign in enumerate((1,-1)):edges[side].append((p[0]-sign*math.sin(ang)*half,p[1]+sign*math.cos(ang)*half))
+ polygon=edges[0]+[(base[0]+n[0]*7*scale,base[1]+n[1]*7*scale),end,(base[0]-n[0]*7*scale,base[1]-n[1]*7*scale)]+list(reversed(edges[1]))
+ d.polygon(polygon,fill=(*color,245));d.line(polygon+[polygon[0]],fill=(14,28,35,220),width=scale,joint='curve')
+ # A fine inner highlight makes the two colors legible over wood and uniforms.
+ if len(shaft)>1:d.line(shaft,fill=tuple(round(c*.4+255*.6) for c in color)+(210,),width=scale,joint='curve')
+ layer=layer.resize((width,height),Image.Resampling.LANCZOS)
+ shadow=Image.new('RGBA',layer.size,(0,0,0,0));shadow.putalpha(layer.getchannel('A').filter(ImageFilter.GaussianBlur(2)).point(lambda v:round(v*.35)))
+ image.paste(shadow,(left,top+2),shadow);image.paste(layer,(left,top),layer)
+
+
 def composite(image,result,t):
  """Single compositor for the replay and story frames, driven by measured data."""
  manifest=result['presentation'];motion=result['presentationMotion'];w,h=image.size
  frame=motion['frames'][min(len(motion['frames'])-1,max(0,round(t*motion['fps'])))];colors={r['id']:r for r in manifest['roles']}
  # One broadcast language for every clip: fixed identities, soft focus, nameplates
- # and the protagonist's direction cue. No foot effects when grounding is uncertain.
+ # and two measured direction cues. No foot effects when grounding is uncertain.
  visible=[p for p in frame['people'] if not p.get('offscreen')]
  if visible:
   mask=Image.new('L',(w//4,h//4),48);md=ImageDraw.Draw(mask)
@@ -80,13 +104,11 @@ def composite(image,result,t):
   draw.rounded_rectangle((lx,top,lx+length,top+29),radius=7,fill=(9,30,30,235),outline=(*color,110),width=1)
   draw.ellipse((lx+8,top+12,lx+12,top+16),fill=(*color,255))
   draw.text((lx+18,top+2),text,font=font(18),fill=(*color,255))
- arrow=frame.get('heroArrow')
- if arrow:
-  points=[(x/motion['width']*w,y/motion['height']*h+44) for x,y in arrow['points']]
-  draw.line(points,fill=(27,37,25,110),width=11)
-  draw.line(points,fill=(255,216,112,255),width=6)
-  a,b=points[-2:];ang=math.atan2(b[1]-a[1],b[0]-a[0]);length=15
-  draw.polygon([b,(b[0]-length*math.cos(ang-.45),b[1]-length*math.sin(ang-.45)),(b[0]-length*math.cos(ang+.45),b[1]-length*math.sin(ang+.45))],fill=(255,216,112,255))
+ for key,idx in [('defenderArrow',2),('heroArrow',0)]:
+  arrow=frame.get(key)
+  if arrow:
+   points=[(x/motion['width']*w,y/motion['height']*h+44) for x,y in arrow['points']]
+   direction_ribbon(im,points,tuple(bytes.fromhex(manifest['roles'][idx]['color'][1:])))
  segments=manifest['insights'].get('narration',{}).get('segments',[])
  seg=next((s for s in segments if s['start']<=t<s['end']),None)
  if seg:title,text=seg['title'],seg['text']
@@ -102,7 +124,7 @@ def render(source,result,output,story_dir=None):
  if result['presentation'].get('status')!='ready':return None
  manifest=result['presentation'];start=0;end=result['video']['duration'];width=960
  height=round(width/result['vision'].get('aspectRatio',16/9)/2)*2;fps=result['presentationMotion']['fps']
- manifest.update(width=width,height=height+144,renderStyle='locked-trio-v2')
+ manifest.update(width=width,height=height+144,renderStyle='dual-route-v3')
  target=Path(output);target.parent.mkdir(parents=True,exist_ok=True)
  story_dir=Path(story_dir) if story_dir else target.parent;story_dir.mkdir(parents=True,exist_ok=True)
  decode=subprocess.Popen([ffmpeg(),'-v','error','-i',str(source),'-t',str(end),'-vf',f'fps={fps},scale={width}:{height}','-f','rawvideo','-pix_fmt','rgb24','pipe:1'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
@@ -125,4 +147,4 @@ def render(source,result,output,story_dir=None):
    if process.poll() is None:process.kill();process.wait()
    for stream in [process.stdin,process.stdout,process.stderr]:
     if stream and not stream.closed:stream.close()
- return {'start':0,'end':end,'fps':fps,'frameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':'locked-trio-v2'}
+ return {'start':0,'end':end,'fps':fps,'frameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':'dual-route-v3'}

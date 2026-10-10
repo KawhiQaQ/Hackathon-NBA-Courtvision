@@ -346,7 +346,7 @@
   "team": "尼克斯",
   "videoId": "nba-0042500404-532",
   "roundKey": "0042500404:532",
-  "renderStyle": "locked-trio-v2",
+  "renderStyle": "dual-route-v3",
   "identity": {
     "jersey": "23",
     "confirmed": true,

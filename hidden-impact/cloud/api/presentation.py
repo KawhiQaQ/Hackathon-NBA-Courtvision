@@ -73,27 +73,48 @@ def motion(result,event,fps=24,width=1280,height=720):
         if 'cameraOffset' not in a or 'cameraOffset' not in b or a.get('scene')!=b.get('scene'):return (0,0)
         k=max(0,min(1,(t-a['time'])/max(.001,b['time']-a['time'])))
         return [a['cameraOffset'][i]+k*(b['cameraOffset'][i]-a['cameraOffset'][i]) for i in range(2)]
-    output=[];heading=None;last_direction=-99;last_scene=None
+    # Each identity owns its own heading state; a defender can never inherit the
+    # protagonist's direction. Preview only measured positions in the same shot.
+    output=[];states={idx:dict(heading=None,last=-99,scene=None,length=width*.06,bend=0) for idx in (0,2)}
     for i in range(math.ceil(result['video']['duration']*fps)):
-        t=i/fps; people=[locate(pid,t) for pid in ids];actor=people[0]; arrow=None
-        if actor['scene']!=last_scene:heading=None
-        last_scene=actor['scene']
-        future=locate(ids[0],min(t+.65,result['video']['duration']))
-        if not actor.get('offscreen'):
-            vector=None
-            if not future.get('offscreen') and future['scene']==actor['scene']:
-                pan=camera(min(t+.65,result['video']['duration']));now=camera(t)
-                vector=((future['x']+future['w']/2-actor['x']-actor['w']/2-(pan[0]-now[0]))*width,(future['y']+future['h']*.5-actor['y']-actor['h']*.5-(pan[1]-now[1]))*height)
-            if vector and math.hypot(*vector)>8:
-                angle=math.atan2(vector[1],vector[0])
-                if heading is not None:angle=heading+max(-.22,min(.22,((angle-heading+math.pi)%(2*math.pi)-math.pi)*.45))
-                heading=angle;last_direction=t
-            if heading is not None and t-last_direction<=1.2:
-                x=(actor['x']+actor['w']/2)*width;y=(actor['y']+actor['h']*.45)*height
-                arrow={'points':[[x,y],[x+math.cos(heading)*width*.075,y+math.sin(heading)*width*.075]],'mode':'observed-future' if t==last_direction else 'short-heading-hold'}
-        else:heading=None
-        output.append({'time':round(t,5),'people':people,'heroArrow':arrow})
-    return {'schema':'hidden-impact/presentation-motion-v1','fps':fps,'width':width,'height':height,'frames':output}
+        t=i/fps;people=[locate(pid,t) for pid in ids];arrows={}
+        for idx,key in [(0,'heroArrow'),(2,'defenderArrow')]:
+            p=people[idx];state=states[idx];arrow=None
+            if p['scene']!=state['scene'] or p.get('offscreen'):
+                state.update(heading=None,last=-99,bend=0)
+            state['scene']=p['scene']
+            if not p.get('offscreen'):
+                def vector_at(dt):
+                    ft=min(t+dt,result['video']['duration']);q=locate(ids[idx],ft)
+                    if q.get('offscreen') or q['scene']!=p['scene']:return None
+                    pan=camera(ft);now=camera(t)
+                    # Feet displacements avoid vertical false motion from a changing box height.
+                    return ((q['x']+q['w']/2-p['x']-p['w']/2-(pan[0]-now[0]))*width,
+                            (q['y']+q['h']-p['y']-p['h']-(pan[1]-now[1]))*height)
+                vector=vector_at(.8);half=vector_at(.4)
+                if vector and math.hypot(*vector)>8:
+                    angle=math.atan2(vector[1],vector[0]);heading=state['heading']
+                    if heading is not None:
+                        # Frame-rate independent damping; cap sudden reversals.
+                        angle=heading+max(-5/fps,min(5/fps,((angle-heading+math.pi)%(2*math.pi)-math.pi)*min(1,10/fps)))
+                    length=max(width*.045,min(width*.095,math.hypot(*vector)))
+                    state.update(heading=angle,last=t,length=state['length']*.8+length*.2)
+                    bend=0 if half is None else (-math.sin(angle)*half[0]+math.cos(angle)*half[1])
+                    state['bend']=state['bend']*.8+max(-width*.015,min(width*.015,bend))*.2
+                if state['heading'] is not None and t-state['last']<=1.2:
+                    angle=state['heading'];u=(math.cos(angle),math.sin(angle));n=(-u[1],u[0])
+                    # Start just outside the body; the cue no longer crosses the jersey.
+                    center=((p['x']+p['w']/2)*width,(p['y']+p['h']*.64)*height)
+                    gap=max(width*.009,min(width*.025,p['w']*width*.52))
+                    a=[center[k]+u[k]*gap for k in (0,1)]
+                    b=[a[k]+u[k]*state['length'] for k in (0,1)]
+                    c=[(a[k]+b[k])/2+n[k]*state['bend'] for k in (0,1)]
+                    points=[[(1-v)**2*a[k]+2*(1-v)*v*c[k]+v*v*b[k] for k in (0,1)] for v in [j/16 for j in range(17)]]
+                    arrow={'trackId':ids[idx],'points':points,'mode':'observed-future' if t==state['last'] else 'short-heading-hold'}
+            arrows[key]=arrow
+        output.append({'time':round(t,5),'people':people,**arrows})
+    return {'schema':'hidden-impact/presentation-motion-v2','fps':fps,'width':width,'height':height,'frames':output}
+
 
 
 def build(result,fps=24):

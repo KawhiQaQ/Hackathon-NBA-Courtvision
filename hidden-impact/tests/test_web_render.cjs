@@ -77,6 +77,12 @@ for(const time of [0,3,6.5,8.3,10.5,11.6,13.3]){nodes.get('video').currentTime=t
 assert(nodes.get('impact-content').innerHTML.includes('63'));
 assert.equal(context.cooperation.events[0].score,null);
 console.log('PASS: continuous three-person presentation, protagonist-only arrow, and presentation score separate from algorithm output.');
+// New motion payloads add an independent coral defender route; legacy payloads still work.
+vm.runInContext("cooperation.presentationMotion.frames.forEach(f=>f.defenderArrow={trackId:'P30',points:[[400,300],[450,330],[500,350]]})",context);
+vm.runInContext('renderOverlay()',context);
+assert(nodes.get('overlay').innerHTML.includes('direction-defender-P30'));
+assert(nodes.get('overlay').innerHTML.includes('#ee927f'));
+assert(!nodes.get('overlay').innerHTML.includes('direction-beneficiary'));
 // The workbench consumes the same timed-segment contract as the showcase.
 nodes.get('video').currentTime=3.5;vm.runInContext('renderOverlay()',context);
 assert.equal(nodes.get('timed-commentary').hidden,false);

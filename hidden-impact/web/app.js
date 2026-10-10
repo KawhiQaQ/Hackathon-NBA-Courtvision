@@ -164,12 +164,21 @@ function updateRoleStrip(r,p,e,t,people){
 function projection(h,x,y){const d=h[2][0]*x+h[2][1]*y+h[2][2];return d?[(h[0][0]*x+h[0][1]*y+h[0][2])/d,(h[1][0]*x+h[1][1]*y+h[1][2])/d]:null;}
 function currentVisionFrame(r,t){return r?.vision?.frames?.reduce((a,b)=>!a||Math.abs(b.time-t)<Math.abs(a.time-t)?b:a,null);}
 function reviewedDirections(r,e,t,people,px,py){
- if(r.presentationMotion){const motion=r.presentationMotion.frames[Math.min(r.presentationMotion.frames.length-1,Math.round(t*r.presentationMotion.fps))];if(!motion?.heroArrow)return '';return `<defs><marker id="direction-actor-${e.actorTrackId}" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#ffdc79"/></marker></defs><polyline points="${motion.heroArrow.points.map(([x,y])=>`${px(x/(r.presentationMotion.width||1280))},${py(y/(r.presentationMotion.height||720))}`).join(' ')}" fill="none" stroke="#ffdc79" stroke-width="5" stroke-linecap="round" marker-end="url(#direction-actor-${e.actorTrackId})"/>`;}
+ if(r.presentationMotion){
+  const motion=r.presentationMotion.frames[Math.min(r.presentationMotion.frames.length-1,Math.round(t*r.presentationMotion.fps))];
+  if(!motion)return '';
+  return [['heroArrow','actor','#f4c45e'],['defenderArrow','defender','#ee927f']].map(([key,role,color])=>{
+   const arrow=motion[key];if(!arrow)return '';
+   const points=arrow.points.map(([x,y])=>`${px(x/(r.presentationMotion.width||1280))},${py(y/(r.presentationMotion.height||720))}`).join(' ');
+   const id=`direction-${role}-${esc(arrow.trackId||e[role==='actor'?'actorTrackId':'defenderTrackId'])}`;
+   return `<defs><marker id="${id}" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 L1.5,3.5 Z" fill="${color}"/></marker></defs><polyline points="${points}" fill="none" stroke="#10242b" stroke-opacity=".6" stroke-width="8" stroke-linecap="round"/><polyline points="${points}" fill="none" stroke="${color}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#${id})"/>`;
+  }).join('');
+ }
 
  const frame=currentVisionFrame(r,t),h=frame?.calibration?.courtToImage;if(!h)return '';
  let out='';
  for(const [id,label,type,color] of storyRoles(e,null)){
-  if(type!=='actor')continue;
+  if(!['actor','defender'].includes(type))continue;
   const person=people.find(q=>q.trackId===id);if(!person?.court)continue;
   const origin=projection(h,...person.court);if(!origin)continue;
   const points=[[px(person.x+person.w/2),py(person.y+person.h*.4)]];let previous=t,last=person.court;
