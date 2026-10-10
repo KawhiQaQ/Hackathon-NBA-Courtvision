@@ -36,6 +36,7 @@ function selectRound(n){
  if($('narration-kind'))$('narration-kind').textContent=data.insights?.narration?.modelInvoked?'AI 解说':'回合解读';
  if($('contribution-kind'))$('contribution-kind').textContent=data.analysisStatus==='unconfirmed-mvp'?'本回合数据解读':'本回合幕后 MVP';
  $('action-title').textContent=data.actionTitle||'配合观察';$('score').textContent=Number.isFinite(data.impact?.score)?data.impact.score: Number.isFinite(data.score)?data.score:'—';
+ if($('value-number'))$('value-number').hidden=!Number.isFinite(data.score);if($('score-method'))$('score-method').hidden=!Number.isFinite(data.score);
  $('impact-thesis').textContent=data.summary||data.insights?.interpretation||'';$('components').innerHTML=scoreMarkup(data.impact);$('score-formula').textContent=data.impact?.formula||(data.analysisStatus==='unconfirmed-mvp'?'角色证据不足，本回合暂不计入幕后 MVP 排名。':'此回合仅有动作观察分，未提供完整机会对照。');
  $('roles').innerHTML=data.roles.map(r=>`<span><i style="--color:${esc(r.color)}"></i>${esc(r.displayName||r.label)}</span>`).join('');
  const insight=data.insights||{cues:[],narration:{segments:[]}};$('live-insight').hidden=!insight.cues.length&&!insight.narration?.segments?.length;
