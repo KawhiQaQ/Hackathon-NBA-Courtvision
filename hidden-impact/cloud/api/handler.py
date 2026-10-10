@@ -46,6 +46,7 @@ def render_result(result,video_item,prefix):
      s3.upload_file(workdir+'/'+frame['image'],BUCKET,frame_key,ExtraArgs={'ContentType':'image/jpeg'})
      frame['imageKey']=frame_key
     presentation['rendered']=True
+    put(prefix+'presentation-plan.json',result['presentationPlan'])
   except Exception as exc:
    result['renderError']='战术视频生成失败，请重试。'
    result['presentation']['rendered']=False

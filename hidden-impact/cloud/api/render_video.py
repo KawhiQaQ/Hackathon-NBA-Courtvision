@@ -140,10 +140,10 @@ def composite(image,result,t):
  w,h=960,h/pixel_scale
  draw=ScaledDraw(im,pixel_scale)
  draw.text((20,15),'TEAM 14',font=font(11),fill='#d9bf82')
- draw.text((80,1),'HI',font=font(28),fill='#e9dfc7')
- draw.line((118,13,118,31),fill='#475043',width=1)
- draw.text((130,12),'Hidden Impact',font=font(15),fill='#d2d7c8')
- draw.text((270,13),manifest['actor']['label'],font=font(14),fill='#97a792')
+ draw.text((80,2),'HiAgent',font=font(26),fill='#e9dfc7')
+ draw.line((190,13,190,31),fill='#475043',width=1)
+ draw.text((202,14),'Hidden Impact Agent',font=font(12),fill='#d2d7c8')
+ draw.text((350,13),manifest['actor']['label'],font=font(14),fill='#97a792')
  from story_direction import build_direction,phase_at,draw_chapters
  direction=manifest.get('direction') or build_direction(manifest,result['video']['duration'])
  manifest['direction']=direction
@@ -287,6 +287,8 @@ def render(source,result,output,story_dir=None):
  from presentation import build
  if result.get('presentation',{}).get('mode')!='analysis':build(result)
  if result['presentation'].get('status')!='ready':return None
+ from presentation_plan import attach
+ attach(result)
  manifest=result['presentation'];start=0;end=result['video']['duration']
  width,height,band,original=output_dimensions(source);canvas_width=width+round(300*width/960/2)*2;fps=result['presentationMotion']['fps']
  from story_playback import plan,audio_filter

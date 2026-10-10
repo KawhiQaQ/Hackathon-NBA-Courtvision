@@ -1,5 +1,5 @@
 {
-  "schema": "hidden-impact/presentation-review-v1",
+  "schema": "hidden-impact/presentation-plan-v1",
   "source": "human-reviewed-video",
   "videoId": "dallas-exam",
   "videoSha256": "f2c0fb6aa1ec10bd78ea9e6724190b7f03bf48f21af2f743c694bbdb49254c91",
@@ -452,5 +452,10 @@
       "text": "这次进攻的幕后贡献来自7号：抢回前场篮板，再为队友掩护。进球由00号完成，机会的延续离不开此前的配合。"
     }
   ],
-  "gravityContexts": []
+  "gravityContexts": [],
+  "coordinateSpace": {
+    "width": 640,
+    "height": 360,
+    "anchor": "feet"
+  }
 }

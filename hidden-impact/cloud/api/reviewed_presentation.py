@@ -14,7 +14,10 @@ ROLE_STYLE=[('actor','幕后MVP','#f4c45e'),('beneficiary','受益队友','#77cf
 
 
 def validate(review,result,sha256):
-    if not isinstance(review,dict) or review.get('schema')!='hidden-impact/presentation-review-v1':raise ValueError('Unsupported presentation review')
+    if not isinstance(review,dict) or review.get('schema') not in ['hidden-impact/presentation-review-v1','hidden-impact/presentation-plan-v1']:raise ValueError('Unsupported presentation plan')
+    if review['schema']=='hidden-impact/presentation-plan-v1':
+        from presentation_plan import validate as validate_plan
+        validate_plan(review,result['video']['duration'])
     if review.get('videoId')!=result['video']['id'] or review.get('videoSha256')!=sha256 or not re.fullmatch('[a-f0-9]{64}',sha256 or ''):raise ValueError('Review belongs to a different video')
     if review.get('source')!='human-reviewed-video':raise ValueError('Review source must be explicit')
     duration=result['video']['duration'];roles=review.get('roles')
@@ -81,6 +84,8 @@ def build(source,review,sha256,source_job,fps=24,profiles=None):
     from story_direction import build_direction
     result['presentation']['direction']=build_direction(result['presentation'],result['video']['duration'])
     result['presentationMotion']=build_motion(review,result['video']['duration'],fps)
+    from presentation_plan import attach
+    attach(result)
     return result
 
 

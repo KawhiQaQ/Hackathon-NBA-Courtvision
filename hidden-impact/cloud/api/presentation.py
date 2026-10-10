@@ -204,6 +204,8 @@ def build(result,fps=24):
         manifest['roleLocalization']={'status':'unavailable','reason':lock.get('reason')}
     else:result['presentationMotion']=motion(result,e,fps=fps)
     result['focusPlayerId']=e['actorTrackId']
+    from presentation_plan import attach
+    attach(result)
     return manifest
 
 
@@ -233,4 +235,6 @@ def build_factual(result,fps=24):
     result['presentation']=p
     result['presentationMotion']=dict(schema='hidden-impact/presentation-motion-v2',fps=fps,width=1280,height=720,
         frames=[dict(time=i/fps,people=[],heroArrow=None,defenderArrow=None) for i in range(math.ceil(result['video']['duration']*fps))])
+    from presentation_plan import attach
+    attach(result)
     return p

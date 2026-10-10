@@ -43,6 +43,10 @@ def main():
         s3.head_object(Bucket=site,Key=key)
         return '../'+key
     p['video']=asset(p['videoKey'],'replay.mp4');p['original']=asset(item['key'],'original.mp4')
+    if result.get('presentationPlan'):
+        plan_key=f'jobs/{args.job}/presentation-plan.json'
+        s3.put_object(Bucket=bucket,Key=plan_key,Body=json.dumps(result['presentationPlan'],ensure_ascii=False).encode(),ContentType='application/json')
+        p['plan']=asset(plan_key,'presentation-plan.json')
     for i,frame in enumerate(p['evidence']):frame['image']=asset(frame['imageKey'],f'frame-{i+1}.jpg')
     p['publication']=dict(source=rights['source'],basis=rights['basis'],job=args.job,teamId='Team14',
         videoSha256=item.get('sha256'),dataSources=(result.get('deepData') or {}).get('sources',[]))

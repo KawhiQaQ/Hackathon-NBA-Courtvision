@@ -24,6 +24,7 @@ def export(analysis,video,out):
     subprocess.run([ffmpeg(),'-y','-v','error','-i',str(video),'-c:v','libx264','-preset','veryfast','-crf','20','-pix_fmt','yuv420p','-c:a','aac','-movflags','+faststart',str(out/'original.mp4')],check=True)
     manifest['rendered']=True
     (out/'showcase.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2))
+    (out/'presentation-plan.json').write_text(json.dumps(result['presentationPlan'],ensure_ascii=False,indent=2))
     return manifest
 
 if __name__=='__main__':
