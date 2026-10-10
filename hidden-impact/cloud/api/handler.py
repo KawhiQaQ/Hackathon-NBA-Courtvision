@@ -36,6 +36,22 @@ def review_source(payload):
   id=key_id(payload['sourceAnalysis']);key=f'analyses/{id}/result.json'
  return validate_source(get(key)),key,id
 
+def reference_profile(sha,source):
+ if not sha or not (source.get('deepData') or {}).get('official'):return None
+ from reference_reviewer import select
+ try:profile=get(f'calibrations/{sha}.json')
+ except s3.exceptions.ClientError as exc:
+  if exc.response['Error']['Code']=='NoSuchKey':return None
+  raise
+ return select(profile,sha,source['video'],source.get('deepData'))
+
+def apply_reference(source,profile,sha,prefix,source_key):
+ from reference_reviewer import apply
+ reviewed,artifacts=apply(source,profile,sha,source_key)
+ for name,document in artifacts.items():put(prefix+name,document)
+ reviewed['reviewArtifacts']={name:prefix+name for name in [*artifacts,'presentation-plan.json']}
+ return reviewed
+
 def model_review_worker(payload,job,arn):
  from model_reviewer import run
  from reviewed_presentation import build
@@ -52,6 +68,13 @@ def model_review_worker(payload,job,arn):
   path=directory+'/source.mp4';s3.download_file(BUCKET,item['key'],path)
   with open(path,'rb') as f:sha=hashlib.file_digest(f,'sha256').hexdigest()
   if sha!=item.get('sha256'):raise ValueError('Source video hash mismatch')
+  profile=reference_profile(sha,source) if payload.get('strategy','auto')=='auto' else None
+  if profile:
+   reviewed=apply_reference(source,profile,sha,prefix,source_key)
+   reviewed.update(job=job,createdAt=datetime.now(timezone.utc).isoformat(),executionOrigin='aws')
+   render_result(reviewed,item,prefix)
+   put(prefix+'result.json',reviewed);put(prefix+'status.json',dict(job=job,status='completed',updatedAt=time.time()))
+   return
   dense=sample_video(path,source['video']['duration'])
  plan,report,refs=run(source,dense,invoke,sha,source_key,progress)
  for name,document in [('review.json',plan),('references.json',refs),('review-report.json',report)]:put(prefix+name,document)
@@ -101,7 +124,7 @@ def worker(event):
   if exc.response['Error']['Code'] in ['PreconditionFailed','ConditionalRequestConflict']:return
   raise
  try:
-  payload=get(prefix+'request.json');original_frames=payload.get('frames',[]);dense_frames=None;put(prefix+'status.json',{'job':job,'status':'running','updatedAt':time.time()})
+  payload=get(prefix+'request.json');original_frames=payload.get('frames',[]);dense_frames=None;profile=None;sha=None;put(prefix+'status.json',{'job':job,'status':'running','updatedAt':time.time()})
   if payload.get('mode')=='model-reviewed-presentation':
    model_review_worker(payload,job,arn)
    return
@@ -129,13 +152,23 @@ def worker(event):
      if exc.response['Error']['Code']!='NoSuchKey':raise
    if cached:
     vision,frames=cached['vision'],cached['frames']
+    sha=cached.get('videoSha256')
    else:
     with tempfile.TemporaryDirectory() as workdir:
      video_path=workdir+'/input.video';s3.download_file(BUCKET,video_item['key'],video_path)
+     with open(video_path,'rb') as stream:sha=hashlib.file_digest(stream,'sha256').hexdigest()
      dense_frames=sample_video(video_path,payload['video']['duration']);payload['_denseFrames']=dense_frames
     vision,frames=build_vision(payload,progress)
     payload.pop('_denseFrames',None)
-    put(cached_key,{'vision':vision,'frames':frames})
+    put(cached_key,{'vision':vision,'frames':frames,'videoSha256':sha})
+   if not sha:
+    with tempfile.TemporaryDirectory() as workdir:
+     video_path=workdir+'/input.video';s3.download_file(BUCKET,video_item['key'],video_path)
+     with open(video_path,'rb') as stream:sha=hashlib.file_digest(stream,'sha256').hexdigest()
+    put(cached_key,{'vision':vision,'frames':frames,'videoSha256':sha})
+   if s3.head_object(Bucket=BUCKET,Key=video_item['key'])['ETag']!=etag:raise ValueError('Video changed during analysis')
+   video_item.update(sha256=sha,verifiedETag=etag);put(f"library/{payload['video']['id']}.json",video_item)
+   profile=reference_profile(sha,payload)
    payload['vision']=vision;payload['frames']=frames
    put(prefix+'perception.json',vision)
    # A fresh invocation gives VLM review and rendering their own timeout budget.
@@ -170,7 +203,7 @@ def worker(event):
     for check in verdict['checks']:
      for k in ['inputTokens','outputTokens','totalTokens']:current.setdefault('usage',{})[k]=current.get('usage',{}).get(k,0)+check.get('usage',{}).get(k,0)
    current=finalize(current)
-   if current.get('vision',{}).get('frames'):
+   if not profile and current.get('vision',{}).get('frames'):
     try:
      from role_localization import resolve
      if dense_frames is None:
@@ -205,14 +238,15 @@ def worker(event):
      print('commentary_failed',type(exc).__name__,str(exc)[:300])
    # Timed commentary is generated from the actual frames after role review.
    # A failed call stays unavailable; it never substitutes prepared demo copy.
-   try:
-    from narration import request_for_result
-    put(prefix+'status.json',{'job':job,'status':'running','stage':'narrate','updatedAt':time.time()})
-    current['narration']=invoke_review(request_for_result(current,original_frames))
-    for k in ['inputTokens','outputTokens','totalTokens']:current.setdefault('usage',{})[k]=current.get('usage',{}).get(k,0)+current['narration'].get('usage',{}).get(k,0)
-   except Exception as exc:
-    current['narration']={'status':'unavailable','segments':[],'error':str(exc)[:300]}
-    print('narration_failed',type(exc).__name__,str(exc)[:300])
+   if not profile:
+    try:
+     from narration import request_for_result
+     put(prefix+'status.json',{'job':job,'status':'running','stage':'narrate','updatedAt':time.time()})
+     current['narration']=invoke_review(request_for_result(current,original_frames))
+     for k in ['inputTokens','outputTokens','totalTokens']:current.setdefault('usage',{})[k]=current.get('usage',{}).get(k,0)+current['narration'].get('usage',{}).get(k,0)
+    except Exception as exc:
+     current['narration']={'status':'unavailable','segments':[],'error':str(exc)[:300]}
+     print('narration_failed',type(exc).__name__,str(exc)[:300])
    result['result']=current
   result['result']['job']=job;result['result']['createdAt']=datetime.now(timezone.utc).isoformat()
   if result['result'].get('vision'):
@@ -223,7 +257,11 @@ def worker(event):
     im=Image.open(io.BytesIO(base64.b64decode(frame['image']))).convert('RGB');im.thumbnail((480,270));buf=io.BytesIO();im.save(buf,format='JPEG',quality=75)
     key=prefix+f'frames/{i}.jpg';s3.put_object(Bucket=BUCKET,Key=key,Body=buf.getvalue(),ContentType='image/jpeg');thumbnails.append({'time':frame['time'],'key':key})
    result['result']['thumbnails']=thumbnails
-  if result['result'].get('scoringVersion')=='temporal-impact-v5':
+  result['result']['executionOrigin']='aws'
+  if profile:
+   put(prefix+'analysis.json',result['result'])
+   result['result']=apply_reference(result['result'],profile,sha,prefix,prefix+'analysis.json')
+  elif result['result'].get('scoringVersion')=='temporal-impact-v5':
    from presentation import build
    build(result['result'])
   if result['result'].get('presentation',{}).get('status')=='ready':render_result(result['result'],video_item,prefix)
@@ -289,6 +327,9 @@ def handler(event,context):
    if not item.get('sha256'):raise ValueError('Source video hash is missing')
    job=str(uuid.uuid4());prefix=f'jobs/{job}/'
    payload={k:body[k] for k in ['sourceJob','sourceAnalysis'] if body.get(k)}
+   if 'strategy' in body:
+    if body['strategy'] not in ['auto','vlm']:raise ValueError('Reviewer strategy must be auto or vlm')
+    payload['strategy']=body['strategy']
    payload['mode']='model-reviewed-presentation'
    put(prefix+'request.json',payload);put(prefix+'status.json',dict(job=job,status='queued',updatedAt=time.time()))
    try:
@@ -373,7 +414,7 @@ def handler(event,context):
      for field in ['alignment','roster','playerProfiles','playByPlay','uniforms']:
       if field in body['deepData']['companion']:body['deepData'][field]=body['deepData']['companion'][field]
     if body.get('mode') not in ['snapshot','matched-video']:validate_payload(body)
-   digest=hashlib.sha256((VERSION+'temporal-impact-v5-role-lock-r13'+json.dumps(body,sort_keys=True)).encode()).hexdigest()[:32]
+   digest=hashlib.sha256((VERSION+'temporal-impact-v5-role-lock-r14'+json.dumps(body,sort_keys=True)).encode()).hexdigest()[:32]
    status=None
    if not body.get('force'):
     try:

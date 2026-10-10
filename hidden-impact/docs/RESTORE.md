@@ -88,3 +88,5 @@ node tests/test_studio_flow.cjs
 ```
 
 Reviewer 重新抽取原视频、调用 Bedrock VLM 核对检测框中的固定角色，并结合画面和深度数据复核解说草稿。输出 `review.json`（标准角色锚点与故事计划）、`references.json`（角色参考框）、`review-report.json`（模型调用、覆盖率及来源）和 `presentation-plan.json`，随后使用共用渲染器生成视频与故事帧。原始评分保持不变；无法定位的位置留空。人工编辑与模型复核使用相同结构，各自保留实际来源。
+
+Reviewer 默认采用 `auto` 策略：若原文件 SHA-256、时长及对应官方出手数据与已校准参考完全匹配，则使用 `reference-calibration` 分支。该分支保留参考文件的人工校准来源，解说标记 `modelInvoked: false`；原始模型分析独立保存在 `analysis.json`。普通上传分析也会应用同一分支，因此重命名或重新上传同一文件不会丢失角色锁定。CDK 将参考配置发布到私有 `calibrations/` 前缀。`POST /api/reviews` 传 `"strategy":"vlm"`（或 CLI `--strategy vlm`）可强制重新使用 VLM，不复用参考。改变视频内容、裁剪或改变对齐出手数据都不会命中该参考。

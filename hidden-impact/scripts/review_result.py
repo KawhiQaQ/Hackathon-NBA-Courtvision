@@ -14,6 +14,7 @@ def main():
     source.add_argument('--source-analysis')
     parser.add_argument('--wait',action='store_true')
     parser.add_argument('--out',type=Path)
+    parser.add_argument('--strategy',choices=['auto','vlm'],default='auto')
     args=parser.parse_args()
     base=json.loads((ROOT/'.cloud-config.json').read_text())['url'].rstrip('/')
     token=(ROOT/'.team-access-code').read_text().strip()
@@ -22,6 +23,7 @@ def main():
                                        headers={'Content-Type':'application/json','X-Team-Key':token})
         with urllib.request.urlopen(request,timeout=45) as response:return json.load(response)
     payload={'sourceJob':args.source_job} if args.source_job else {'sourceAnalysis':args.source_analysis}
+    payload['strategy']=args.strategy
     job=api('/api/reviews',payload)['job'];print('Reviewer job:',job,flush=True)
     if not args.wait:return
     deadline=time.monotonic()+1000;previous=None
