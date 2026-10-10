@@ -1,31 +1,50 @@
-"""Data-backed broadcast cards; never invent missing values or temporal gravity."""
+"""Compact, source-backed comparisons for broadcast overlays."""
 import math
 
-def finite(value):
-    return isinstance(value,(int,float)) and not isinstance(value,bool) and math.isfinite(value)
 
-def card_at(insights,time,duration):
-    shot=insights.get('shot');gravity=insights.get('gravity')
-    # A shot clock is video-relative only after explicit alignment. Otherwise
-    # this is a possession summary, not a claim about the current video instant.
-    aligned=insights.get('shotVideoTime')
-    has_alignment=finite(aligned) and 0<=aligned<=duration
-    show_shot=shot and (not gravity or not has_alignment or time>=max(0,aligned-2))
+def finite(value):
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+
+
+def comparison(kind, title, subject, value, baseline, labels, unit, context):
+    rows = []
+    if finite(baseline):
+        rows.append(dict(label=labels[0], value=baseline, baseline=True))
+    rows.append(dict(label=labels[1], value=value, baseline=False))
+    # Probability always uses 0–100%; signed gravity shares one zero and scale.
+    values = [r['value'] for r in rows]
+    domain = [0, 100] if kind == 'shot' else [min(0, min(values)), max(0, max(values))]
+    if domain[0] == domain[1]:
+        domain = [-1, 1]
+    delta = value - baseline if finite(baseline) else None
+    return dict(kind=kind, title=title, subject=subject, rows=rows, domain=domain,
+                delta=delta, unit=unit, context=context, outcome=None)
+
+
+def card_at(insights, time, duration):
+    shot = insights.get('shot'); gravity = insights.get('gravity')
+    aligned = insights.get('shotVideoTime')
+    has_alignment = finite(aligned) and 0 <= aligned <= duration
+    # Leave enough time to read the comparison before the finish, without
+    # describing a historical shot estimate as a live probability trajectory.
+    show_shot = shot and (not gravity or not has_alignment or time >= max(0, aligned - 5))
     if show_shot:
-        p=shot.get('probability')
-        if not finite(p) or not 0<=p<=1:return None
-        lines=[insights.get('shooter') or '本回合出手者']
-        if finite(shot.get('baseline')):
-            lines.append(f"同场同人同类均值 {shot['baseline']*100:.1f}% · n={shot['sampleCount']}")
-            lines.append(f"相对均值 {shot['deltaPercentagePoints']:+.1f} 个百分点")
-        if finite(shot.get('expectedPoints')):lines.append(f"预期得分 {shot['expectedPoints']:.2f} 分")
-        if has_alignment and time>=aligned+1 and shot.get('made') is not None:
-            lines.append(('命中 +' + str(shot['points'])+' 分') if shot['made'] else '本次未命中')
-        return dict(kind='shot',title='出手机会质量' if has_alignment else '本回合出手 · 数据回看',value=f'{p*100:.1f}%',
-                    lines=lines,source=insights.get('probabilitySource','预期命中率'),fraction=p)
+        p = shot.get('probability')
+        if not finite(p) or not 0 <= p <= 1:
+            return None
+        baseline = shot.get('baseline')
+        baseline = baseline * 100 if finite(baseline) and 0 <= baseline <= 1 else None
+        card = comparison('shot', '预期命中率' if has_alignment else '预期命中率 · 数据回看',
+                          insights.get('shooter') or '本回合出手者', p * 100, baseline,
+                          ('同场均值', '本次出手'), '个百分点', '同人同类出手 · '+('配套预期值' if insights.get('probabilitySource','').startswith('配套') else '官方预期值'))
+        if has_alignment and time >= aligned + 1 and isinstance(shot.get('made'), bool):
+            points = shot.get('points')
+            card['outcome'] = f'命中 +{points} 分' if shot['made'] and points in (2, 3) else ('命中' if shot['made'] else '未命中')
+        return card
     if gravity:
-        axis=next((a for a in gravity.get('axes',[]) if a.get('key')=='OFF_BALL_PERIM_GRAV' and finite(a.get('value'))),None)
+        axis = next((a for a in gravity.get('axes', []) if a.get('key') == 'OFF_BALL_PERIM_GRAV' and finite(a.get('value'))), None)
         if axis:
-            return dict(kind='gravity',title='无球外线引力 · 阶段画像',value=f"{axis['value']:+.2f}",
-                        lines=[gravity.get('player',''),str(gravity.get('scope','阶段汇总')),'阶段汇总值，非回合实时测量'],source='NBA 深度赛场',fraction=None)
+            return comparison('gravity', '无球外线引力', gravity.get('player') or '球员',
+                              axis['value'], axis.get('teamMedian'), ('队内中位', '球员画像'),
+                              '引力值', '赛季阶段画像 · 非本回合增益')
     return None

@@ -146,20 +146,41 @@ def composite(image,result,t):
  from broadcast import card_at
  card=card_at(manifest['insights'],t,result['video']['duration'])
  if card:
-  cw=272;ch=104+len(card['lines'])*19
-  # Choose the side with less tracked action; stable within each one-second beat.
-  sample=motion['frames'][min(len(motion['frames'])-1,int(t)*motion['fps'])]
-  crowded=sum(p['x']+p['w']/2>.5 for p in sample['people'] if not p.get('offscreen'))
-  cx=16 if crowded>len(visible)/2 else w-cw-16;cy=56
-  draw.rounded_rectangle((cx,cy,cx+cw,cy+ch),radius=10,fill=(6,24,33,232),outline=(119,207,228,140))
-  draw.text((cx+13,cy+10),card['title'],font=font(14),fill='#b6d4d7')
-  draw.text((cx+13,cy+31),card['value'],font=font(32),fill='#77cfe4')
-  if card['fraction'] is not None:
-   draw.rounded_rectangle((cx+112,cy+49,cx+cw-14,cy+55),radius=3,fill='#314852')
-   draw.rounded_rectangle((cx+112,cy+49,cx+112+(cw-126)*card['fraction'],cy+55),radius=3,fill='#77cfe4')
-  for j,line in enumerate(card['lines']):
-   draw.text((cx+13,cy+75+j*19),wrap(draw,line,12,cw-26)[0],font=font(12),fill='#eef4ec')
-  draw.text((cx+13,cy+ch-21),card['source'],font=font(10),fill='#9db5b8')
+  cw=312;ch=202
+  # Choose one side per data chapter, avoiding the action over that entire
+  # interval. Never chase players or jump between corners frame by frame.
+  phase_frames=[f for i,f in enumerate(motion['frames'][::max(1,motion['fps'])])
+                if (card_at(manifest['insights'],i,result['video']['duration']) or {}).get('kind')==card['kind']]
+  all_people=[p for f in phase_frames for p in f['people'] if not p.get('offscreen')]
+  right=sum(p['x']+p['w']/2>.5 for p in all_people)
+  cx=16 if right>len(all_people)/2 else w-cw-16;cy=56
+  draw.rounded_rectangle((cx,cy,cx+cw,cy+ch),radius=12,fill=(6,24,33,238),outline=(119,207,228,120))
+  draw.text((cx+16,cy+10),card['title'],font=font(19),fill='#eef4ec')
+  draw.text((cx+16,cy+37),card['subject'],font=font(12),fill='#b6c8cc')
+  lo,hi=card['domain'];bx=cx+91;bw=139
+  zero=bx+(0-lo)/(hi-lo)*bw
+  for j,row in enumerate(card['rows']):
+   y=cy+65+j*34;color='#8ca1aa' if row['baseline'] else '#77cfe4'
+   draw.text((cx+16,y-1),row['label'],font=font(13),fill=color)
+   draw.rounded_rectangle((bx,y+3,bx+bw,y+19),radius=4,fill='#253d48')
+   end=bx+(row['value']-lo)/(hi-lo)*bw
+   if abs(end-zero)>.1:
+    draw.rounded_rectangle((min(zero,end),y+3,max(zero,end),y+19),radius=min(4,abs(end-zero)/2),fill=color)
+   if lo<0:draw.line((zero,y+1,zero,y+21),fill='#c7d3d6',width=1)
+   value=f"{row['value']:.1f}%" if card['kind']=='shot' else f"{row['value']:+.2f}"
+   draw.text((bx+bw+8,y-2),value,font=font(16),fill=color)
+  delta=card['delta']
+  if delta is not None:
+   precision=1 if card['kind']=='shot' else 2
+   number=f'{delta:+.{precision}f}'
+   draw.text((cx+16,cy+135),number,font=font(29),fill='#f5d68e')
+   offset=draw.textlength(number,font=font(29))
+   draw.text((cx+23+offset,cy+150),card['unit'],font=font(12),fill='#f5d68e')
+  else:draw.text((cx+16,cy+144),'基准暂无',font=font(16),fill='#b6c8cc')
+  if card['outcome']:
+   text=card['outcome'];tw=draw.textlength(text,font=font(12))
+   draw.text((cx+cw-16-tw,cy+150),text,font=font(12),fill='#eef4ec')
+  draw.text((cx+16,cy+180),card['context'],font=font(11),fill='#a4bcc3')
  segments=manifest['insights'].get('narration',{}).get('segments',[])
  seg=next((s for s in segments if s['start']<=t<s['end']),None)
  if seg:title,text=seg['title'],seg['text']
@@ -176,7 +197,7 @@ def render(source,result,output,story_dir=None):
  if result['presentation'].get('status')!='ready':return None
  manifest=result['presentation'];start=0;end=result['video']['duration']
  width,height,band,original=output_dimensions(source);fps=result['presentationMotion']['fps']
- manifest.update(width=width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='data-broadcast-hd-v5',encoding={'codec':'h264','crf':17,'preset':'fast'})
+ manifest.update(width=width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='data-comparison-hd-v6',encoding={'codec':'h264','crf':17,'preset':'fast'})
  target=Path(output);target.parent.mkdir(parents=True,exist_ok=True)
  story_dir=Path(story_dir) if story_dir else target.parent;story_dir.mkdir(parents=True,exist_ok=True)
  decode=subprocess.Popen([ffmpeg(),'-v','error','-i',str(source),'-t',str(end),'-vf',f'fps={fps},scale={width}:{height}:flags=lanczos','-f','rawvideo','-pix_fmt','rgb24','pipe:1'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
@@ -199,4 +220,4 @@ def render(source,result,output,story_dir=None):
    if process.poll() is None:process.kill();process.wait()
    for stream in [process.stdin,process.stdout,process.stderr]:
     if stream and not stream.closed:stream.close()
- return {'start':0,'end':end,'fps':fps,'frameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':'data-broadcast-hd-v5','width':width,'height':height+band,'pictureWidth':width,'pictureHeight':height}
+ return {'start':0,'end':end,'fps':fps,'frameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':'data-comparison-hd-v6','width':width,'height':height+band,'pictureWidth':width,'pictureHeight':height}
