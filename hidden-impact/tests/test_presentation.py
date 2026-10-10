@@ -133,6 +133,28 @@ class PresentationTests(unittest.TestCase):
         r=verified();build(r);r['job']=next(iter(REJECTIONS));r['tacticalReplay']={'url':'bad'}
         out=reviewed_result(r)
         for key in ['presentation','presentationMotion','narration','tacticalReplay']:self.assertNotIn(key,out)
+    def test_hd_compositor_preserves_native_picture_pixels(self):
+        from PIL import Image,ImageChops
+        from render_video import composite
+        r=verified();build(r)
+        for frame in r['presentationMotion']['frames']:
+            frame.update(people=[],heroArrow=None,defenderArrow=None)
+        # A one-pixel pattern would be destroyed by a 540p intermediate resize.
+        tile=Image.new('RGB',(2,2));tile.putdata([(255,0,0),(0,255,0),(0,0,255),(255,255,255)])
+        source=Image.new('RGB',(1920,1080))
+        for y in range(0,1080,2):
+            for x in range(0,1920,2):source.paste(tile,(x,y))
+        rendered=composite(source,r,0)
+        self.assertEqual(rendered.size,(1920,1368))
+        self.assertIsNone(ImageChops.difference(source,rendered.crop((0,88,1920,1168))).getbbox())
+
+    def test_output_size_uses_real_media_without_upscaling(self):
+        from unittest.mock import patch
+        from render_video import output_dimensions
+        for original,expected in [((1920,1080),(1920,1080,288)),((3840,2160),(1920,1080,288)),((1280,720),(1280,720,192)),((320,180),(320,180,48)),((1080,1920),(606,1080,90))]:
+            with self.subTest(original=original),patch('render_video.source_dimensions',return_value=original):
+                self.assertEqual(output_dimensions('video')[:3],expected)
+
     def test_real_renderer_exports_full_clip_story_images_and_cjk(self):
         import subprocess
         from render_video import ffmpeg,render
@@ -143,7 +165,7 @@ class PresentationTests(unittest.TestCase):
             output=directory/'replay.mp4';meta=render(source,r,output)
             self.assertEqual(meta['start'],0);self.assertEqual(meta['frameCount'],25)
             for f in r['presentation']['evidence']:
-                with Image.open(directory/f['image']) as im:self.assertEqual(im.size,(960,684))
+                with Image.open(directory/f['image']) as im:self.assertEqual(im.size,(320,228))
             self.assertGreater(output.stat().st_size,1000)
 
 if __name__=='__main__':unittest.main()
