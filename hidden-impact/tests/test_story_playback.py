@@ -37,10 +37,10 @@ class StoryPlaybackTests(unittest.TestCase):
             timeline=r['presentation']['playback'];beat=timeline['beats'][0]
             def pixels(t):
                 raw=subprocess.check_output([ffmpeg(),'-v','error','-ss',str(t),'-i',str(out),'-frames:v','1','-f','rawvideo','-pix_fmt','rgb24','-'])
-                return np.frombuffer(raw,dtype=np.uint8).reshape(228,320,3).astype(float)
+                return np.frombuffer(raw,dtype=np.uint8).reshape(194,420,3).astype(float)
             a=pixels(beat['start']+.1);b=pixels(beat['end']-.2)
-            self.assertLess(np.abs(a[:203]-b[:203]).mean(),1.5,'Gameplay and annotations must stay frozen')
-            self.assertGreater(np.abs(a[203:]-b[203:]).mean(),.5,'Caption must progress during hold')
+            self.assertLess(np.abs(a[:,:320]-b[:,:320]).mean(),1.5,'Gameplay and annotations must stay frozen')
+            self.assertGreater(np.abs(a[:,320:]-b[:,320:]).mean(),.5,'Caption must progress during hold')
             audio=subprocess.check_output([ffmpeg(),'-v','error','-i',str(out),'-vn','-ac','1','-ar','8000','-f','f32le','-'])
             samples=np.frombuffer(audio,dtype=np.float32)
             def rms(a,b):return np.sqrt(np.mean(samples[round(a*8000):round(b*8000)]**2))
@@ -48,6 +48,6 @@ class StoryPlaybackTests(unittest.TestCase):
             self.assertGreater(rms(beat['end']+.1,beat['end']+.2),.01)
             self.assertAlmostEqual(len(samples)/8000,timeline['duration'],delta=.08)
             # The full final source frame still exists after all insertions.
-            self.assertEqual(len(pixels(timeline['duration']-.1)),228)
+            self.assertEqual(len(pixels(timeline['duration']-.1)),194)
 
 if __name__=='__main__':unittest.main()

@@ -14,5 +14,8 @@ body{overflow:hidden}.studio-shell{height:calc(100dvh - 78px);padding:0 30px;dis
 @media(max-height:820px) and (min-width:761px){.probability-dial{width:87px;height:87px}.opportunity-number .probability-dial strong{font-size:23px}.opportunity-number{margin:7px 0;gap:14px}.quality-conclusion b{font-size:22px}.impact-compare{padding:5px 0 9px}.impact-compare-row{margin:7px 0}.shot-ledger{margin:7px 0;gap:6px}.shot-token i{width:23px;height:23px;font-size:13px}.gravity .quality-plot{margin:7px 0}.quality-conclusion b i{font-size:24px}.outcome-bars{padding-bottom:2px}}
 @media(max-width:1050px){.impact-compare-row{grid-template-columns:90px minmax(0,1fr) 45px;gap:6px;font-size:10px}.shot-ledger-key{display:none}.shot-token i{width:23px;height:23px}.shot-ledger{gap:5px}.quality-conclusion{gap:8px}}
 
-/* Fit the card to the actual picture, rather than stretching black gutters. */
+/* The wide replay owns the available stage; never shrink the whole page to video height. */
 .page-video{justify-self:center;width:100%;max-width:100%;height:100%}.page-video .section-top{padding-left:18px;padding-right:18px}.page-video .section-top>div{min-width:0;gap:12px}.page-video .section-top h2{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.page-video .section-top .eyebrow{display:none}.video-toolbar{gap:14px;padding:0 16px}.video-toolbar>a{white-space:nowrap}.video-toolbar .view-switch button{padding:5px 10px}
+
+/* Give the picture more vertical space as well as a full-width stage. */
+@media(min-width:761px){.studio-shell{max-width:none;padding:0 20px;grid-template-columns:minmax(0,1fr) 62px;column-gap:12px;grid-template-rows:46px minmax(0,1fr) 36px}.page-video .section-top{height:42px;min-height:42px;padding:6px 16px}.page-video .section-top h2{font-size:17px}.page-video .transport{height:30px}.page-video .video-toolbar{height:40px}.page-video .video-toolbar .view-switch button{padding:3px 10px}}

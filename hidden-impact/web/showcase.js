@@ -8,10 +8,8 @@ const fmt=t=>`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;
 function sourceNow(){return originalMode?video.currentTime:sourceTime(video.currentTime,data?.playback);}
 function seekTime(t){return originalMode?t:replayTime(t,data?.playback);}
 function fitVideo(){
- const page=document.querySelector('.page-video'),wrap=document.querySelector('.video-wrap');
- if(!page?.clientHeight||!wrap?.clientHeight)return;
- const ratio=(video.videoWidth&&video.videoHeight)?video.videoWidth/video.videoHeight:(data?.width&&data?.height?data.width/data.height:16/9);
- page.style.width=Math.min(page.parentElement.clientWidth-94,wrap.clientHeight*ratio)+'px';
+ const page=document.querySelector('.page-video');
+ if(page)page.style.width='100%';
 }
 window.addEventListener('resize',fitVideo);
 window.addEventListener('hashchange',()=>requestAnimationFrame(fitVideo));

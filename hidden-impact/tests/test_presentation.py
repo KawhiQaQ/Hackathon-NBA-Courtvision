@@ -145,13 +145,13 @@ class PresentationTests(unittest.TestCase):
         for y in range(0,1080,2):
             for x in range(0,1920,2):source.paste(tile,(x,y))
         rendered=composite(source,r,0)
-        self.assertEqual(rendered.size,(1920,1368))
+        self.assertEqual(rendered.size,(2520,1168))
         self.assertIsNone(ImageChops.difference(source,rendered.crop((0,88,1920,1168))).getbbox())
 
     def test_output_size_uses_real_media_without_upscaling(self):
         from unittest.mock import patch
         from render_video import output_dimensions
-        for original,expected in [((1920,1080),(1920,1080,288)),((3840,2160),(1920,1080,288)),((1280,720),(1280,720,192)),((320,180),(320,180,48)),((1080,1920),(606,1080,90))]:
+        for original,expected in [((1920,1080),(1920,1080,88)),((3840,2160),(1920,1080,88)),((1280,720),(1280,720,58)),((320,180),(320,180,14)),((1080,1920),(606,1080,28))]:
             with self.subTest(original=original),patch('render_video.source_dimensions',return_value=original):
                 self.assertEqual(output_dimensions('video')[:3],expected)
 
@@ -165,7 +165,7 @@ class PresentationTests(unittest.TestCase):
             output=directory/'replay.mp4';meta=render(source,r,output)
             self.assertEqual(meta['start'],0);self.assertEqual(meta['sourceFrameCount'],25);self.assertGreater(meta['frameCount'],25);self.assertEqual(meta['frameCount'],round(r['presentation']['playback']['duration']*10))
             for f in r['presentation']['evidence']:
-                with Image.open(directory/f['image']) as im:self.assertEqual(im.size,(320,228))
+                with Image.open(directory/f['image']) as im:self.assertEqual(im.size,(420,194))
             self.assertGreater(output.stat().st_size,1000)
 
 if __name__=='__main__':unittest.main()

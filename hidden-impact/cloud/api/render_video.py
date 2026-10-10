@@ -65,12 +65,12 @@ class ScaledDraw:
 @lru_cache(maxsize=4)
 def broadcast_shell(width,height):
  """A quiet forest-black frame with warm editorial paper for the commentary."""
- scale=width/960;band=round(144*scale/2)*2
- im=Image.new('RGB',(width,height+band),'#0b1712')
+ scale=width/960;header=round(44*scale/2)*2;rail=round(300*scale/2)*2
+ im=Image.new('RGB',(width+rail,height+header),'#0b1712')
  d=ImageDraw.Draw(im)
  for y in range(round(44*scale)):
   k=y/max(1,44*scale)
-  d.line((0,y,width,y),fill=(round(19-8*k),round(35-12*k),round(27-9*k)))
+  d.line((0,y,width+rail,y),fill=(round(19-8*k),round(35-12*k),round(27-9*k)))
  return im
 
 
@@ -94,25 +94,25 @@ def source_dimensions(source):
 def output_dimensions(source):
  sw,sh=source_dimensions(source);ratio=min(1,1920/sw,1080/sh)
  width=max(2,int(sw*ratio/2)*2);height=max(2,int(sh*ratio/2)*2)
- return width,height,round(144*width/960/2)*2,(sw,sh)
+ return width,height,round(44*width/960/2)*2,(sw,sh)
 
 
 def direction_ribbon(image,points,color,pixel_scale=1):
  """Antialiased tapered route ribbon, with a clear head and restrained shadow."""
  if len(points)<2:return
- pad=math.ceil(18*pixel_scale);left=math.floor(min(p[0] for p in points))-pad;top=math.floor(min(p[1] for p in points))-pad
+ pad=math.ceil(22*pixel_scale);left=math.floor(min(p[0] for p in points))-pad;top=math.floor(min(p[1] for p in points))-pad
  width=math.ceil(max(p[0] for p in points))-left+pad;height=math.ceil(max(p[1] for p in points))-top+pad
  scale=3;layer=Image.new('RGBA',(width*scale,height*scale));d=ImageDraw.Draw(layer)
  local=[((x-left)*scale,(y-top)*scale) for x,y in points]
  # Reserve the final 15 pixels for the arrowhead, preventing a blunt shaft tip.
  end=local[-1];a=local[-2];angle=math.atan2(end[1]-a[1],end[0]-a[0]);u=(math.cos(angle),math.sin(angle));n=(-u[1],u[0])
- head=15*scale*pixel_scale;base=(end[0]-u[0]*head,end[1]-u[1]*head)
+ head=18*scale*pixel_scale;base=(end[0]-u[0]*head,end[1]-u[1]*head)
  shaft=[p for p in local[:-1] if math.dist(p,end)>head]+[base]
  edges=[[],[]]
  for i,p in enumerate(shaft):
-  before=shaft[max(0,i-1)];after=shaft[min(len(shaft)-1,i+1)];ang=math.atan2(after[1]-before[1],after[0]-before[0]);half=(1.6+1.6*i/max(1,len(shaft)-1))*scale*pixel_scale
+  before=shaft[max(0,i-1)];after=shaft[min(len(shaft)-1,i+1)];ang=math.atan2(after[1]-before[1],after[0]-before[0]);half=(2+2*i/max(1,len(shaft)-1))*scale*pixel_scale
   for side,sign in enumerate((1,-1)):edges[side].append((p[0]-sign*math.sin(ang)*half,p[1]+sign*math.cos(ang)*half))
- polygon=edges[0]+[(base[0]+n[0]*7*scale*pixel_scale,base[1]+n[1]*7*scale*pixel_scale),end,(base[0]-n[0]*7*scale*pixel_scale,base[1]-n[1]*7*scale*pixel_scale)]+list(reversed(edges[1]))
+ polygon=edges[0]+[(base[0]+n[0]*8.5*scale*pixel_scale,base[1]+n[1]*8.5*scale*pixel_scale),end,(base[0]-n[0]*8.5*scale*pixel_scale,base[1]-n[1]*8.5*scale*pixel_scale)]+list(reversed(edges[1]))
  d.polygon(polygon,fill=(*color,245));d.line(polygon+[polygon[0]],fill=(14,28,35,220),width=max(1,round(scale*pixel_scale)),joint='curve')
  # A fine inner highlight makes the two colors legible over wood and uniforms.
  if len(shaft)>1:d.line(shaft,fill=tuple(round(c*.4+255*.6) for c in color)+(210,),width=max(1,round(scale*pixel_scale)),joint='curve')
@@ -135,7 +135,8 @@ def composite(image,result,t):
    md.ellipse((x-8*pixel_scale,y-5*pixel_scale,x+bw+8*pixel_scale,y+bh+5*pixel_scale),fill=0)
   mask=mask.filter(ImageFilter.GaussianBlur(6*pixel_scale)).resize((w,h))
   shade=Image.new('RGB',(w,h),'#08150e');image=Image.composite(shade,image,mask)
- im=broadcast_shell(w,h).copy();im.paste(image,(0,round(44*pixel_scale)))
+ im=broadcast_shell(w,h).copy();im.paste(image,(0,round(44*pixel_scale/2)*2))
+ manifest['composition']={'pictureWidth':w,'pictureHeight':h,'railWidth':im.width-w,'layout':'wide-commentary-rail'}
  w,h=960,h/pixel_scale
  draw=ScaledDraw(im,pixel_scale)
  draw.text((20,15),'TEAM 14',font=font(11),fill='#d9bf82')
@@ -168,11 +169,6 @@ def composite(image,result,t):
  layouts={p['trackId']:(text,x,box) for p,text,x,box in nameplates(frame['people'],colors,w,h,lambda text:draw.textlength(text,font=font(18)),obstacle)}
  for i,p in enumerate(frame['people']):
   role=colors[p['trackId']];color=tuple(bytes.fromhex(role['color'][1:]))
-  # The identity rail remains in the same order throughout occlusions and cuts.
-  status=' · 画外' if p.get('offscreen') else ''
-  rx=18+i*w/3;ry=h+51
-  draw.line((rx,ry+2,rx,ry+16),fill=(*color,255),width=2)
-  draw.text((rx+10,ry-2),role['displayName']+status,font=font(13),fill='#dce1d4')
   if p.get('offscreen'):continue
   text,x,(lx,top,right,bottom)=layouts[p['trackId']];length=right-lx
   anchor=p['y']*h+44
@@ -245,12 +241,15 @@ def composite(image,result,t):
 
 
 def paint_commentary(im,result,t,beat=None,progress=1):
- """Only redraw the caption strip during holds; all visual evidence stays still."""
- manifest=result['presentation'];scale=im.width/960;h=im.height/scale-144
+ """A side commentary rail gives the court a wide, uncropped broadcast canvas.
+ During holds only the rail is redrawn; every gameplay pixel stays frozen.
+ """
+ manifest=result['presentation'];scale=manifest['composition']['pictureWidth']/960
+ height=im.height/scale
  draw=ScaledDraw(im,scale)
- draw.rounded_rectangle((0,h+73,960,h+144),radius=0,fill='#e8e5d9')
- draw.line((0,h+73,960,h+73),fill='#c4b487',width=1)
- draw.line((78,h+85,78,h+132),fill='#c8c7b7',width=1)
+ draw.rounded_rectangle((960,44,1260,height),radius=0,fill='#e8e5d9')
+ draw.line((960,44,960,height),fill='#c4b487',width=1)
+ draw.text((984,13),'回合解读',font=font(13),fill='#d9bf82')
  if beat is None:
   segments=manifest['insights'].get('narration',{}).get('segments',[])
   beat=next((s for s in segments if s['start']<=t<s['end']),{})
@@ -262,11 +261,25 @@ def paint_commentary(im,result,t,beat=None,progress=1):
  typed=text[:math.ceil(len(text)*max(0,min(1,progress)))]
  beats=(manifest.get('playback') or {}).get('beats',[]) or manifest['insights'].get('narration',{}).get('segments',[])
  index=max(1,sum(b.get('sourceTime',b.get('start',0))<=t for b in beats))
- draw.text((23,h+78),f'{index:02}',font=font(24),fill='#334a3a')
- draw.text((23,h+113),'解读',font=font(11),fill='#63705c')
- draw.text((94,h+76),title,font=font(17),fill='#263d2e')
- for i,line in enumerate(wrap(draw,typed+('▏' if progress<1 else ''),17,844)[:2]):
-  draw.text((94,h+101+i*21),line,font=font(17),fill='#263d2e')
+ draw.text((982,61),f'{index:02}',font=font(36),fill='#334a3a')
+ draw.text((1040,85),f'/ {max(1,len(beats)):02}',font=font(13),fill='#63705c')
+ total=max(1,len(beats));step=252/total
+ for i in range(total):
+  draw.line((984+i*step,118,984+(i+1)*step-5,118),fill='#526b4e' if i<index else '#c7cab9',width=2)
+ title_lines=wrap(draw,title,17,252)
+ for i,line in enumerate(title_lines):draw.text((984,139+i*25),line,font=font(17),fill='#263d2e')
+ body_y=157+len(title_lines)*25
+ for i,line in enumerate(wrap(draw,typed+('▏' if progress<1 else ''),17,252)):
+  draw.text((984,body_y+i*28),line,font=font(17),fill='#263d2e')
+ # Fixed role identities stay visible even when a player moves out of frame.
+ motion=result['presentationMotion'];frame=motion['frames'][min(len(motion['frames'])-1,max(0,round(t*motion['fps'])))];people={p['trackId']:p for p in frame['people']}
+ footer=height-128
+ draw.line((984,footer,1236,footer),fill='#c0c5b2',width=1)
+ for i,role in enumerate(manifest['roles']):
+  y=footer+18+i*34;color=tuple(bytes.fromhex(role['color'][1:]))
+  draw.line((985,y+3,985,y+20),fill=(*color,255),width=3)
+  status=' · 画外' if people.get(role['id'],{}).get('offscreen') else ''
+  draw.text((998,y),role['displayName']+status,font=font(13),fill='#334a3a')
  return im
 
 
@@ -275,17 +288,17 @@ def render(source,result,output,story_dir=None):
  if result.get('presentation',{}).get('mode')!='analysis':build(result)
  if result['presentation'].get('status')!='ready':return None
  manifest=result['presentation'];start=0;end=result['video']['duration']
- width,height,band,original=output_dimensions(source);fps=result['presentationMotion']['fps']
+ width,height,band,original=output_dimensions(source);canvas_width=width+round(300*width/960/2)*2;fps=result['presentationMotion']['fps']
  from story_playback import plan,audio_filter
  timeline=plan(manifest,end,fps);manifest['playback']=timeline
  holds={b['sourceFrame']:b for b in timeline['beats']}
- manifest.update(width=width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='editorial-forest-hd-v14',encoding={'codec':'h264','crf':17,'preset':'fast'})
+ manifest.update(width=canvas_width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='wide-editorial-hd-v15',encoding={'codec':'h264','crf':17,'preset':'fast'})
  target=Path(output);target.parent.mkdir(parents=True,exist_ok=True)
  story_dir=Path(story_dir) if story_dir else target.parent;story_dir.mkdir(parents=True,exist_ok=True)
  decode=subprocess.Popen([ffmpeg(),'-v','error','-i',str(source),'-t',str(end),'-vf',f'fps={fps},scale={width}:{height}:flags=lanczos','-f','rawvideo','-pix_fmt','rgb24','pipe:1'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
  # Detect the optional audio stream without requiring ffprobe in Lambda.
  has_audio=subprocess.run([ffmpeg(),'-v','error','-i',str(source),'-map','0:a:0','-t','0.01','-f','null','-'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0
- cmd=[ffmpeg(),'-y','-v','error','-f','rawvideo','-pix_fmt','rgb24','-s',f'{width}x{height+band}','-r',str(fps),'-i','pipe:0','-i',str(source)]
+ cmd=[ffmpeg(),'-y','-v','error','-f','rawvideo','-pix_fmt','rgb24','-s',f'{canvas_width}x{height+band}','-r',str(fps),'-i','pipe:0','-i',str(source)]
  if has_audio:cmd+=['-filter_complex',audio_filter(timeline),'-map','0:v','-map','[storyaudio]','-c:a','aac']
  else:cmd+=['-map','0:v','-an']
  cmd+=['-t',str(timeline['duration']),'-c:v','libx264','-pix_fmt','yuv420p','-preset','fast','-crf','17','-movflags','+faststart',str(output)]
@@ -315,4 +328,4 @@ def render(source,result,output,story_dir=None):
    if process.poll() is None:process.kill();process.wait()
    for stream in [process.stdin,process.stdout,process.stderr]:
     if stream and not stream.closed:stream.close()
- return {'start':0,'end':timeline['duration'],'sourceEnd':end,'fps':fps,'frameCount':written,'sourceFrameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':manifest['renderStyle'],'width':width,'height':height+band,'pictureWidth':width,'pictureHeight':height}
+ return {'start':0,'end':timeline['duration'],'sourceEnd':end,'fps':fps,'frameCount':written,'sourceFrameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':manifest['renderStyle'],'width':canvas_width,'height':height+band,'pictureWidth':width,'pictureHeight':height}
