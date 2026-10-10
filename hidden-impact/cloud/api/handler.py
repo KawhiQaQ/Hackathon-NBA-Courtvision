@@ -26,6 +26,29 @@ def reusable_job(status):
  age=time.time()-status.get('updatedAt',0)
  return (status.get('status')=='completed' and age<86400) or (status.get('status') in ['queued','running'] and age<900)
 
+def render_result(result,video_item,prefix):
+ job=prefix.split('/')[1]
+ if result.get('presentation',{}).get('status')=='ready':
+  try:
+   from render_video import render
+   import tempfile
+   put(prefix+'status.json',{'job':job,'status':'running','stage':'render','updatedAt':time.time()})
+   with tempfile.TemporaryDirectory() as workdir:
+    source=workdir+'/source.video';target=workdir+'/tactical.mp4';s3.download_file(BUCKET,video_item['key'],source)
+    replay=render(source,result,target)
+    key=prefix+'tactical.mp4';s3.upload_file(target,BUCKET,key,ExtraArgs={'ContentType':'video/mp4'})
+    result['tacticalReplay']={**replay,'key':key}
+    presentation=result['presentation']
+    presentation['originalKey']=video_item['key']
+    presentation['videoKey']=key
+    for frame in presentation['evidence']:
+     frame_key=prefix+'presentation/'+frame['image']
+     s3.upload_file(workdir+'/'+frame['image'],BUCKET,frame_key,ExtraArgs={'ContentType':'image/jpeg'})
+     frame['imageKey']=frame_key
+    presentation['rendered']=True
+  except Exception as exc:
+   result['renderError']='战术视频生成失败，网页动态回放仍可用。';print('render_failed',str(exc)[:300])
+
 def worker(event):
  job=key_id(event['job']);prefix=f'jobs/{job}/';session=str(uuid.uuid4());arn=os.environ['AGENT_RUNTIME_ARN']
  # Lambda asynchronous delivery is at-least-once: claim a job with a conditional S3 write.
@@ -35,6 +58,16 @@ def worker(event):
   raise
  try:
   payload=get(prefix+'request.json');original_frames=payload.get('frames',[]);put(prefix+'status.json',{'job':job,'status':'running','updatedAt':time.time()})
+  if payload.get('mode')=='reviewed-presentation':
+   from reviewed_presentation import build
+   source_job=key_id(payload['sourceJob']);source=get(f'jobs/{source_job}/result.json')
+   video_item=get(f"library/{key_id(source['video']['id'])}.json")
+   reviewed=build(source,payload['review'],video_item.get('sha256'),source_job)
+   reviewed.update(job=job,createdAt=datetime.now(timezone.utc).isoformat())
+   render_result(reviewed,video_item,prefix)
+   if not reviewed['presentation'].get('rendered'):raise RuntimeError('Reviewed replay rendering failed')
+   put(prefix+'result.json',reviewed);put(prefix+'status.json',{'job':job,'status':'completed','updatedAt':time.time()})
+   return
   if payload.get('mode') not in ['snapshot','matched-video']:
    from vision import build_vision,sample_video
    import tempfile
@@ -114,26 +147,7 @@ def worker(event):
   if result['result'].get('scoringVersion')=='temporal-impact-v5':
    from presentation import build
    build(result['result'])
-  if result['result'].get('presentation',{}).get('status')=='ready':
-   try:
-    from render_video import render
-    import tempfile
-    put(prefix+'status.json',{'job':job,'status':'running','stage':'render','updatedAt':time.time()})
-    with tempfile.TemporaryDirectory() as workdir:
-     source=workdir+'/source.video';target=workdir+'/tactical.mp4';s3.download_file(BUCKET,video_item['key'],source)
-     replay=render(source,result['result'],target)
-     key=prefix+'tactical.mp4';s3.upload_file(target,BUCKET,key,ExtraArgs={'ContentType':'video/mp4'})
-     result['result']['tacticalReplay']={**replay,'key':key}
-     presentation=result['result']['presentation']
-     presentation['originalKey']=video_item['key']
-     presentation['videoKey']=key
-     for frame in presentation['evidence']:
-      frame_key=prefix+'presentation/'+frame['image']
-      s3.upload_file(workdir+'/'+frame['image'],BUCKET,frame_key,ExtraArgs={'ContentType':'image/jpeg'})
-      frame['imageKey']=frame_key
-     presentation['rendered']=True
-   except Exception as exc:
-    result['result']['renderError']='战术视频生成失败，网页动态回放仍可用。';print('render_failed',str(exc)[:300])
+  if result['result'].get('presentation',{}).get('status')=='ready':render_result(result['result'],video_item,prefix)
   put(prefix+'result.json',result['result']);put(prefix+'status.json',{'job':job,'status':'completed','updatedAt':time.time()})
  except Exception as exc:
   print('analysis_failed',job,type(exc).__name__,str(exc)[:600])
@@ -187,6 +201,22 @@ def handler(event,context):
   if len(raw)>5*1024*1024:return reply(413,{'error':'关键帧请求过大。'})
   body=json.loads(raw)
   if not isinstance(body,dict):raise ValueError('请求应为对象。')
+  if path=='/api/presentations' and method=='POST':
+   from reviewed_presentation import validate
+   source_job=key_id(body.get('sourceJob'));source=get(f'jobs/{source_job}/result.json')
+   if get(f'jobs/{source_job}/status.json').get('status')!='completed':raise ValueError('Source analysis is not complete')
+   video_item=get(f"library/{key_id(source['video']['id'])}.json")
+   validate(body.get('review'),source,video_item.get('sha256'))
+   job=str(uuid.uuid4());prefix=f'jobs/{job}/'
+   put(prefix+'request.json',{'mode':'reviewed-presentation','sourceJob':source_job,'review':body['review']})
+   put(prefix+'status.json',{'job':job,'status':'queued','updatedAt':time.time()})
+   try:
+    response=functions.invoke(FunctionName=os.environ['WORKER_NAME'],InvocationType='Event',Payload=json.dumps({'internal':'analyze','job':job}).encode())
+    if response.get('StatusCode')!=202:raise RuntimeError('Worker did not accept the presentation')
+   except Exception:
+    put(prefix+'status.json',{'job':job,'status':'failed','error':'Presentation dispatch failed','updatedAt':time.time()})
+    raise
+   return reply(202,{'job':job})
   if path=='/api/games' and method=='POST':
    jobs=body.get('jobIds');mappings=body.get('identities',{})
    if not isinstance(jobs,list) or not 1<=len(jobs)<=30 or not all(isinstance(j,str) for j in jobs):raise ValueError('一次汇总1–30段已完成的视频。')
@@ -276,7 +306,7 @@ def game_result(config,token):
   if value['statusCode']!=200 or response.get('status')!='completed':raise ValueError('请等待所有回合完成分析。')
   result=response['result'];presentation=result.get('presentation')
   if not presentation or not presentation.get('rendered'):raise ValueError('回合尚未生成完整展示结果。')
-  if presentation.get('analysisStatus')=='unconfirmed-mvp':raise ValueError('该回合尚未核验幕后 MVP，不能计入人物贡献排名。')
+  if presentation.get('analysisStatus') in ['unconfirmed-mvp','reviewed-story']:raise ValueError('该回合尚未核验幕后 MVP，不能计入人物贡献排名。')
   official=(result.get('deepData') or {}).get('official') or {}
   if official.get('gameId') and official['gameId']!=config['gameId']:raise ValueError('所选视频来自不同比赛。')
   if official.get('team') and official['team']!=config['team']:raise ValueError('所选视频属于不同进攻球队。')

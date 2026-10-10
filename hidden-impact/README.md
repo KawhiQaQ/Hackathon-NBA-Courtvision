@@ -253,3 +253,26 @@ and exact source anchor hashes. Cached CV output does not bypass fresh candidate
 验证：`test_worker_presentation.py` 使用内存 AWS/Agent 双替身与真实视频编码验证任务链；`test_presentation.py` 覆盖评分核验、断镜缺帧、数据匹配和渲染；`test_generated_showcase.cjs` 覆盖通用展示页入口。测试替身不能证明云端权限或真实模型效果；恢复 AWS 后仍需执行真实视频调用验收。
 
 渲染字体随 API 部署包提供：Google Fonts 的 Noto Sans SC，SIL Open Font License；许可保留于 `cloud/api/fonts/OFL.txt`。下载来源为 `https://github.com/google/fonts/tree/main/ofl/notosanssc`。
+
+### 展示角色与故事校对
+
+`POST /api/presentations` 使用相同的团队认证，接收 `sourceJob` 与 `review`，
+从已完成任务派生独立的展示任务。原模型事件、评分和解说保持可追溯；
+校对版存储 `presentationReview`、`originalNarration`，并标记 `reviewed-story`，
+不计入自动幕后 MVP 排名，也不把校对文案声称为未经编辑的模型输出。
+
+校对 JSON 示例为 `data/reference/dallas-presentation-review.json`：固定主角、
+受益队友、防守者三人；位置格式为 `[秒, 640宽画面的脚底x, 360高画面的脚底y, 人物高度]`；
+切镜或画外使用三个 `null`。输入必须绑定原视频 ID 和 SHA-256，覆盖全片，
+故事段落连续且包含可跳转的 `seek`。相同的渲染器输出带标签、双色方向箭头、
+柔和聚焦、数据卡与分段解读的视频及胶卷帧。方向提示是图像空间的后续移动，
+不是场地坐标轨迹复原或引力的因果估计。
+
+```sh
+.venv/bin/python scripts/submit_presentation.py --source-job <已完成任务ID> --review data/reference/dallas-presentation-review.json
+.venv/bin/python scripts/smoke_release.py --api-only --job <返回的新任务ID>
+.venv/bin/python scripts/publish_result.py --job <返回的新任务ID>
+```
+
+以上只操作本队作品资源，不提交或修改赛事评分系统。原始模型分析接口
+`POST /api/jobs` 继续使用自动检测、候选核验、评分与实际模型解说。

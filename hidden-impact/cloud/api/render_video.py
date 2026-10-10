@@ -88,6 +88,11 @@ def composite(image,result,t):
  draw=ImageDraw.Draw(im,'RGBA')
  draw.text((20,10),'HIDDEN IMPACT  /  '+manifest['actor']['label'],font=font(19),fill='#f5d68e')
  draw.text((w-130,11),'TEAM 14',font=font(17),fill='#aac1b3')
+ for key,idx in [('defenderArrow',2),('heroArrow',0)]:
+  arrow=frame.get(key)
+  if arrow:
+   points=[(x/motion['width']*w,y/motion['height']*h+44) for x,y in arrow['points']]
+   direction_ribbon(im,points,tuple(bytes.fromhex(manifest['roles'][idx]['color'][1:])))
  occupied=[]
  for i,p in enumerate(frame['people']):
   role=colors[p['trackId']];color=tuple(bytes.fromhex(role['color'][1:]))
@@ -107,11 +112,6 @@ def composite(image,result,t):
   draw.rounded_rectangle((lx,top,lx+length,top+29),radius=7,fill=(9,30,30,235),outline=(*color,110),width=1)
   draw.ellipse((lx+8,top+12,lx+12,top+16),fill=(*color,255))
   draw.text((lx+18,top+2),text,font=font(18),fill=(*color,255))
- for key,idx in [('defenderArrow',2),('heroArrow',0)]:
-  arrow=frame.get(key)
-  if arrow:
-   points=[(x/motion['width']*w,y/motion['height']*h+44) for x,y in arrow['points']]
-   direction_ribbon(im,points,tuple(bytes.fromhex(manifest['roles'][idx]['color'][1:])))
  # The same source-linked numbers now travel with the MP4, not only the web page.
  from broadcast import card_at
  card=card_at(manifest['insights'],t,result['video']['duration'])

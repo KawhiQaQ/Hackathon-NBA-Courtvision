@@ -82,7 +82,7 @@ def main():
         raise RuntimeError('Analysis completed but timed commentary is unavailable')
     fetch(p['video'],asset=True)
     for frame in p.get('evidence',[]):fetch(frame['image'],asset=True)
-    if p.get('analysisStatus')!='unconfirmed-mvp':
+    if p.get('analysisStatus') not in ['unconfirmed-mvp','reviewed-story']:
         summary=data('api/games',{'gameId':p.get('gameId') or 'smoke-'+job,'team':p.get('team') or 'smoke-team','jobIds':[job]})
         data('api/games/'+summary['id'])
         print('Game aggregation OK',flush=True)
