@@ -59,6 +59,19 @@ class PlaymakingTests(unittest.TestCase):
             r=fixture();r['deepData']={'alignment':{'shotVideoTime':2.3}}
             c=dict(id=r['events'][0]['id'],onBall=True,samePlayer=True,isShooter=False,passObserved=True,beneficiaryIsShooter=True,defenderResponds=True,observedShotTime=observed)
             self.assertEqual(bool(finalize(apply(r,[c]))['events']),observed==2.3)
+    def test_review_keeps_shot_frames_when_actor_leaves_view(self):
+        import base64,io
+        from PIL import Image
+        from candidate_review import prepare
+        r=fixture();r['deepData']={'alignment':{'shotVideoTime':3.5}}
+        event=r['events'][0];event.update(start=0,end=1)
+        r['vision']['frames'].extend([dict(time=t,scene=0,people=[]) for t in [3,4]])
+        buf=io.BytesIO();Image.new('RGB',(128,72)).save(buf,format='JPEG')
+        frames=[dict(time=t,image=base64.b64encode(buf.getvalue()).decode()) for t in [0,.5,1,3,4]]
+        candidate=prepare(r,frames,[event])['candidates'][0]
+        self.assertEqual(candidate['shotVideoTime'],3.5)
+        self.assertEqual([f['time'] for f in candidate['frames'] if f['phase']=='outcome'],[3,4])
+
     def test_explicit_shooter_never_becomes_hidden_mvp(self):
         r=fixture();c=dict(id=r['events'][0]['id'],onBall=True,samePlayer=True,isShooter=True,passObserved=True,beneficiaryIsShooter=True,defenderResponds=True)
         self.assertFalse(finalize(apply(r,[c]))['events'])
