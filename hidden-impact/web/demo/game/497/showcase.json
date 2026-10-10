@@ -9,7 +9,7 @@
     "id": "NYK-23",
     "label": "尼克斯 23号"
   },
-  "score": 63.7,
+  "score": 48.3,
   "components": [],
   "roles": [
     {
@@ -309,16 +309,16 @@
   },
   "impact": {
     "version": "hidden-impact/game-impact-v1",
-    "score": 51.4,
-    "actionScore": 63.7,
+    "score": 41.4,
+    "actionScore": 48.3,
     "components": [
       {
         "key": "action",
         "label": "配合与防守响应",
         "weight": 65,
-        "value": 0.637,
+        "value": 0.483,
         "detail": "连续画面中的动作证据",
-        "points": 41.41
+        "points": 31.39
       },
       {
         "key": "opportunity",
@@ -346,11 +346,14 @@
   "team": "尼克斯",
   "videoId": "nba-0042500404-497",
   "roundKey": "0042500404:497",
+  "renderStyle": "locked-trio-v2",
   "identity": {
     "jersey": "23",
     "confirmed": true,
     "source": "human-video-review"
   },
   "duration": 13.96,
+  "width": 960,
+  "height": 684,
   "rendered": true
 }

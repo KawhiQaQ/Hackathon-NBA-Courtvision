@@ -99,7 +99,9 @@ node tests/test_web_render.cjs
 
 本地通用导出：`python scripts/export_game.py --project project.json --out web/results/my-game`。项目文件结构：`{gameId, team, rounds: [{analysis, video, jersey}]}`，文件路径相对项目 JSON；输出页为 `/?result=results/my-game/game.json`。此入口实际使用通用分析结果、评分和渲染函数，不读取演示球员编号。
 
-本地离线工作台可载入五个现成样例并汇总，`/api/game-summary` 与云端共用聚合函数；新上传视频在未启用云端时只能预览，不会伪造 VLM 结果。静态样例由 `scripts/refine_game_tracks.py` 和 `scripts/build_game_showcase.py` 重建（需要原视频与本机篮球模型）。`cdk deploy` 恢复后再验证真实 AWS 权限与在线模型响应；此次本地测试不代表云端已部署。
+本地离线工作台可载入五个现成样例并汇总，`/api/game-summary` 与云端共用聚合函数；新上传视频在未启用云端时只能预览，不会伪造 VLM 结果。静态样例由 `scripts/build_game_showcase.py` 重建，需要原视频与首回合审阅存档；其余四回合的位置来自 `scripts/reviewed_role_paths.py` 的身份复核锚点，已经不使用逐帧最近检测框重绑定。`cdk deploy` 恢复后再验证真实 AWS 权限与在线模型响应；此次本地测试不代表云端已部署。
+
+五回合统一使用 `cloud/api/render_video.py` 的 `locked-trio-v2` 合成器：固定三角色标牌、主角方向箭头、柔化聚焦和底部角色栏，不绘制脚底光圈。人物出画或切到替补席时保留角色栏，不将标注移给其他人。通用视觉流程和样例构建均加入背景相位相关的镜头平移补偿，仅修正箭头方向，不改变球员位置或评分。此次检查通过 120 项 Python 测试、4 组 Node 前端测试及五回合 39 个本地 HTTP 资源验证。
 
 
 ## 发布前复核（2026-10-10）

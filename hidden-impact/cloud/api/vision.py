@@ -123,4 +123,8 @@ def build_legacy_vision(payload,progress=None):
 
 def build_vision(payload,progress=None):
  from court_vision import build
- return build(payload,progress)
+ vision,frames=build(payload,progress)
+ if payload.get('_denseFrames'):
+  from camera_motion import attach
+  attach(vision,payload['_denseFrames'])
+ return vision,frames

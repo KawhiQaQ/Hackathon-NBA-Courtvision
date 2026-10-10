@@ -6,9 +6,9 @@
   "matchup": "尼克斯 × 马刺",
   "source": "NBA China · Inside the Game",
   "duration": 13.466666666666667,
-  "renderStyle": "narration-v11",
-  "width": 1280,
-  "height": 900,
+  "renderStyle": "locked-trio-v2",
+  "width": 960,
+  "height": 684,
   "video": "replay.mp4",
   "original": "../../original.mp4",
   "poster": "frame-1.jpg",
@@ -364,5 +364,7 @@
   "provenance": "历史视觉轨迹与人工复核位置；动作观察指数及回合贡献分由当前统一公式重新计算。",
   "scoreSource": "measured-reviewed-geometry",
   "scoreComponents": [],
+  "status": "ready",
+  "eventId": "reviewed-44-drive-and-kick-P6-P1",
   "rendered": true
 }

@@ -9,7 +9,7 @@
     "id": "NYK-32",
     "label": "尼克斯 32号"
   },
-  "score": 57.7,
+  "score": 60.7,
   "components": [],
   "roles": [
     {
@@ -273,16 +273,16 @@
   },
   "impact": {
     "version": "hidden-impact/game-impact-v1",
-    "score": 69.9,
-    "actionScore": 57.7,
+    "score": 71.8,
+    "actionScore": 60.7,
     "components": [
       {
         "key": "action",
         "label": "配合与防守响应",
         "weight": 65,
-        "value": 0.5770000000000001,
+        "value": 0.607,
         "detail": "连续画面中的动作证据",
-        "points": 37.51
+        "points": 39.45
       },
       {
         "key": "opportunity",
@@ -310,11 +310,14 @@
   "team": "尼克斯",
   "videoId": "nba-0042500404-428",
   "roundKey": "0042500404:428",
+  "renderStyle": "locked-trio-v2",
   "identity": {
     "jersey": "32",
     "confirmed": true,
     "source": "human-video-review"
   },
   "duration": 10.15,
+  "width": 960,
+  "height": 684,
   "rendered": true
 }

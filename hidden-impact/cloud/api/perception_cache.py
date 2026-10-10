@@ -3,7 +3,7 @@ import hashlib,json,base64,io
 from PIL import Image,ImageDraw,ImageFont
 
 def cache_key(video_key,etag,frames):
- material={'version':'basketball-cv-v3','video':video_key,'etag':etag,'anchors':[(f['time'],hashlib.sha256(f['image'].encode()).hexdigest()) for f in frames]}
+ material={'version':'basketball-cv-v4-camera','video':video_key,'etag':etag,'anchors':[(f['time'],hashlib.sha256(f['image'].encode()).hexdigest()) for f in frames]}
  return 'perception/'+hashlib.sha256(json.dumps(material,sort_keys=True).encode()).hexdigest()+'.json'
 
 def annotate(vision,originals):

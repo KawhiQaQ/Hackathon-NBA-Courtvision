@@ -52,7 +52,7 @@ $('phase-rail').onclick=e=>{const b=e.target.closest('[data-cue]');if(b){stopAt=
 $('frames').onclick=e=>{const b=e.target.closest('[data-frame]');if(b){stopAt=null;video.pause();video.currentTime=data.evidence[Number(b.dataset.frame)].time;sync();}};
 $('leaderboard').onclick=e=>{const b=e.target.closest('[data-round]');if(b){selectRound(Number(b.dataset.round));$('round-browser').scrollIntoView({behavior:'smooth'});}};
 function resolveAssets(round,base){if(round.video?.startsWith('demo/')&&base.pathname.endsWith('/demo/showcase.json'))base=new URL('../',base);for(const key of ['video','original','poster'])if(round[key])round[key]=new URL(round[key],base).href;for(const f of round.evidence||[])f.image=new URL(f.image,base).href;return round;}
-async function read(url,auth=false){const response=await fetch(url,auth?{headers:{'X-Team-Key':sessionStorage.getItem('hi-team-key')||''}}:{});if(!response.ok)throw Error(response.status===401?'请先在分析工作台连接团队工作区。':'结果加载失败。');return response.json();}
+async function read(url,auth=false){const response=await fetch(url,{cache:'no-store',...(auth?{headers:{'X-Team-Key':sessionStorage.getItem('hi-team-key')||''}}:{})});if(!response.ok)throw Error(response.status===401?'请先在分析工作台连接团队工作区。':'结果加载失败。');return response.json();}
 try{
  const params=new URLSearchParams(location.search);let payload,base=new URL('demo/game.json',location.href);
  if(params.has('game')){payload=await read('/api/games/'+encodeURIComponent(params.get('game')),true);base=new URL(location.href);}

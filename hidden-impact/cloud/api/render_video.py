@@ -1,7 +1,7 @@
 """Render a focused, time-synchronized tactical replay; no static screenshot montage."""
 import subprocess,os,math
 from pathlib import Path
-from PIL import Image,ImageDraw,ImageFont
+from PIL import Image,ImageDraw,ImageFont,ImageFilter
 
 def ffmpeg():
  p=os.environ.get('VISION_FFMPEG','/opt/bin/ffmpeg')
@@ -46,22 +46,31 @@ def wrap(draw,text,size,width):
 def composite(image,result,t):
  """Single compositor for the replay and story frames, driven by measured data."""
  manifest=result['presentation'];motion=result['presentationMotion'];w,h=image.size
- im=Image.new('RGB',(w,h+144),'#102b29');im.paste(image,(0,44))
+ frame=motion['frames'][min(len(motion['frames'])-1,max(0,round(t*motion['fps'])))];colors={r['id']:r for r in manifest['roles']}
+ # One broadcast language for every clip: fixed identities, soft focus, nameplates
+ # and the protagonist's direction cue. No foot effects when grounding is uncertain.
+ visible=[p for p in frame['people'] if not p.get('offscreen')]
+ if visible:
+  mask=Image.new('L',(w//4,h//4),48);md=ImageDraw.Draw(mask)
+  for p in visible:
+   x,y,bw,bh=p['x']*w/4,p['y']*h/4,p['w']*w/4,p['h']*h/4
+   md.ellipse((x-8,y-5,x+bw+8,y+bh+5),fill=0)
+  mask=mask.filter(ImageFilter.GaussianBlur(6)).resize((w,h))
+  shade=Image.new('RGB',(w,h),'#061823');image=Image.composite(shade,image,mask)
+ im=Image.new('RGB',(w,h+144),'#0b2029');im.paste(image,(0,44))
  draw=ImageDraw.Draw(im,'RGBA')
  draw.text((20,10),'HIDDEN IMPACT  /  '+manifest['actor']['label'],font=font(19),fill='#f5d68e')
  draw.text((w-130,11),'TEAM 14',font=font(17),fill='#aac1b3')
- frame=motion['frames'][min(len(motion['frames'])-1,max(0,round(t*motion['fps'])))];colors={r['id']:r for r in manifest['roles']}
  occupied=[]
  for i,p in enumerate(frame['people']):
   role=colors[p['trackId']];color=tuple(bytes.fromhex(role['color'][1:]))
-  if p.get('offscreen'):
-   # Identity stays visible in a status strip; no fictitious person location.
-   x=18+i*w/3;y=h+50
-   draw.text((x,y),role['displayName']+' · 定位中',font=font(13),fill=(*color,255));continue
-  x=(p['x']+p['w']/2)*w;y=(p['y']+p['h'])*h+44;radius=max(15,p['w']*w*.7)
-  for spread,alpha in [(22,12),(13,22),(5,36)]:
-   draw.ellipse((x-radius-spread,y-8-spread*.35,x+radius+spread,y+8+spread*.35),fill=(*color,alpha))
-  draw.ellipse((x-radius,y-5,x+radius,y+5),outline=(*color,255),width=3)
+  # The identity rail remains in the same order throughout occlusions and cuts.
+  status=' · 画外' if p.get('offscreen') else ''
+  rx=18+i*w/3;ry=h+51
+  draw.ellipse((rx,ry+4,rx+6,ry+10),fill=(*color,255))
+  draw.text((rx+13,ry-2),role['displayName']+status,font=font(13),fill=(*color,255))
+  if p.get('offscreen'):continue
+  x=(p['x']+p['w']/2)*w
   top=max(48,p['y']*h+44-35);text=role['displayName'].replace('尼克斯 ','').replace('马刺 ','');length=draw.textlength(text,font=font(18))+28
   lx=max(8,min(w-length-8,x-length/2))
   # Prefer stacked labels above the action, with a leader to the observed body.
@@ -93,6 +102,7 @@ def render(source,result,output,story_dir=None):
  if result['presentation'].get('status')!='ready':return None
  manifest=result['presentation'];start=0;end=result['video']['duration'];width=960
  height=round(width/result['vision'].get('aspectRatio',16/9)/2)*2;fps=result['presentationMotion']['fps']
+ manifest.update(width=width,height=height+144,renderStyle='locked-trio-v2')
  target=Path(output);target.parent.mkdir(parents=True,exist_ok=True)
  story_dir=Path(story_dir) if story_dir else target.parent;story_dir.mkdir(parents=True,exist_ok=True)
  decode=subprocess.Popen([ffmpeg(),'-v','error','-i',str(source),'-t',str(end),'-vf',f'fps={fps},scale={width}:{height}','-f','rawvideo','-pix_fmt','rgb24','pipe:1'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
@@ -115,4 +125,4 @@ def render(source,result,output,story_dir=None):
    if process.poll() is None:process.kill();process.wait()
    for stream in [process.stdin,process.stdout,process.stderr]:
     if stream and not stream.closed:stream.close()
- return {'start':0,'end':end,'fps':fps,'frameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':'presentation-v1'}
+ return {'start':0,'end':end,'fps':fps,'frameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':'locked-trio-v2'}

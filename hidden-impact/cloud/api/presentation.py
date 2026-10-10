@@ -68,6 +68,11 @@ def motion(result,event,fps=24,width=1280,height=720):
                 k=(t-a[0])/(b[0]-a[0]);p={**a[2],**{n:a[2][n]+k*(b[2][n]-a[2][n]) for n in ['x','y','w','h']}}
                 return {**p,'positionSource':'bracketed-interpolation','scene':a[1]}
         return {'trackId':pid,'offscreen':True,'positionSource':'unlocalized','x':.03+ids.index(pid)*.31,'y':.90,'w':.1,'h':.05,'scene':scene(t)}
+    def camera(t):
+        j=min(len(source)-1,bisect.bisect_left(timeline,t));a=source[max(0,j-1)];b=source[j]
+        if 'cameraOffset' not in a or 'cameraOffset' not in b or a.get('scene')!=b.get('scene'):return (0,0)
+        k=max(0,min(1,(t-a['time'])/max(.001,b['time']-a['time'])))
+        return [a['cameraOffset'][i]+k*(b['cameraOffset'][i]-a['cameraOffset'][i]) for i in range(2)]
     output=[];heading=None;last_direction=-99;last_scene=None
     for i in range(math.ceil(result['video']['duration']*fps)):
         t=i/fps; people=[locate(pid,t) for pid in ids];actor=people[0]; arrow=None
@@ -77,13 +82,14 @@ def motion(result,event,fps=24,width=1280,height=720):
         if not actor.get('offscreen'):
             vector=None
             if not future.get('offscreen') and future['scene']==actor['scene']:
-                vector=((future['x']+future['w']/2-actor['x']-actor['w']/2)*width,(future['y']+future['h']*.5-actor['y']-actor['h']*.5)*height)
+                pan=camera(min(t+.65,result['video']['duration']));now=camera(t)
+                vector=((future['x']+future['w']/2-actor['x']-actor['w']/2-(pan[0]-now[0]))*width,(future['y']+future['h']*.5-actor['y']-actor['h']*.5-(pan[1]-now[1]))*height)
             if vector and math.hypot(*vector)>8:
                 angle=math.atan2(vector[1],vector[0])
                 if heading is not None:angle=heading+max(-.22,min(.22,((angle-heading+math.pi)%(2*math.pi)-math.pi)*.45))
                 heading=angle;last_direction=t
             if heading is not None and t-last_direction<=1.2:
-                x=(actor['x']+actor['w']/2)*width;y=(actor['y']+actor['h'])*height
+                x=(actor['x']+actor['w']/2)*width;y=(actor['y']+actor['h']*.45)*height
                 arrow={'points':[[x,y],[x+math.cos(heading)*width*.075,y+math.sin(heading)*width*.075]],'mode':'observed-future' if t==last_direction else 'short-heading-hold'}
         else:heading=None
         output.append({'time':round(t,5),'people':people,'heroArrow':arrow})
