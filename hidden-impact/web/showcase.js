@@ -1,4 +1,4 @@
-import {cueAt,narrationAt,phaseMarkup,opportunityMarkup,gravityMarkup,storyFact} from './insights-view.js?v=game-1';
+import {cueAt,narrationAt,phaseMarkup,opportunityMarkup,gravityMarkup,storyFact} from './insights-view.js?v=actor-evidence-1';
 import {scoreMarkup,awardMarkup,rankingMarkup} from './game-view.js?v=game-1';
 const $=id=>document.getElementById(id),video=$('replay');
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

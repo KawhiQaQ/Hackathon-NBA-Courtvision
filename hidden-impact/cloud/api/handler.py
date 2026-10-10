@@ -62,7 +62,7 @@ def worker(event):
    from reviewed_presentation import build
    source_job=key_id(payload['sourceJob']);source=get(f'jobs/{source_job}/result.json')
    video_item=get(f"library/{key_id(source['video']['id'])}.json")
-   reviewed=build(source,payload['review'],video_item.get('sha256'),source_job)
+   reviewed=build(source,payload['review'],video_item.get('sha256'),source_job,profiles=(video_item.get('deepData') or {}).get('playerProfiles',[]))
    reviewed.update(job=job,createdAt=datetime.now(timezone.utc).isoformat())
    render_result(reviewed,video_item,prefix)
    if not reviewed['presentation'].get('rendered'):raise RuntimeError('Reviewed replay rendering failed')

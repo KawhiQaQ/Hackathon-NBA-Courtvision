@@ -13,12 +13,29 @@ def comparison(kind, title, subject, value, baseline, labels, unit, context):
     rows.append(dict(label=labels[1], value=value, baseline=False))
     # Probability always uses 0–100%; signed gravity shares one zero and scale.
     values = [r['value'] for r in rows]
-    domain = [0, 100] if kind == 'shot' else [min(0, min(values)), max(0, max(values))]
+    domain = [0, 100] if kind in ('shot', 'actor-finishing') else [min(0, min(values)), max(0, max(values))]
     if domain[0] == domain[1]:
         domain = [-1, 1]
     delta = value - baseline if finite(baseline) else None
     return dict(kind=kind, title=title, subject=subject, rows=rows, domain=domain,
                 delta=delta, unit=unit, context=context, outcome=None)
+
+
+def actor_card(profile, time, switch_time):
+    if not profile:return None
+    creation=profile.get('creation');scoring=profile.get('scoring');finishing=profile.get('finishing')
+    if finite(creation) and finite(scoring) and (time < switch_time / 2 or not finishing):
+        c=comparison('actor-creation','主角不止得分',profile['name'],creation,scoring,
+                     ('投篮得分','创造机会'),'影响力',f"{profile.get('scope','阶段汇总')} · {profile.get('games','—')} 场")
+        # These are two components, not before/after or a causal uplift.
+        c.update(delta=None,headline=f'{creation:+.2f}',headlineUnit='创造机会影响力',accent='#f4c45e')
+        return c
+    if finishing:
+        c=comparison('actor-finishing','主角的终结威胁',profile['name'],finishing['actual']*100,finishing['expected']*100,
+                     ('官方预期','实际命中'),'个百分点','本回合前 · 同场两分出手')
+        c.update(delta=None,headline=f"{finishing['made']} / {finishing['sampleCount']}",headlineUnit='两分命中',accent='#f4c45e')
+        return c
+    return None
 
 
 def card_at(insights, time, duration):
@@ -27,6 +44,10 @@ def card_at(insights, time, duration):
     has_alignment = finite(aligned) and 0 <= aligned <= duration
     # Leave enough time to read the comparison before the finish, without
     # describing a historical shot estimate as a live probability trajectory.
+    switch_time=max(0,aligned-5) if has_alignment else 0
+    if has_alignment and time<switch_time:
+        actor=actor_card(insights.get('actorProfile'),time,switch_time)
+        if actor:return actor
     show_shot = shot and (not gravity or not has_alignment or time >= max(0, aligned - 5))
     if show_shot:
         p = shot.get('probability')

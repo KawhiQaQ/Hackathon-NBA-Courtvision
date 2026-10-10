@@ -160,17 +160,21 @@ def composite(image,result,t):
   lo,hi=card['domain'];bx=cx+91;bw=139
   zero=bx+(0-lo)/(hi-lo)*bw
   for j,row in enumerate(card['rows']):
-   y=cy+65+j*34;color='#8ca1aa' if row['baseline'] else '#77cfe4'
+   y=cy+65+j*34;color='#8ca1aa' if row['baseline'] else card.get('accent','#77cfe4')
    draw.text((cx+16,y-1),row['label'],font=font(13),fill=color)
    draw.rounded_rectangle((bx,y+3,bx+bw,y+19),radius=4,fill='#253d48')
    end=bx+(row['value']-lo)/(hi-lo)*bw
    if abs(end-zero)>.1:
     draw.rounded_rectangle((min(zero,end),y+3,max(zero,end),y+19),radius=min(4,abs(end-zero)/2),fill=color)
    if lo<0:draw.line((zero,y+1,zero,y+21),fill='#c7d3d6',width=1)
-   value=f"{row['value']:.1f}%" if card['kind']=='shot' else f"{row['value']:+.2f}"
+   value=f"{row['value']:.1f}%" if card['kind'] in ('shot','actor-finishing') else f"{row['value']:+.2f}"
    draw.text((bx+bw+8,y-2),value,font=font(16),fill=color)
   delta=card['delta']
-  if delta is not None:
+  if card.get('headline'):
+   draw.text((cx+16,cy+135),card['headline'],font=font(29),fill='#f5d68e')
+   offset=draw.textlength(card['headline'],font=font(29))
+   draw.text((cx+23+offset,cy+150),card['headlineUnit'],font=font(12),fill='#f5d68e')
+  elif delta is not None:
    precision=1 if card['kind']=='shot' else 2
    number=f'{delta:+.{precision}f}'
    draw.text((cx+16,cy+135),number,font=font(29),fill='#f5d68e')
@@ -197,7 +201,7 @@ def render(source,result,output,story_dir=None):
  if result['presentation'].get('status')!='ready':return None
  manifest=result['presentation'];start=0;end=result['video']['duration']
  width,height,band,original=output_dimensions(source);fps=result['presentationMotion']['fps']
- manifest.update(width=width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='data-context-hd-v7',encoding={'codec':'h264','crf':17,'preset':'fast'})
+ manifest.update(width=width,height=height+band,pictureWidth=width,pictureHeight=height,sourceWidth=original[0],sourceHeight=original[1],renderStyle='actor-evidence-hd-v8',encoding={'codec':'h264','crf':17,'preset':'fast'})
  target=Path(output);target.parent.mkdir(parents=True,exist_ok=True)
  story_dir=Path(story_dir) if story_dir else target.parent;story_dir.mkdir(parents=True,exist_ok=True)
  decode=subprocess.Popen([ffmpeg(),'-v','error','-i',str(source),'-t',str(end),'-vf',f'fps={fps},scale={width}:{height}:flags=lanczos','-f','rawvideo','-pix_fmt','rgb24','pipe:1'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
@@ -220,4 +224,4 @@ def render(source,result,output,story_dir=None):
    if process.poll() is None:process.kill();process.wait()
    for stream in [process.stdin,process.stdout,process.stderr]:
     if stream and not stream.closed:stream.close()
- return {'start':0,'end':end,'fps':fps,'frameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':'data-context-hd-v7','width':width,'height':height+band,'pictureWidth':width,'pictureHeight':height}
+ return {'start':0,'end':end,'fps':fps,'frameCount':index,'focusPlayerId':manifest['actor']['id'],'eventId':manifest['eventId'],'renderer':'actor-evidence-hd-v8','width':width,'height':height+band,'pictureWidth':width,'pictureHeight':height}

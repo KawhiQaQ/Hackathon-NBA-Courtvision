@@ -21,6 +21,7 @@ def validate(review,result,sha256):
     if not isinstance(roles,list) or [r.get('role') for r in roles]!=[r[0] for r in ROLE_STYLE]:raise ValueError('Exactly three fixed roles are required')
     if len({(r.get('team'),r.get('jersey')) for r in roles})!=3:raise ValueError('Roles must refer to distinct players')
     for role in roles:
+        if role.get('playerId') is not None and not re.fullmatch(r'\d+',str(role['playerId'])):raise ValueError('Invalid NBA player ID')
         if not isinstance(role.get('team'),str) or not 1<=len(role['team'])<=30 or not re.fullmatch(r'\d{1,2}',str(role.get('jersey',''))):raise ValueError('Invalid player identity')
         rows=role.get('anchors',[])
         if not 2<=len(rows)<=500:raise ValueError('Missing reviewed positions')
@@ -49,9 +50,11 @@ def validate(review,result,sha256):
     return review
 
 
-def build(source,review,sha256,source_job,fps=24):
+def build(source,review,sha256,source_job,fps=24,profiles=None):
     validate(review,source,sha256)
     result=copy.deepcopy(source)
+    if profiles is not None and result.get('deepData'):
+        result['deepData']['playerProfiles']=copy.deepcopy(profiles)
     # Immutable source job remains the authoritative automatic analysis.
     result['presentationReview']={**copy.deepcopy(review),'sourceJob':source_job}
     result['originalNarration']=copy.deepcopy(source.get('narration'))
@@ -64,6 +67,8 @@ def build(source,review,sha256,source_job,fps=24):
         roles.append(dict(id='review-'+r['role'],name=name,label=label,displayName=name+' · '+label,color=color))
     info=insights(result)
     info['gravityContexts']=copy.deepcopy(review.get('gravityContexts',[]))
+    from actor_profile import build_profile
+    info['actorProfile']=build_profile(result,review['roles'][0].get('playerId'))
     info['cues']=[{**s,'phase':s['title'],'evidence':f"画面 · {s['seek']:.2f}s"} for s in segments]
     evidence=[dict(time=s['seek'],label=s['title'],chapter=s['title'],text=s['text'],kind='analysis',source='human-reviewed-video',image=f'frame-{i+1}.jpg') for i,s in enumerate(segments)]
     official=(result.get('deepData') or {}).get('official') or {}

@@ -32,7 +32,19 @@ export function opportunityMarkup(insights) {
     <div class="outcome-pair"><div><span>出手预期得分</span><b>${s.expectedPoints.toFixed(2)} <small>分</small></b></div><div><span>实际结果</span><b>${s.made===null ? '—' : s.made ? '+' + s.points : '0'} <small>${s.made===null ? '结果未提供' : s.made ? '命中' : '未命中'}</small></b></div></div>`;
 }
 
+function actorMarkup(a) {
+  const f=a.finishing;
+  return `<div class="data-kicker">幕后主角的贡献线索</div><h3>${escapeHTML(a.name)}</h3>
+    <p class="gravity-scope">${escapeHTML(a.scope)} · ${escapeHTML(a.games ?? '—')} 场</p>
+    <div class="outcome-pair"><div><span>创造机会影响力</span><b>${Number.isFinite(a.creation)?signed(a.creation):'—'}</b></div><div><span>投篮得分影响力</span><b>${Number.isFinite(a.scoring)?signed(a.scoring):'—'}</b></div></div>
+    <p class="data-note">官方影响力的不同组成项；用于说明得分之外的价值，不是本回合贡献分。</p>
+    ${f?`<div class="gravity-reading"><b>此回合前：两分 ${f.sampleCount} 投 ${f.made} 中</b><span>主角顺下时的终结威胁</span></div>
+    <div class="quality-plot"><div class="quality-row"><span>实际命中</span><div><i style="width:${f.actual*100}%"></i></div><b>${pct(f.actual)}</b></div><div class="quality-row baseline"><span>官方预期</span><div><i style="width:${f.expected*100}%"></i></div><b>${pct(f.expected)}</b></div><div class="quality-axis"><span>0%</span><span>50%</span><span>100%</span></div></div>
+    <p class="data-note">同场先前两分出手。终结表现提供背景，防守是否受牵制仍需回看画面。</p>`:''}`;
+}
+
 export function gravityMarkup(insights) {
+  if(insights.actorProfile)return actorMarkup(insights.actorProfile);
   const g = insights.gravity;
   if(!g?.axes?.length)return '';
   const perimeter = g.axes.find(a => a.key === 'OFF_BALL_PERIM_GRAV');
