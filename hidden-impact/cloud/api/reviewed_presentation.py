@@ -8,7 +8,7 @@ import bisect
 import copy
 import math
 import re
-from presentation import insights, finite
+from presentation import insights, finite, FIELDS
 
 ROLE_STYLE=[('actor','主角','#f4c45e'),('beneficiary','受益队友','#77cfe4'),('defender','防守者','#ee927f')]
 
@@ -39,6 +39,13 @@ def validate(review,result,sha256):
         if not isinstance(s.get('title'),str) or not 1<=len(s['title'])<=40 or not isinstance(s.get('text'),str) or not 1<=len(s['text'])<=300:raise ValueError('Invalid story copy')
         previous=s['end']
     if abs(previous-duration)>.001:raise ValueError('Story does not cover the clip')
+    contexts=review.get('gravityContexts',[])
+    if not isinstance(contexts,list) or len(contexts)>12:raise ValueError('Invalid gravity contexts')
+    previous=0
+    for c in contexts:
+        if not isinstance(c,dict) or not re.fullmatch(r'\d+',str(c.get('playerId',''))) or c.get('metric') not in dict(FIELDS):raise ValueError('Invalid gravity identity or metric')
+        if not finite(c.get('start')) or not finite(c.get('end')) or not previous<=c['start']<c['end']<=duration:raise ValueError('Invalid gravity time window')
+        previous=c['end']
     return review
 
 
@@ -56,6 +63,7 @@ def build(source,review,sha256,source_job,fps=24):
         name=f"{r['team']} {r['jersey']}号"
         roles.append(dict(id='review-'+r['role'],name=name,label=label,displayName=name+' · '+label,color=color))
     info=insights(result)
+    info['gravityContexts']=copy.deepcopy(review.get('gravityContexts',[]))
     info['cues']=[{**s,'phase':s['title'],'evidence':f"画面 · {s['seek']:.2f}s"} for s in segments]
     evidence=[dict(time=s['seek'],label=s['title'],chapter=s['title'],text=s['text'],kind='analysis',source='human-reviewed-video',image=f'frame-{i+1}.jpg') for i,s in enumerate(segments)]
     official=(result.get('deepData') or {}).get('official') or {}

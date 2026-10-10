@@ -16,6 +16,12 @@ class ReviewedPresentationTests(unittest.TestCase):
         self.assertEqual(r['originalNarration'],before['narration'])
         self.assertFalse(r['narration']['modelInvoked']);self.assertIsNone(r['presentation']['score'])
         self.assertEqual(r['presentationReview']['sourceJob'],'source-job')
+    def test_gravity_context_is_bound_and_validated(self):
+        r=build(self.source,self.review,self.sha,'source-job')
+        self.assertEqual(r['presentation']['insights']['gravityContexts'],self.review['gravityContexts'])
+        for change in [{'metric':'MADE_UP'},{'start':-1},{'end':30},{'playerId':''}]:
+            review=copy.deepcopy(self.review);review['gravityContexts'][0].update(change)
+            with self.subTest(change=change),self.assertRaises(ValueError):validate(review,self.source,self.sha)
     def test_fixed_roles_and_continuous_cues_for_visible_action(self):
         r=build(self.source,self.review,self.sha,'source-job');frames=r['presentationMotion']['frames']
         for f in frames:

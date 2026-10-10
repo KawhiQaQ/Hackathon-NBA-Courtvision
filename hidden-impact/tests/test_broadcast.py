@@ -5,7 +5,7 @@ from broadcast import card_at
 
 class BroadcastTests(unittest.TestCase):
  def data(self):
-  return dict(shotVideoTime=10,shooter='球员',shot=dict(probability=.51,baseline=.5001578947368421,sampleCount=19,deltaPercentagePoints=999,expectedPoints=1.02,made=True,points=2),gravity=dict(player='球员',scope='赛季',axes=[dict(key='OFF_BALL_PERIM_GRAV',value=-2,teamMedian=3)]))
+  return dict(shotVideoTime=10,shooter='球员',shot=dict(probability=.51,baseline=.5001578947368421,sampleCount=19,deltaPercentagePoints=999,expectedPoints=1.02,made=True,points=2),gravity=dict(playerId='32',player='球员',scope='赛季',axes=[dict(key='OVERALL_GRAV',value=-2,teamMedian=3)]))
  def test_phase_and_outcome_are_aligned(self):
   d=self.data();self.assertEqual(card_at(d,2,20)['kind'],'gravity');self.assertEqual(card_at(d,5,20)['kind'],'shot')
   self.assertIsNone(card_at(d,9,20)['outcome'])
@@ -33,5 +33,19 @@ class BroadcastTests(unittest.TestCase):
  def test_equal_zero_gravity_still_has_valid_scale(self):
   d=self.data();d['gravity']['axes'][0].update(value=0,teamMedian=0)
   c=card_at(d,2,20);self.assertLess(c['domain'][0],c['domain'][1]);self.assertEqual(c['delta'],0)
+
+ def test_specialized_metric_requires_matching_identity_and_time(self):
+  d=self.data();d['gravity']['axes'].append(dict(key='ON_BALL_PERIM_GRAV',value=2.897,teamMedian=-3.1795))
+  d['gravityContexts']=[dict(playerId='32',metric='ON_BALL_PERIM_GRAV',start=1,end=4)]
+  c=card_at(d,2,20)
+  self.assertEqual(c['title'],'持球外线引力');self.assertAlmostEqual(c['delta'],6.0765)
+  self.assertEqual(card_at(d,0,20)['title'],'总体引力')
+  self.assertEqual(card_at(d,4,20)['title'],'总体引力')
+  d['gravityContexts'][0]['playerId']='21'
+  self.assertEqual(card_at(d,2,20)['title'],'总体引力')
+ def test_unavailable_specialized_metric_is_not_replaced_by_offball(self):
+  d=self.data();d['gravity']['axes'].append(dict(key='OFF_BALL_PERIM_GRAV',value=9,teamMedian=1))
+  d['gravityContexts']=[dict(playerId='32',metric='ON_BALL_PERIM_GRAV',start=0,end=4)]
+  self.assertIsNone(card_at(d,2,20))
 
 if __name__=='__main__':unittest.main()

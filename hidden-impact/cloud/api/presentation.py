@@ -42,7 +42,7 @@ def insights(result):
             value=player.get('gravity',{}).get(key)
             axes.append(dict(key=key,label=label,value=value if finite(value) else None,teamMedian=median(teammates) if teammates else None,
                 percentile=100*sum(v<=value for v in values)/len(values) if finite(value) and values else None,sampleCount=len(values)))
-        out['gravity']=dict(player=player.get('name',official.get('shooter','')),scope=official.get('gravityScope','阶段汇总'),games=player.get('games'),
+        out['gravity']=dict(playerId=str(player['id']),player=player.get('name',official.get('shooter','')),scope=official.get('gravityScope','阶段汇总'),games=player.get('games'),
             axes=axes,comparison=(player.get('team') or '队内')+'样本中位数',note='阶段汇总引力用于解释球员特点；不代表这一回合的实时牵制。')
     return out
 

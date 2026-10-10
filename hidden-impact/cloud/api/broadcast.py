@@ -42,9 +42,20 @@ def card_at(insights, time, duration):
             card['outcome'] = f'命中 +{points} 分' if shot['made'] and points in (2, 3) else ('命中' if shot['made'] else '未命中')
         return card
     if gravity:
-        axis = next((a for a in gravity.get('axes', []) if a.get('key') == 'OFF_BALL_PERIM_GRAV' and finite(a.get('value'))), None)
+        # A specialized metric requires an explicit, player-bound time window.
+        # Without one, describe the overall profile rather than guessing possession.
+        titles = {'OVERALL_GRAV': '总体引力', 'ON_BALL_PERIM_GRAV': '持球外线引力',
+                  'ON_BALL_INTERIOR_GRAV': '持球内线引力', 'OFF_BALL_PERIM_GRAV': '无球外线引力',
+                  'OFF_BALL_INTERIOR_GRAV': '无球内线引力'}
+        context = next((c for c in insights.get('gravityContexts', [])
+                        if c.get('playerId') and str(c['playerId']) == str(gravity.get('playerId'))
+                        and finite(c.get('start')) and finite(c.get('end'))
+                        and 0 <= c['start'] <= time < c['end'] <= duration
+                        and c.get('metric') in titles), None)
+        key = context['metric'] if context else 'OVERALL_GRAV'
+        axis = next((a for a in gravity.get('axes', []) if a.get('key') == key and finite(a.get('value'))), None)
         if axis:
-            return comparison('gravity', '无球外线引力', gravity.get('player') or '球员',
+            return comparison('gravity', titles[key], gravity.get('player') or '球员',
                               axis['value'], axis.get('teamMedian'), ('队内中位', '球员画像'),
                               '引力值', '赛季阶段画像 · 非本回合增益')
     return None
