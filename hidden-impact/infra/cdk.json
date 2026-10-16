@@ -1,1 +1,1 @@
-{"app":"node app.js","context":{"@aws-cdk/core:permissionsBoundary":{"name":"NBAHackathonParticipantBoundary"}}}
+{"app":"node app.js"}

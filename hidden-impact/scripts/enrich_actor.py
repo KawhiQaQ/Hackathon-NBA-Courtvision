@@ -1,4 +1,5 @@
 """Fetch source-linked actor profiles; optionally enrich our registered clip library."""
+from app_config import session as aws_session, outputs as deployment_outputs
 import argparse,json,datetime
 from pathlib import Path
 from ingest_official import fetch
@@ -14,7 +15,7 @@ def main():
  out=ROOT/'data/reference'/f'{a.video}-actor-profile.json';out.write_text(json.dumps(profile,ensure_ascii=False,indent=2)+'\n')
  if a.upload:
   import boto3
-  cfg=json.loads((ROOT/'infra/cdk-outputs.json').read_text())['HiddenImpactTeam14'];session=boto3.Session(profile_name='nba',region_name='us-east-1')
+  cfg=deployment_outputs();session=aws_session()
   if cfg['AgentRuntimeArn'].split(':')[4]!=session.client('sts').get_caller_identity()['Account']:raise ValueError('Wrong AWS account')
   s3=session.client('s3');key='library/'+a.video+'.json';bucket=cfg['MediaBucket']
   item=json.loads(s3.get_object(Bucket=bucket,Key=key)['Body'].read());deep=item['deepData']

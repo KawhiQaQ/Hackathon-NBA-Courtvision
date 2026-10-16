@@ -1,4 +1,4 @@
-"""Team-authenticated asynchronous analysis API. No cloud credentials in browser."""
+"""Workspace-authenticated asynchronous analysis API. No cloud credentials in browser."""
 import base64, hashlib, hmac, json, math, os, re, time, uuid
 from datetime import datetime, timezone
 import boto3
@@ -276,9 +276,9 @@ def worker(event):
 def handler(event,context):
  if event.get('internal')=='analyze':return worker(event)
  path=event.get('rawPath','');method=event.get('requestContext',{}).get('http',{}).get('method','GET')
- if path=='/api/health':return reply(200,{'ok':True,'model':'qwen.qwen3-vl-235b-a22b','pipeline':'CloudFront → Lambda → AgentCore → Bedrock','authRequired':True})
+ if path=='/api/health':return reply(200,{'ok':True,'model':os.environ.get('HIAGENT_MODEL_ID','qwen.qwen3-vl-235b-a22b'),'pipeline':'CloudFront → Lambda → AgentCore → Bedrock','authRequired':True})
  token=event.get('headers',{}).get('x-team-key','')
- if not token or not hmac.compare_digest(token,os.environ.get('TEAM_KEY','')):return reply(401,{'error':'请先连接团队工作区。'})
+ if not token or not hmac.compare_digest(token,os.environ.get('TEAM_KEY','')):return reply(401,{'error':'请先连接工作区。'})
  try:
   if method=='GET' and path=='/api/session':return reply(200,{'ok':True})
   if method=='GET' and path=='/api/library':

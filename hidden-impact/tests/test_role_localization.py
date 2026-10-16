@@ -20,7 +20,7 @@ class RoleTests(unittest.TestCase):
   lock['actionWindow']['end']=10;self.assertIsNone(visual_event(lock,12))
  def test_exam_companion_preserves_double_zero_and_profile_scope(self):
   import json
-  p=Path(__file__).resolve().parents[2]/'double.companion.json'
+  p=Path(__file__).resolve().parents[2]/'examples/dallas/companion.json'
   data=json.loads(p.read_text());out=validate_companion(data,23.78)
   self.assertEqual(out['shotContext']['shooterJersey'],'00');self.assertEqual(out['shotContext']['eventId'],273)
   self.assertEqual(len(out['playerProfiles']),10);self.assertEqual(len(out['roster']),10)

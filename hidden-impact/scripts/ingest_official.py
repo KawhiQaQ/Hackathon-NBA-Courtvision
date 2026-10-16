@@ -1,8 +1,9 @@
-"""Register an organizer clip and an explicitly matched NBA shot in our private S3.
+"""Register a sourced video and an explicitly matched NBA shot in private S3.
 
 No guessed event matching: pass the game/player/event after checking the footage.
 Produces a regular /api/jobs request; no prepared player roles or commentary.
 """
+from app_config import session as aws_session, outputs as deployment_outputs
 import argparse,base64,hashlib,json,subprocess,sys,urllib.parse,urllib.request
 from pathlib import Path
 import boto3,imageio_ffmpeg
@@ -17,7 +18,7 @@ def fetch(path,params):
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--video',type=Path,required=True);ap.add_argument('--id',required=True)
     ap.add_argument('--game',required=True);ap.add_argument('--player',required=True);ap.add_argument('--event',type=int,required=True)
-    ap.add_argument('--source',required=True);ap.add_argument('--shot-time',type=float);ap.add_argument('--out',type=Path,required=True)
+    ap.add_argument('--publication-basis',choices=['private','licensed','organizer-provided'],default='private');ap.add_argument('--source',required=True);ap.add_argument('--shot-time',type=float);ap.add_argument('--out',type=Path,required=True)
     ap.add_argument('--season',default='2025-26');ap.add_argument('--season-type',default='Regular Season')
     ap.add_argument('--teams',default='DAL,HOU',help='Team abbreviations for gravity comparison')
     ap.add_argument('--companion',type=Path,help='Validated companion JSON for this same clip')
@@ -67,11 +68,11 @@ def main():
     args.out.with_suffix('.metadata.json').write_text(json.dumps(dict(video=video,deepData=deep),ensure_ascii=False,indent=2))
     if args.prepare_only:
         print('Prepared',args.id,'request',args.out);return
-    config=json.loads((ROOT/'infra/cdk-outputs.json').read_text())['HiddenImpactTeam14']
-    s3=boto3.Session(profile_name='nba',region_name='us-east-1').client('s3');key='videos/'+args.id+'.mp4'
+    config=deployment_outputs()
+    s3=aws_session().client('s3');key='videos/'+args.id+'.mp4'
     s3.upload_file(str(args.video),config['MediaBucket'],key,ExtraArgs={'ContentType':'video/mp4'})
     item=video|dict(key=key,deepData=deep,sha256=hashlib.sha256(args.video.read_bytes()).hexdigest(),
-        publication=dict(basis='organizer-provided',source=args.source))
+        publication=dict(basis=args.publication_basis,source=args.source))
     s3.put_object(Bucket=config['MediaBucket'],Key='library/'+args.id+'.json',Body=json.dumps(item,ensure_ascii=False).encode(),ContentType='application/json')
     print('Registered',args.id,'event',args.event,'request',args.out)
 

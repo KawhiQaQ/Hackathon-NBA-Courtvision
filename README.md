@@ -1,31 +1,69 @@
-# Team 14 · HiAgent | Hidden Impact Agent
+<div align="center">
 
-## 使用流程
+# HiAgent
+### Hidden Impact Agent
 
-打开作品链接后，默认进入 **「02 战术影像」**，已加载处理好的考试视频，无需上传或等待分析。点击视频左下角播放，观看角色标注、箭头、深度数据与定格解说；视频下方可切换「原始视频」对照。
+让篮球比赛中被忽略的贡献，回到画面里。
 
-看完后，点击页面右侧 **「→ 故事」**，进入「03 故事回放」，左右滑动查看带标注的关键帧及配合解析；点击任一关键帧，可回到视频对应时刻。再点击右侧 **「→ 数据」**，进入「04 数据解读」，查看机会质量、球员背景与贡献依据。顶部导航也可直接切换这三个页面。
+[快速开始](#快速开始) · [安装指南](docs/setup.md) · [AWS 部署](docs/aws.md) · [完整演示视频](examples/replay/replay.mp4)
 
-如需体验新素材分析，点击顶部「01 导入分析」，上传视频与配套深度数据并创建任务。评审观看现有作品不需要操作此入口。
+</div>
 
-## 项目动机
+[![HiAgent 战术回放](docs/assets/preview.gif)](examples/replay/replay.mp4)
 
-篮球的进攻价值常被最后一次出手概括，掩护、接应、前场篮板和防守牵制则容易被忽略。HiAgent（Hidden Impact Agent）从比赛视频与深度赛场数据中寻找“幕后 MVP”，把机会形成的过程直接呈现在真实比赛画面上。
+<sub>点击预览查看约 40 秒完整成片。示例包含经过校准的角色、位置与解说；自动分析质量取决于输入画面和模型。[素材说明](examples/replay/README.md)</sub>
 
-## Agent 核心亮点
+## 它做什么
 
-围绕 **幕后 MVP、受益队友、关键防守者** 三个角色组织分析：谁做出了配合，防守如何响应，机会最终由谁兑现。角色标牌、方向箭头与相对站位战术板让配合可见；关键时刻定格，配合分阶段解说，再用胶卷故事线回看证据。首页直接播放已生成结果，支持原视频对照，无需等待分析。
+**HiAgent 从篮球视频与配套数据中寻找“幕后 MVP”**：一次掩护、接应或防守牵制，如何为队友创造出手机会。它围绕贡献者、受益队友和关键防守者组织证据，输出带角色标牌、跑位箭头、数据对比与分段解说的比赛视频。
 
-系统结合动作证据、官方出手质量和球员威胁背景评估贡献。预期命中率与同场同球员同类出手作比较，引力、创造机会及此前命中表现用于解释防守选择。**统计差值不直接归因于某一名球员**；贡献分是工程观察指数，证据不足时不强行评选。同场多段视频可按已导入回合汇总贡献与排名。
+除了成片，还可以查看关键帧故事线、出手机会对比和同场多回合汇总。独立 **Reviewer** 复核角色身份、位置与解说时序，保留原始分析及复核记录。贡献分是可解释的观察指数；预期命中率差值不直接等于某名球员造成的提升。
 
-Reviewer 将角色定位与解说生成分开复核：VLM 对照原视频核对三人身份、关键时刻位置和分段解说，输出统一的参考框、位置锚点与呈现计划，再由渲染器生成稳定标注。对文件指纹与出手数据完全匹配的已校准素材，可复用人工校准参考；该分支与当次 VLM 输出分别记录来源。
+```text
+比赛视频 + 可选配套数据
+  → 球员 / 篮球 / 球场检测
+  → VLM 理解配合与候选评分
+  → Reviewer 复核身份、位置、分段解说
+  → FFmpeg 渲染视频与故事帧
+  → 回放 · 故事线 · 数据解读
+```
 
-## 技术方案与 Workflow
+## 快速开始
 
-上传视频与配套深度数据 → S3 保存素材 → 篮球视觉模型检测球员与球 → Bedrock AgentCore 调用 Qwen3-VL，结合画面与数据核验角色、理解配合并生成分段解说 → 评分模块整理证据 → FFmpeg / Pillow 将标牌、箭头、图表和解说叠加成视频 → S3 保存成片与故事帧 → CloudFront 发布。任务通过异步接口查询进度，分析结果以统一结构连接评分、渲染与前端。Reviewer 在渲染前输出 review、references 与 presentation-plan 标准文件，检查固定角色和证据时序，并保留原始分析及复核记录；匹配已校准素材时采用确定性的参考复核分支。
+**先看效果，无需 AWS 或模型。** 安装 Python 3.13 后：
 
-## 观看与运行
+```bash
+git clone https://github.com/KawhiQaQ/HiAgent.git
+cd HiAgent
+python3 hidden-impact/scripts/install_demo.py
+python3 hidden-impact/server.py
+```
 
-作品依次提供战术回放、故事线与数据分析，工作台保留新素材上传入口。云资源由 AWS CDK 定义，部署在本队账号的 us-east-1。公开观看无需登录；上传和分析使用团队访问码。视频使用主办方提供的考试素材，深度数据来自 NBA China「深度赛场」，素材来源与结果生成信息随分析结果保存。
+打开 **http://127.0.0.1:8765/**。从战术回放切换到故事线、数据解读，即可浏览随仓库保存的示例。原赛事云地址已退役，项目不再依赖它。
 
-[观看作品](https://d2pfr8ulgem4g5.cloudfront.net/) · [作品说明](https://d2pfr8ulgem4g5.cloudfront.net/readme) · [开发与部署](hidden-impact/docs/RESTORE.md)
+**分析自己的视频。** 完成[一次性环境与模型配置](docs/setup.md)后，在 `hidden-impact/` 中运行：
+
+```bash
+python scripts/analyze_video.py \
+  --video /absolute/path/to/play.mp4 \
+  --companion /absolute/path/to/companion.json \
+  --profile hiagent \
+  --out web/results/my-play
+python server.py
+```
+
+打开 **http://127.0.0.1:8765/?result=results/my-play/showcase.json**。输出目录包含 `replay.mp4`、原视频对照、故事帧、`analysis.json` 和 Reviewer 记录。没有配套数据时省略 `--companion`；不要用示例统计替代未知数据。
+
+当前入口处理 **0.5–40 秒的单回合片段**。视觉计算与视频渲染在本机完成，VLM 使用你自己的 Amazon Bedrock 凭证；无需部署整套云设施，也无需微调模型。模型调用会产生费用。已有分析结果可用 `--analysis result.json` 离线重新渲染。
+
+## 部署与开发
+
+网页上传、异步任务和在线分享可通过[独立 AWS 部署](docs/aws.md)启用：CDK 创建 S3、Lambda、Bedrock AgentCore 与 CloudFront。账号、区域、模型、资源名称均可配置，不再内置队号、赛事权限边界或特定视频的自动校准。
+
+```bash
+cd hidden-impact
+python -m unittest discover -s tests
+for test in tests/*.cjs; do node "$test" || exit 1; done
+```
+
+代码位于 [`hidden-impact/`](hidden-impact/)，输入示例与演示成片位于 [`examples/`](examples/)。第三方视觉权重不放进 Git，来源与安装方式见[安装指南](docs/setup.md)。请使用有权处理的视频；示例录像和第三方数据保留原权利人的权利。

@@ -21,7 +21,7 @@ class LocalShowcaseTest(unittest.TestCase):
  def get(self,path,**headers):return urllib.request.urlopen(urllib.request.Request(self.url+path,headers=headers))
  def test_root_is_precomputed_showcase(self):
   with self.get('/') as r:html=r.read().decode()
-  self.assertIn('TEAM 14',html);self.assertIn('id="round-browser"',html);self.assertIn('workbench.html',html);self.assertNotIn('type="file"',html)
+  self.assertIn('HiAgent',html);self.assertIn('id="round-browser"',html);self.assertIn('workbench.html',html);self.assertNotIn('type="file"',html)
   with self.get('/demo/showcase.json') as r:d=json.load(r)
   self.assertEqual(d['mode'],'demo')
   for asset in [d['video'],d['original'],d['poster'],*[f['image'] for f in d['evidence']]]:

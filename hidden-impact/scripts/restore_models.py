@@ -1,11 +1,11 @@
-"""Restore pinned private model artifacts on a clean machine in the team account."""
-import argparse,hashlib,json
+"""Restore pinned model artifacts from a user-owned S3 bucket."""
+import argparse,hashlib,json,os
 from pathlib import Path
 import boto3
 ROOT=Path(__file__).resolve().parents[1]
 
-def restore(bucket,profile='nba',root=ROOT):
-    client=boto3.Session(profile_name=profile,region_name='us-east-1').client('s3')
+def restore(bucket,profile=None,root=ROOT):
+    client=boto3.Session(profile_name=profile,region_name=os.getenv('AWS_REGION','us-east-1')).client('s3')
     folder=root/'models/basketball';manifest=json.loads((folder/'manifest.json').read_text())
     def valid(path,record):
         if not path.is_file() or path.stat().st_size!=record['size']:return False
@@ -22,4 +22,4 @@ def restore(bucket,profile='nba',root=ROOT):
         print('Restored',name)
 
 if __name__=='__main__':
-    ap=argparse.ArgumentParser();ap.add_argument('--bucket',required=True);ap.add_argument('--profile',default='nba');args=ap.parse_args();restore(args.bucket,args.profile)
+    ap=argparse.ArgumentParser();ap.add_argument('--bucket',required=True);ap.add_argument('--profile',default=None);args=ap.parse_args();restore(args.bucket,args.profile)

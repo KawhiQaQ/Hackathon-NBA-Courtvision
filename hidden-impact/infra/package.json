@@ -1,11 +1,11 @@
 {
-  "name": "nba-aws-preflight",
+  "name": "hiagent-infrastructure",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "synth": "cdk synth --profile nba",
-    "diff": "cdk diff --profile nba",
-    "deploy": "cdk deploy --profile nba --outputs-file cdk-outputs.json"
+    "synth": "cdk synth",
+    "diff": "cdk diff",
+    "deploy": "cdk deploy --outputs-file cdk-outputs.json"
   },
   "dependencies": {
     "aws-cdk-lib": "2.272.0",

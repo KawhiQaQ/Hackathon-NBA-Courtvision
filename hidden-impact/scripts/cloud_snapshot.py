@@ -1,4 +1,5 @@
 """Private local S3 backup and explicit restore; never upload this snapshot to Git."""
+from app_config import session as aws_session, outputs as deployment_outputs
 import argparse, concurrent.futures, hashlib, json, mimetypes, shutil
 from pathlib import Path
 from datetime import datetime, timezone
@@ -31,7 +32,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['backup', 'verify', 'restore'])
     parser.add_argument('directory', type=Path)
-    parser.add_argument('--profile', default='nba')
+    parser.add_argument('--profile', default=None)
     parser.add_argument('--bucket', help='Explicit destination bucket required for restore')
     args = parser.parse_args(); base = args.directory.resolve(); manifest_path = base / 'manifest.json'
     if args.action == 'verify':
@@ -40,10 +41,10 @@ def main():
             p = safe_path(base / 'objects', obj['key'])
             if not p.exists() or sha256(p) != obj['sha256']: raise ValueError('Checksum mismatch: '+obj['key'])
         print('Verified', len(manifest['objects']), 'objects'); return
-    session = boto3.Session(profile_name=args.profile, region_name='us-east-1')
+    session = aws_session(args.profile)
     s3 = session.client('s3', config=Config(max_pool_connections=16))
     if args.action == 'backup':
-        outputs = json.loads((ROOT/'infra/cdk-outputs.json').read_text())['HiddenImpactTeam14']
+        outputs = deployment_outputs()
         bucket = args.bucket or outputs['MediaBucket']; base.mkdir(parents=True, exist_ok=True)
         objects = [o for page in s3.get_paginator('list_objects_v2').paginate(Bucket=bucket) for o in page.get('Contents', [])]
         print('Backing up', len(objects), 'objects,', sum(o['Size'] for o in objects), 'bytes', flush=True)

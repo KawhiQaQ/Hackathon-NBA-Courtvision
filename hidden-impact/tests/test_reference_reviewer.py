@@ -10,7 +10,7 @@ from reviewed_presentation import build_motion
 class ReferenceReviewerTests(unittest.TestCase):
     def setUp(self):
         self.plan=json.loads((ROOT/'data/reference/dallas-exam-presentation-review.json').read_text())
-        official=json.loads((ROOT.parent/'double.companion.json').read_text())['shotContext']
+        official=json.loads((ROOT.parent/'examples/dallas/companion.json').read_text())['shotContext']
         self.profile=dict(schema='hidden-impact/reference-profile-v1',id='exam-test',plan=self.plan,
                           binding={k:official[k] for k in ['gameId','eventId','playerId','shot']})
         self.source=dict(video=dict(id='upload-new-id',title='renamed.mp4',duration=23.78),

@@ -11,7 +11,7 @@ class Handler(SimpleHTTPRequestHandler):
  def json_reply(self,status,body):
   raw=json.dumps(body,ensure_ascii=False,allow_nan=False).encode();self.send_response(status);self.send_header('Content-Type','application/json; charset=utf-8');self.send_header('Content-Length',str(len(raw)));self.send_header('Cache-Control','no-store');self.end_headers();self.wfile.write(raw)
  def proxy(self,body=None):
-  if not getattr(self.server,'cloud_enabled',False):return self.json_reply(503,{'error':'当前为本地演示，不调用 AWS。云端恢复后可用 --cloud 启用。'})
+  if not getattr(self.server,'cloud_enabled',False):return self.json_reply(503,{'error':'当前为本地浏览模式。运行 scripts/analyze_video.py 生成结果，或使用 --cloud 连接自己的 AWS 部署。'})
   origin=self.headers.get('Origin')
   if origin and origin not in ['http://127.0.0.1:'+str(self.server.server_port),'http://localhost:'+str(self.server.server_port)]:return self.json_reply(403,{'error':'来源不匹配。'})
   try:
@@ -54,7 +54,7 @@ class Handler(SimpleHTTPRequestHandler):
   except (BrokenPipeError,ConnectionResetError):pass
  def do_GET(self):
   if self.path=='/readme':self.path='/readme.html'
-  if self.path=='/api/session' and not getattr(self.server,'cloud_enabled',False):return self.json_reply(200,{'mode':'offline','teamId':'14'})
+  if self.path=='/api/session' and not getattr(self.server,'cloud_enabled',False):return self.json_reply(200,{'mode':'offline','project':'HiAgent'})
   if self.path.startswith('/api/'):return self.proxy()
   return super().do_GET()
  def do_POST(self):
@@ -73,4 +73,4 @@ class Handler(SimpleHTTPRequestHandler):
 if __name__=='__main__':
  parser=argparse.ArgumentParser();parser.add_argument('--port',type=int,default=8765);parser.add_argument('--cloud',action='store_true',help='Explicitly enable the AWS proxy');args=parser.parse_args()
  server=ThreadingHTTPServer(('127.0.0.1',args.port),partial(Handler,directory=str(ROOT/'web')));server.cloud_enabled=args.cloud
- print(f'Hidden Impact http://127.0.0.1:{args.port} ({"cloud" if args.cloud else "offline"})',flush=True);server.serve_forever()
+ print(f'HiAgent http://127.0.0.1:{args.port} ({"cloud" if args.cloud else "offline"})',flush=True);server.serve_forever()

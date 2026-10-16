@@ -139,7 +139,7 @@ def composite(image,result,t):
  manifest['composition']={'pictureWidth':w,'pictureHeight':h,'railWidth':im.width-w,'layout':'wide-commentary-rail'}
  w,h=960,h/pixel_scale
  draw=ScaledDraw(im,pixel_scale)
- draw.text((20,15),'TEAM 14',font=font(11),fill='#d9bf82')
+ draw.text((20,15),'HI',font=font(11),fill='#d9bf82')
  draw.text((80,2),'HiAgent',font=font(26),fill='#e9dfc7')
  draw.line((190,13,190,31),fill='#475043',width=1)
  draw.text((202,14),'Hidden Impact Agent',font=font(12),fill='#d2d7c8')

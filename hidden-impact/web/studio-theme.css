@@ -4,7 +4,7 @@
 @media(max-width:760px){.app-header{height:108px;position:relative;padding:10px 18px 45px}.brand>b{font-size:32px}.brand{gap:10px}.step-nav{position:absolute;bottom:0;left:18px;right:18px;height:40px;justify-content:space-between;gap:10px;font-size:11px}.step-nav a span{font-size:9px}.header-meta{font-size:9px}.section-top>div:first-child{display:block}.section-top h2{font-size:17px}.section-top{padding:12px 16px}.next-orbit{width:40px;height:40px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
-/* Shared Team 14 / HiAgent identity for the viewer and upload workspace. */
+/* Shared HiAgent identity for the viewer and upload workspace. */
 .brand .brand-team{font-size:10px;color:var(--gold);letter-spacing:1.6px;white-space:nowrap}.brand>b{font-size:34px;letter-spacing:-1.5px;color:#e9dfc7}.brand .brand-name{font-size:12px;letter-spacing:.6px;font-weight:500;border-left:1px solid #475043;padding-left:14px;color:#d2d7c8}@media(max-width:760px){.brand{gap:9px}.brand>b{font-size:28px}.brand .brand-team{font-size:9px}.brand .brand-name{font-size:10px;padding-left:9px}}
 
 @media(max-width:1100px) and (min-width:761px){.brand .brand-name{display:none}}

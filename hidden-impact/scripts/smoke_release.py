@@ -56,7 +56,7 @@ def main():
     rounds=game.get('rounds',[game])
     if not args.api_only and not rounds:raise RuntimeError('No published result')
     for round_ in rounds:
-        for asset in [round_['video'],round_['original']]+[f['image'] for f in round_['evidence']]:
+        for asset in filter(None,[round_['video'],round_.get('original')]+[f['image'] for f in round_['evidence']]):
             if asset not in checked:fetch(urljoin('demo/game.json',asset),asset=True);checked.add(asset)
     print('Static resources OK:',len(rounds),'published rounds,',len(checked),'assets',flush=True)
     if args.public_only:return

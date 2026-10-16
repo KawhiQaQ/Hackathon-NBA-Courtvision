@@ -48,6 +48,7 @@ for(const [id,original] of [['original',true],['annotated',false]])$(id).onclick
 function selectRound(n){
  if(!game?.rounds[n])return;index=n;data=game.rounds[n];currentCue=null;document.querySelector('.layout').hidden=false;$('data-insights').hidden=false;
  if(data.schema!=='hidden-impact/showcase-v1'||!data.evidence?.length)throw Error('该回合缺少完整展示数据。');
+ $('original').disabled=!data.original;originalMode=originalMode&&!!data.original;
  $('round-select').value=String(n);$('round-position').textContent=String(n+1).padStart(2,'0')+' / '+String(game.rounds.length).padStart(2,'0');$('round-prev').disabled=n===0;$('round-next').disabled=n===game.rounds.length-1;
  $('round-tabs').querySelectorAll('[data-round]').forEach((b,i)=>{b.classList.toggle('active',i===n);b.setAttribute('aria-pressed',String(i===n));});
  $('matchup').textContent=data.actionTitle||data.matchup||'回合分析';$('play-label').textContent=`回合 ${String(n+1).padStart(2,'0')}${data.identity?.jersey?' · '+data.identity.jersey+'号':''}`;
@@ -75,13 +76,13 @@ $('phase-rail').onclick=e=>{const b=e.target.closest('[data-cue]');if(b){stopAt=
 $('frames').onclick=e=>{const b=e.target.closest('[data-frame]');if(b){stopAt=null;video.pause();video.currentTime=seekTime(data.evidence[Number(b.dataset.frame)].time);sync();}};
 $('leaderboard').onclick=e=>{const b=e.target.closest('[data-round]');if(b){selectRound(Number(b.dataset.round));location.hash='video';}};
 function resolveAssets(round,base){if(round.video?.startsWith('demo/')&&base.pathname.endsWith('/demo/showcase.json'))base=new URL('../',base);for(const key of ['video','original','poster'])if(round[key])round[key]=new URL(round[key],base).href;for(const f of round.evidence||[])f.image=new URL(f.image,base).href;return round;}
-async function read(url,auth=false){const response=await fetch(url,{cache:'no-store',...(auth?{headers:{'X-Team-Key':sessionStorage.getItem('hi-team-key')||''}}:{})});if(!response.ok)throw Error(response.status===401?'请先在分析工作台连接团队工作区。':'结果加载失败。');return response.json();}
+async function read(url,auth=false){const response=await fetch(url,{cache:'no-store',...(auth?{headers:{'X-Team-Key':sessionStorage.getItem('hi-team-key')||''}}:{})});if(!response.ok)throw Error(response.status===401?'请先在分析工作台连接工作区。':'结果加载失败。');return response.json();}
 try{
  const params=new URLSearchParams(location.search);let payload,base=new URL('demo/game.json',location.href);
  if(params.has('game')){payload=await read('/api/games/'+encodeURIComponent(params.get('game')),true);base=new URL(location.href);}
  else if(params.has('local-game')){const saved=sessionStorage.getItem('hi-game-'+params.get('local-game'));if(!saved)throw Error('当前浏览器会话中没有这个汇总，请从工作台重新生成。');payload=JSON.parse(saved);base=new URL(location.href);}
  else if(params.has('job')){const job=await read('/api/jobs/'+encodeURIComponent(params.get('job')),true);payload=job.result?.presentation;if(!payload?.rendered)throw Error('尚无完整展示结果。');base=new URL(location.href);}
- else{if(params.has('result'))base=new URL(params.get('result'),location.href);if(base.origin!==location.origin)throw Error('仅支持同源结果文件');payload=await read(base);}
+ else{if(!params.has('result')){const check=await fetch(base,{method:'HEAD'});if(!check.ok){location.replace('workbench.html');throw Error('请先导入视频，或安装示例结果。');}}if(params.has('result'))base=new URL(params.get('result'),location.href);if(base.origin!==location.origin)throw Error('仅支持同源结果文件');payload=await read(base);}
  if(payload.schema==='hidden-impact/game-showcase-v1')game=payload;
  else if(payload.schema==='hidden-impact/showcase-v1')game={rounds:[payload],ranking:[],team:payload.team||'',scope:'单回合'};
  else throw Error('不支持的结果格式');

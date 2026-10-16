@@ -1,4 +1,4 @@
-import sys,time,threading,json
+import sys,time,threading,json,os
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).parent/'vendor'))
 from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
@@ -12,7 +12,7 @@ def model_client():
  if _client is None:
   import boto3
   from botocore.config import Config
-  _client=boto3.client('bedrock-runtime',region_name='us-east-1',config=Config(read_timeout=300,retries={'total_max_attempts':1}))
+  _client=boto3.client('bedrock-runtime',region_name=os.getenv('HIAGENT_REGION', os.getenv('AWS_REGION', 'us-east-1')),config=Config(read_timeout=300,retries={'total_max_attempts':1}))
  return _client
 
 class Handler(BaseHTTPRequestHandler):

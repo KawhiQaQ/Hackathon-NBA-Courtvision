@@ -115,7 +115,7 @@ class BroadcastRenderer:
   output=Image.new('RGB',(W,TOTAL),'#081a21');output.paste(im.convert('RGB'),(0,TOP));hud=ImageDraw.Draw(output,'RGBA')
   # Persistent broadcast header.
   hud.rectangle((0,0,5,TOP),fill=GOLD);hud.text((26,19),'HIDDEN IMPACT',font=FONTS[24],fill='#f1f4ed');hud.text((246,25),'幕后主角 · 战术回放',font=FONTS[16],fill='#9aaeb3')
-  hud.rounded_rectangle((W-315,16,W-26,47),9,fill='#16303a',outline='#31474f');hud.text((W-299,24),'TEAM 14  /  NYK vs SAS',font=FONTS[14],fill='#b9cbd0')
+  hud.rounded_rectangle((W-315,16,W-26,47),9,fill='#16303a',outline='#31474f');hud.text((W-299,24),'HiAgent  /  NYK vs SAS',font=FONTS[14],fill='#b9cbd0')
   by=TOP+H;hud.line((0,by,W,by),fill='#34494f',width=1)
   if self.insights:
    self.draw_evidence_footer(hud,by,t)

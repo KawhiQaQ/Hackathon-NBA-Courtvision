@@ -4,8 +4,8 @@
   "status": "ready",
   "analysisStatus": "reviewed-story",
   "eventId": "273",
-  "video": "../media/dallas-exam/replay.mp4",
-  "original": "../media/dallas-exam/original.mp4",
+  "video": "replay.mp4",
+  "original": null,
   "videoId": "dallas-exam",
   "gameId": "0022500356",
   "team": "独行侠",
@@ -51,16 +51,16 @@
       "text": "先看7号鲍威尔：他从高位切进篮下，让00号克里斯蒂在外线接应；火箭10号开始向持球人靠近。",
       "kind": "analysis",
       "source": "human-reviewed-video",
-      "image": "../media/dallas-exam/frame-1.jpg"
+      "image": "frame-1.jpg"
     },
     {
-      "time": 7.0,
+      "time": 7,
       "label": "把断掉的进攻接回来",
       "chapter": "把断掉的进攻接回来",
       "text": "00号第一次出手被封盖，7号留在篮下抢回进攻篮板，把球送回外线。这次不计入得分的拼抢，保住了下一次机会。",
       "kind": "analysis",
       "source": "human-reviewed-video",
-      "image": "../media/dallas-exam/frame-2.jpg"
+      "image": "frame-2.jpg"
     },
     {
       "time": 11.8,
@@ -69,7 +69,7 @@
       "text": "7号随后再次上提，挡住10号的追防路线。00号借掩护横移，为最后的出手争取调整空间。",
       "kind": "analysis",
       "source": "human-reviewed-video",
-      "image": "../media/dallas-exam/frame-3.jpg"
+      "image": "frame-3.jpg"
     },
     {
       "time": 13.5,
@@ -78,7 +78,7 @@
       "text": "00号后撤步三分命中。这次官方预期命中率为30%，对应0.90分的出手机会；7号的价值，是把回合延续到这次终结。",
       "kind": "analysis",
       "source": "human-reviewed-video",
-      "image": "../media/dallas-exam/frame-4.jpg"
+      "image": "frame-4.jpg"
     },
     {
       "time": 18.5,
@@ -87,7 +87,7 @@
       "text": "这次进攻的幕后贡献来自7号：抢回前场篮板，再为队友掩护。进球由00号完成，机会的延续离不开此前的配合。",
       "kind": "analysis",
       "source": "human-reviewed-video",
-      "image": "../media/dallas-exam/frame-5.jpg"
+      "image": "frame-5.jpg"
     }
   ],
   "insights": {
@@ -167,11 +167,11 @@
       {
         "start": 4.6,
         "end": 8.8,
-        "seek": 7.0,
+        "seek": 7,
         "title": "把断掉的进攻接回来",
         "text": "00号第一次出手被封盖，7号留在篮下抢回进攻篮板，把球送回外线。这次不计入得分的拼抢，保住了下一次机会。",
         "frameTimes": [
-          7.0
+          7
         ],
         "phase": "把断掉的进攻接回来",
         "evidence": "画面 · 7.00s"
@@ -231,11 +231,11 @@
         {
           "start": 4.6,
           "end": 8.8,
-          "seek": 7.0,
+          "seek": 7,
           "title": "把断掉的进攻接回来",
           "text": "00号第一次出手被封盖，7号留在篮下抢回进攻篮板，把球送回外线。这次不计入得分的拼抢，保住了下一次机会。",
           "frameTimes": [
-            7.0
+            7
           ]
         },
         {
@@ -301,7 +301,7 @@
   "generation": {
     "analysisModel": "qwen.qwen3-vl-235b-a22b",
     "modelInvoked": true,
-    "sourceJob": "exam-local-bedrock-analysis",
+    "sourceJob": "analyses/exam-local-bedrock-analysis/result.json",
     "presentationSource": "human-reviewed-video",
     "narration": {
       "status": "reviewed",
@@ -436,5 +436,11 @@
     "railWidth": 400,
     "layout": "wide-commentary-rail"
   },
-  "rendered": true
+  "rendered": true,
+  "publication": {
+    "source": "Organizer-provided NBA Dallas–Houston footage; NBA China deep data",
+    "basis": "historical-project-demo",
+    "note": "Previously calibrated demonstration; not a fresh automatic analysis."
+  },
+  "poster": "frame-3.jpg"
 }

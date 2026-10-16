@@ -41,3 +41,10 @@ backups/
 **/verification/
 
 /double.mp4
+
+# Generated results, local model manifests and optional installed demo
+hidden-impact/web/results/
+hidden-impact/web/demo/game.json
+hidden-impact/models/basketball/installed-models.json
+*.download
+.export-env/

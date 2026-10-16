@@ -1,8 +1,9 @@
 """Publish a completed, source-cleared cloud job as the public result landing page.
 
 Copies durable objects within our account; never publishes expiring signed URLs.
-Does not submit to the competition portal or change any judging resources.
+Publishing is separate from analysis and requires recorded media rights.
 """
+from app_config import session as aws_session, outputs as deployment_outputs
 import argparse,copy,html,json,mimetypes,time
 from pathlib import Path
 import boto3
@@ -12,8 +13,8 @@ def main():
     ap=argparse.ArgumentParser();ap.add_argument('--job',required=True);args=ap.parse_args()
     import re
     if not re.fullmatch('[a-zA-Z0-9_-]{1,100}',args.job):raise ValueError('Invalid job ID')
-    session=boto3.Session(profile_name='nba',region_name='us-east-1')
-    cfg=json.loads((ROOT/'infra/cdk-outputs.json').read_text())['HiddenImpactTeam14']
+    session=aws_session()
+    cfg=deployment_outputs()
     account=session.client('sts').get_caller_identity()['Account']
     if cfg['AgentRuntimeArn'].split(':')[4]!=account:raise ValueError('Deployment belongs to another account')
     s3=session.client('s3');bucket=cfg['MediaBucket'];site=cfg['SiteBucket']
@@ -53,7 +54,7 @@ def main():
         s3.put_object(Bucket=bucket,Key=plan_key,Body=json.dumps(result['presentationPlan'],ensure_ascii=False).encode(),ContentType='application/json')
         p['plan']=asset(plan_key,'presentation-plan.json')
     for i,frame in enumerate(p['evidence']):frame['image']=asset(frame['imageKey'],f'frame-{i+1}.jpg')
-    p['publication']=dict(source=rights['source'],basis=rights['basis'],job=args.job,teamId='Team14',
+    p['publication']=dict(source=rights['source'],basis=rights['basis'],job=args.job,project='HiAgent',
         videoSha256=item.get('sha256'),dataSources=(result.get('deepData') or {}).get('sources',[]))
     # Keep model/review provenance intact. Asset keys are not credentials.
     body=json.dumps(p,ensure_ascii=False,indent=2).encode()
@@ -67,6 +68,7 @@ def main():
     s3.put_object(Bucket=site,Key='demo/game.json',Body=body,ContentType='application/json',CacheControl='no-cache')
     session.client('cloudfront').create_invalidation(DistributionId=cfg['DistributionId'],InvalidationBatch={'Paths':{'Quantity':1,'Items':['/*']},'CallerReference':'release-'+str(time.time_ns())})
     receipt=dict(url=cfg['FrontendUrl'],job=args.job,account=account,source=rights['source'],model=result.get('model'),modelInvoked=result.get('modelInvoked'),status=p.get('analysisStatus','verified'))
+    (ROOT/'verification').mkdir(exist_ok=True)
     (ROOT/'verification/publication.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2))
     print(json.dumps(receipt,ensure_ascii=False))
 
