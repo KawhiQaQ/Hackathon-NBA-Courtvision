@@ -1,6 +1,6 @@
 # 部署自己的 HiAgent 工作区
 
-这是可选路线：启用网页上传、异步分析和分享链接。需要自己的 AWS 账号、CLI v2、Node.js 22+，并完成[Python 环境与视觉模型安装](setup.md)。原比赛账号和 CloudFront 地址均不再使用。
+这是可选路线：启用网页上传、异步分析和分享链接。需要自己的 AWS 账号、CLI v2、Node.js 22+，并完成[Python 环境与视觉模型安装](setup.md)。
 
 ## 准备与部署
 
@@ -42,7 +42,7 @@ python scripts/deploy.py
 | `HIAGENT_PERMISSIONS_BOUNDARY` | 无 | 组织要求的 IAM 边界策略名称 |
 | `HIAGENT_REFERENCE_DIR` | 无 | 可选、明确提供的参考校准文件目录 |
 
-部署不附带赛事权限边界，也不默认上传历史示例参考。参考目录中的文件需符合 `reference-profile-v1`，并按源视频 SHA-256 命名；复用仍要求视频指纹与出手记录匹配。凭证、访问码、模型权重和本地输出不提交 Git。
+参考目录中的文件需符合 `reference-profile-v1`，并按源视频 SHA-256 命名；复用仍要求视频指纹与出手记录匹配。凭证、访问码、模型权重和本地输出不提交 Git。
 
 ## 验证、复核与发布
 

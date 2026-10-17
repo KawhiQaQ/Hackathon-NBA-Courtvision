@@ -12,4 +12,4 @@ See the [project README](../README.md) for the demo and quick start, [setup guid
 | `tests/` | Unit, contract, rendering and browser-logic regressions |
 | `data/`, `prototypes/` | Historical experiments and source-bound reference records |
 
-Schema identifiers retain the `hidden-impact/` namespace for compatibility. `.team-access-code` and `X-Team-Key` are retained as internal authentication names; they no longer depend on an event account.
+Schema identifiers retain the `hidden-impact/` namespace for compatibility. `.team-access-code` and `X-Team-Key` are retained as internal authentication names.

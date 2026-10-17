@@ -59,7 +59,7 @@ python server.py
 
 打开 `http://127.0.0.1:8765/?result=results/first-play/showcase.json`，依次查看视频、故事线与数据。原视频对照也保存在输出目录。**本地网页的上传按钮连接云端 API**；本地计算请使用上述 CLI，在线上传需完成 [AWS 部署](aws.md)。
 
-视觉检测按 6 fps 采样；默认 18 张全局上下文帧，Reviewer 另做局部角色核验。`--frames 20` 可调整全局采样，`--no-review` 可减少调用，但会省略独立复核。默认不自动应用历史演示的校准。
+视觉检测按 6 fps 采样；默认 18 张全局上下文帧，Reviewer 另做局部角色核验。`--frames 20` 可调整全局采样，`--no-review` 可减少调用，但会省略独立复核。
 
 | 输出 | 内容 |
 | --- | --- |
@@ -69,11 +69,11 @@ python server.py
 | `review.json` / `references.json` / `review-report.json` | Reviewer 锚点、角色参考与调用记录 |
 | `status.json` | 成功状态或具体失败原因 |
 
-每次使用一个新的输出目录，避免覆盖旧结果。模型格式修复失败、无法确认三人身份或证据不足时，任务会保留诊断文件并返回错误，不伪造一个完成结果。模型可用性、额度与分析质量需要在自己的账号实测；离线测试不等于真实模型调用通过。
+每次使用一个新的输出目录，避免覆盖旧结果。任务失败时会保留诊断文件；根据错误信息检查输入数据、模型权限与额度后重试。
 
 ## 5. 离线回放与重新渲染
 
-查看随仓库提供的历史演示无需安装模型或登录：`python scripts/install_demo.py`，然后 `python server.py`。
+查看随仓库提供的示例无需安装模型或登录：`python scripts/install_demo.py`，然后 `python server.py`。
 
 已有最终 `result.json` 和对应原视频时，可不调用模型重新渲染：
 
@@ -82,4 +82,4 @@ python scripts/analyze_video.py --video /path/to/play.mp4 \
   --analysis /path/to/result.json --out web/results/rerender
 ```
 
-输入必须包含完整呈现数据或足够的已核验证据，不能只传 `showcase.json`。支持复核后的呈现计划，但保留其实际来源。
+输入必须包含完整呈现数据或足够的已核验证据，不能只传 `showcase.json`。支持使用复核后的呈现计划。

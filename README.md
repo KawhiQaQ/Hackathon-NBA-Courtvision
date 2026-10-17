@@ -11,8 +11,6 @@
 
 [![HiAgent 战术回放](docs/assets/preview.gif)](examples/replay/replay.mp4)
 
-<sub>点击预览查看约 40 秒完整成片。示例包含经过校准的角色、位置与解说；自动分析质量取决于输入画面和模型。[素材说明](examples/replay/README.md)</sub>
-
 ## 它做什么
 
 **HiAgent 从篮球视频与配套数据中寻找“幕后 MVP”**：一次掩护、接应或防守牵制，如何为队友创造出手机会。它围绕贡献者、受益队友和关键防守者组织证据，输出带角色标牌、跑位箭头、数据对比与分段解说的比赛视频。
@@ -39,7 +37,7 @@ python3 hidden-impact/scripts/install_demo.py
 python3 hidden-impact/server.py
 ```
 
-打开 **http://127.0.0.1:8765/**。从战术回放切换到故事线、数据解读，即可浏览随仓库保存的示例。原赛事云地址已退役，项目不再依赖它。
+打开 [本地工作台](http://127.0.0.1:8765/)，从战术回放切换到故事线、数据解读，即可浏览示例。
 
 **分析自己的视频。** 完成[一次性环境与模型配置](docs/setup.md)后，在 `hidden-impact/` 中运行：
 
@@ -52,13 +50,13 @@ python scripts/analyze_video.py \
 python server.py
 ```
 
-打开 **http://127.0.0.1:8765/?result=results/my-play/showcase.json**。输出目录包含 `replay.mp4`、原视频对照、故事帧、`analysis.json` 和 Reviewer 记录。没有配套数据时省略 `--companion`；不要用示例统计替代未知数据。
+打开 [分析结果](http://127.0.0.1:8765/?result=results/my-play/showcase.json)。输出目录包含 `replay.mp4`、原视频对照、故事帧、`analysis.json` 和 Reviewer 记录。没有配套数据时省略 `--companion`。
 
 当前入口处理 **0.5–40 秒的单回合片段**。视觉计算与视频渲染在本机完成，VLM 使用你自己的 Amazon Bedrock 凭证；无需部署整套云设施，也无需微调模型。模型调用会产生费用。已有分析结果可用 `--analysis result.json` 离线重新渲染。
 
 ## 部署与开发
 
-网页上传、异步任务和在线分享可通过[独立 AWS 部署](docs/aws.md)启用：CDK 创建 S3、Lambda、Bedrock AgentCore 与 CloudFront。账号、区域、模型、资源名称均可配置，不再内置队号、赛事权限边界或特定视频的自动校准。
+网页上传、异步任务和在线分享可通过[独立 AWS 部署](docs/aws.md)启用：CDK 创建 S3、Lambda、Bedrock AgentCore 与 CloudFront。账号、区域、模型、资源名称均可配置。
 
 ```bash
 cd hidden-impact
