@@ -63,5 +63,3 @@ cd hidden-impact
 python -m unittest discover -s tests
 for test in tests/*.cjs; do node "$test" || exit 1; done
 ```
-
-代码位于 [`hidden-impact/`](hidden-impact/)，输入示例与演示成片位于 [`examples/`](examples/)。第三方视觉权重不放进 Git，来源与安装方式见[安装指南](docs/setup.md)。请使用有权处理的视频；示例录像和第三方数据保留原权利人的权利。
